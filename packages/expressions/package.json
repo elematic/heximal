@@ -1,0 +1,24 @@
+{
+  "name": "PolymerExpressions",
+  "version": "0.0.0",
+  "description": "README.md",
+  "main": "grunt.js",
+  "directories": {
+    "test": "tests"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Polymer/PolymerExpressions.git"
+  },
+  "author": "",
+  "license": "Apache License 2.0",
+  "devDependencies": {
+    "chai": "*",
+    "mocha": ">=1.9",
+    "grunt": "*",
+    "grunt-karma": "~0.5.0",
+    "karma-mocha": "*",
+    "karma-script-launcher": "*",
+    "karma-crbot-reporter": "*"
+  }
+}
