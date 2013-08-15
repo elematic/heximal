@@ -270,6 +270,13 @@
     },
 
     createMemberExpression: function(accessor, object, property) {
+      if (accessor === '[') {
+        object = getFn(object);
+        property = getFn(property);
+        return function(values) {
+          return object(values)[property(values)];
+        };
+      }
       return new IdentPath(this.deps, property.name, object);
     },
 

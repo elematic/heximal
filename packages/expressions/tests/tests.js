@@ -610,4 +610,91 @@ suite('PolymerExpressions', function() {
     assert.equal(errors[0][0],
                  'Invalid expression syntax: bar | upperCase + 42');
   });
+
+  test('Member lookup with constant expressions', function() {
+    var div = createTestHtml(
+        '<template bind>' +
+          '{{ array[0] }} {{ object["a"] }}' +
+        '</template>');
+    var model = {
+      array: ['a', 'b'],
+      object: {
+        a: 'A'
+      }
+    };
+
+    recursivelySetTemplateModel(div, model);
+    Platform.performMicrotaskCheckpoint();
+    assert.equal('a A', div.childNodes[1].textContent);
+
+    model.array = ['c', 'd'];
+    Platform.performMicrotaskCheckpoint();
+    assert.equal('c A', div.childNodes[1].textContent);
+
+    model.object = {a: 'E'};
+    Platform.performMicrotaskCheckpoint();
+    assert.equal('c E', div.childNodes[1].textContent);
+  });
+
+  test('Member lookup', function() {
+    var div = createTestHtml(
+        '<template bind>' +
+          '{{ array[index] }} {{ object[key] }}' +
+        '</template>');
+    var model = {
+      array: ['a', 'b'],
+      index: 0,
+      object: {
+        a: 'A',
+        b: 'B'
+      },
+      key: 'a'
+    };
+
+    recursivelySetTemplateModel(div, model);
+    Platform.performMicrotaskCheckpoint();
+    assert.equal('a A', div.childNodes[1].textContent);
+
+    model.index = 1;
+    Platform.performMicrotaskCheckpoint();
+    assert.equal('b A', div.childNodes[1].textContent);
+
+    model.key = 'b';
+    Platform.performMicrotaskCheckpoint();
+    assert.equal('b B', div.childNodes[1].textContent);
+
+    model.array = ['c', 'd'];
+    Platform.performMicrotaskCheckpoint();
+    assert.equal('d B', div.childNodes[1].textContent);
+
+    model.object = {
+      a: 'C',
+      b: 'D'
+    };
+    Platform.performMicrotaskCheckpoint();
+    assert.equal('d D', div.childNodes[1].textContent);
+  });
+
+  test('Member lookup nested', function() {
+    var div = createTestHtml(
+        '<template bind>' +
+          '{{ object[array[index]] }}' +
+        '</template>');
+    var model = {
+      array: ['a', 'b'],
+      index: 0,
+      object: {
+        a: 'A',
+        b: 'B'
+      }
+    };
+
+    recursivelySetTemplateModel(div, model);
+    Platform.performMicrotaskCheckpoint();
+    assert.equal('A', div.childNodes[1].textContent);
+
+    model.index = 1;
+    Platform.performMicrotaskCheckpoint();
+    assert.equal('B', div.childNodes[1].textContent);
+  });
 });
