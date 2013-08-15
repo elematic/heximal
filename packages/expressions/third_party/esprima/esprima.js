@@ -205,9 +205,7 @@
             code = source.charCodeAt(index),
             code2,
             ch1 = source[index],
-            ch2,
-            ch3,
-            ch4;
+            ch2;
 
         switch (code) {
 
@@ -245,7 +243,8 @@
                 case 47:  // /
                 case 60:  // <
                 case 62:  // >
-                case 94:  // ^
+                // Binary operators are not supported.
+                // case 94:  // ^
                 case 124: // |
                     index += 2;
                     return {
@@ -277,54 +276,14 @@
         // Peek more characters.
 
         ch2 = source[index + 1];
-        ch3 = source[index + 2];
-        ch4 = source[index + 3];
 
         // 4-character punctuator: >>>=
+        // 3-character punctuators: >>> <<= >>=
+        // Binary operators are not supported.
 
-        if (ch1 === '>' && ch2 === '>' && ch3 === '>') {
-            if (ch4 === '=') {
-                index += 4;
-                return {
-                    type: Token.Punctuator,
-                    value: '>>>=',
-                    range: [start, index]
-                };
-            }
-        }
+        // Other 2-character punctuators: && ||
 
-        // 3-character punctuators: === !== >>> <<= >>=
-
-        if (ch1 === '>' && ch2 === '>' && ch3 === '>') {
-            index += 3;
-            return {
-                type: Token.Punctuator,
-                value: '>>>',
-                range: [start, index]
-            };
-        }
-
-        if (ch1 === '<' && ch2 === '<' && ch3 === '=') {
-            index += 3;
-            return {
-                type: Token.Punctuator,
-                value: '<<=',
-                range: [start, index]
-            };
-        }
-
-        if (ch1 === '>' && ch2 === '>' && ch3 === '=') {
-            index += 3;
-            return {
-                type: Token.Punctuator,
-                value: '>>=',
-                range: [start, index]
-            };
-        }
-
-        // Other 2-character punctuators: ++ -- << >> && ||
-
-        if (ch1 === ch2 && ('+-<>&|'.indexOf(ch1) >= 0)) {
+        if (ch1 === ch2 && ('&|'.indexOf(ch1) >= 0)) {
             index += 2;
             return {
                 type: Token.Punctuator,
@@ -628,7 +587,7 @@
                 lex();
                 elements.push(null);
             } else {
-                elements.push(parseAssignmentExpression());
+                elements.push(parseExpression());
 
                 if (!match(']')) {
                     expect(',');
@@ -670,7 +629,7 @@
 
         key = parseObjectPropertyKey();
         expect(':');
-        return delegate.createProperty('init', key, parseAssignmentExpression());
+        return delegate.createProperty('init', key, parseExpression());
     }
 
     function parseObjectInitialiser() {
@@ -718,7 +677,7 @@
         type = lookahead.type;
 
         if (type === Token.Identifier) {
-            expr =  delegate.createIdentifier(lex().value);
+            expr = delegate.createIdentifier(lex().value);
         } else if (type === Token.StringLiteral || type === Token.NumericLiteral) {
             expr = delegate.createLiteral(lex());
         } else if (type === Token.Keyword) {
@@ -756,7 +715,7 @@
 
         if (!match(')')) {
             while (index < length) {
-                args.push(parseAssignmentExpression());
+                args.push(parseExpression());
                 if (match(')')) {
                     break;
                 }
@@ -799,27 +758,6 @@
         return expr;
     }
 
-    function parseLeftHandSideExpressionAllowCall() {
-        var expr, args, property;
-
-        expr = parsePrimaryExpression();
-
-        while (match('.') || match('[') || match('(')) {
-            if (match('(')) {
-                args = parseArguments();
-                expr = delegate.createCallExpression(expr, args);
-            } else if (match('[')) {
-                property = parseComputedMember();
-                expr = delegate.createMemberExpression('[', expr, property);
-            } else {
-                property = parseNonComputedMember();
-                expr = delegate.createMemberExpression('.', expr, property);
-            }
-        }
-
-        return expr;
-    }
-
     function parseLeftHandSideExpression() {
         var expr, property;
 
@@ -840,19 +778,7 @@
 
     // 11.3 Postfix Expressions
 
-    function parsePostfixExpression() {
-        var expr, token;
-
-        expr = parseLeftHandSideExpressionAllowCall();
-
-        if (lookahead.type === Token.Punctuator) {
-            if (match('++') || match('--')) {
-                throwError({}, Messages.UnexpectedToken);
-            }
-        }
-
-        return expr;
-    }
+    var parsePostfixExpression = parseLeftHandSideExpression;
 
     // 11.4 Unary Operators
 
@@ -861,9 +787,7 @@
 
         if (lookahead.type !== Token.Punctuator && lookahead.type !== Token.Keyword) {
             expr = parsePostfixExpression();
-        } else if (match('++') || match('--')) {
-            throwError({}, Messages.UnexpectedToken);
-        } else if (match('+') || match('-') || match('~') || match('!')) {
+        } else if (match('+') || match('-') || match('!')) {
             token = lex();
             expr = parseUnaryExpression();
             expr = delegate.createUnaryExpression(token.value, expr);
@@ -892,17 +816,10 @@
             prec = 2;
             break;
 
-        case '|':
-            prec = 3;
-            break;
-
-        case '^':
-            prec = 4;
-            break;
-
-        case '&':
-            prec = 5;
-            break;
+        // Binary operators are not supported.
+        // case '|':
+        // case '^':
+        // case '&':
 
         case '==':
         case '!=':
@@ -923,11 +840,10 @@
             prec = allowIn ? 7 : 0;
             break;
 
-        case '<<':
-        case '>>':
-        case '>>>':
-            prec = 8;
-            break;
+        // Binary operators are not supported.
+        // case '<<':
+        // case '>>':
+        // case '>>>':
 
         case '+':
         case '-':
@@ -1019,10 +935,10 @@
             lex();
             previousAllowIn = state.allowIn;
             state.allowIn = true;
-            consequent = parseAssignmentExpression();
+            consequent = parseConditionalExpression();
             state.allowIn = previousAllowIn;
             expect(':');
-            alternate = parseAssignmentExpression();
+            alternate = parseConditionalExpression();
 
             expr = delegate.createConditionalExpression(expr, consequent, alternate);
         }
@@ -1030,137 +946,95 @@
         return expr;
     }
 
-    // 11.13 Assignment Operators
+    // Simplification since we do not support AssignmentExpression.
+    var parseExpression = parseConditionalExpression;
 
-    function parseAssignmentExpression() {
-        var token, left, right, node;
+    // Polymer Syntax extensions
 
-        token = lookahead;
-        node = left = parseConditionalExpression();
-        return node;
-    }
+    // Filter ::
+    //   Identifier
+    //   Identifier "(" ")"
+    //   Identifier "(" FilterArguments ")"
 
-    function parseExpression() {
-        var expr;
-        expr = parseAssignmentExpression();
-        return expr;
-    }
+    function parseFilter() {
+        var identifier, args;
 
-    // 12.1 Block
+        identifier = lex();
 
-    function parseStatementList() {
-        var list = [],
-            statement;
-
-        while (index < length) {
-            if (match('}')) {
-                break;
-            }
-            statement = parseSourceElement();
-            if (typeof statement === 'undefined') {
-                break;
-            }
-            list.push(statement);
+        if (identifier.type !== Token.Identifier) {
+            throwUnexpected(identifier);
         }
 
-        return list;
+        args = match('(') ? parseArguments() : [];
+
+        return delegate.createFilter(identifier.value, args);
     }
 
-    // 12.3 Empty Statement
+    // Filters ::
+    //   "|" Filter
+    //   Filters "|" Filter
 
-    function parseEmptyStatement() {
-        expect(';');
-        return delegate.createEmptyStatement();
-    }
-
-    // 12.4 Expression Statement
-
-    function parseExpressionStatement() {
-        var expr = parseExpression();
-        consumeSemicolon();
-        return delegate.createExpressionStatement(expr);
-    }
-
-
-    // 12 Statements
-
-    function parseStatement() {
-        var type = lookahead.type,
-            expr,
-            labeledBody,
-            key;
-
-        if (type === Token.EOF) {
-            throwUnexpected(lookahead);
+    function parseFilters() {
+        while (match('|')) {
+            var token = lex();
+            parseFilter();
         }
+    }
 
+    // TopLevel ::
+    //   LabelledExpressions
+    //   Expression
+    //   Expression Filters
+
+    function parseTopLevel() {
+        var key, labeledExpression;
         skipWhitespace();
+        peek();
 
-        if (type === Token.Punctuator) {
-            switch (lookahead.value) {
-            case ';':
-                return parseEmptyStatement();
-            case '(':
-                return parseExpressionStatement();
-            default:
-                break;
-            }
-        }
-
-        expr = parseExpression();
-
-        // 12.12 Labelled Statements
-        if ((expr.type === Syntax.Identifier) && match(':')) {
-            lex();
-
-            key = '$' + expr.name;
-            if (Object.prototype.hasOwnProperty.call(state.labelSet, key)) {
-                throwError({}, Messages.Redeclaration, 'Label', expr.name);
-            }
-
-            state.labelSet[key] = true;
-            labeledBody = parseStatement();
-            delete state.labelSet[key];
-            return delegate.createLabeledStatement(expr, labeledBody);
-        }
-
-        consumeSemicolon();
-
-        return delegate.createExpressionStatement(expr);
-    }
-
-    // 14 Program
-
-    function parseSourceElement() {
-        if (lookahead.type === Token.Keyword) {
-            return parseStatement();
+        var expr = parseLabelledExpressions();
+        if (expr) {
+            parseFilters();
         }
 
         if (lookahead.type !== Token.EOF) {
-            return parseStatement();
+            throwUnexpected(lookahead);
         }
+
+        return delegate.createTopLevel(expr);
     }
 
-    function parseSourceElements() {
-        var sourceElement, sourceElements = [], token;
+    // LabelledExpressions ::
+    //   LabelExpression
+    //   LabelExpression ";"
+    //   LabelledExpressions ";" LabelledExpression
 
-        while (index < length) {
-            sourceElement = parseSourceElement();
-            if (typeof sourceElement === 'undefined') {
-                break;
-            }
-            sourceElements.push(sourceElement);
+    // LabelExpression ::
+    //   Identifier ":" Expression
+
+    function parseLabelledExpressions() {
+        var expr = parseExpression();
+        if (expr.type !== Syntax.Identifier || !match(':')) {
+            return expr;
         }
-        return sourceElements;
-    }
 
-    function parseProgram() {
-        var body;
+        var label = expr.name;
+        expect(':');
 
-        skipWhitespace();
-        peek();
-        body = parseSourceElements();
-        return delegate.createProgram(body);
+        expr = parseExpression();
+        delegate.createLabeledStatement(label, expr);
+
+        consumeSemicolon();
+
+        while (lookahead.type === Token.Identifier) {
+            label = lex().value;
+            expect(':');
+            expr = parseExpression();
+            delegate.createLabeledStatement(label, expr);
+
+            consumeSemicolon();
+        }
+
+        return null;
     }
 
     function parse(code, inDelegate) {
@@ -1192,7 +1066,7 @@
             }
         }
 
-        return parseProgram();
+        return parseTopLevel();
     }
 
     global.esprima = {

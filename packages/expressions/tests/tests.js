@@ -14,7 +14,7 @@
 
 suite('PolymerExpressions', function() {
 
-  var testDiv;
+  var testDiv, originalConsoleError, errors;
 
   function unbindAll(node) {
     node.unbindAll();
@@ -23,11 +23,18 @@ suite('PolymerExpressions', function() {
   }
 
   setup(function() {
+    errors = [];
+    originalConsoleError = console.error;
+    console.error = function() {
+      errors.push(Array.prototype.slice.call(arguments));
+    };
     testDiv = document.body.appendChild(document.createElement('div'));
     Observer._errorThrownDuringCallback = false;
   });
 
   teardown(function() {
+    errors = [];
+    console.error = originalConsoleError;
     assert.isFalse(!!Observer._errorThrownDuringCallback);
     document.body.removeChild(testDiv);
     unbindAll(testDiv);
@@ -520,5 +527,87 @@ suite('PolymerExpressions', function() {
     model.bar = 'blat';
     Platform.performMicrotaskCheckpoint();
     assert.strictEqual('1:blat', div.childNodes[1].textContent);
+  });
+
+  test('filter without arguments', function() {
+    var div = createTestHtml(
+        '<template bind="{{ }}">' +
+            '{{ bar | upperCase }}' +
+            '{{ bar | upperCase() }}' +
+        '</template>');
+
+    var model = {
+      bar: 'bat'
+    };
+
+    recursivelySetTemplateModel(div, model);
+    Platform.performMicrotaskCheckpoint();
+    assert.equal('batbat', div.childNodes[1].textContent);
+
+    model.bar = 'blat';
+    Platform.performMicrotaskCheckpoint();
+    assert.equal('blatblat', div.childNodes[1].textContent);
+  });
+
+  test('filter with arguments', function() {
+    var div = createTestHtml(
+        '<template bind="{{ }}">' +
+            '{{ bar | toFixed(2) }}' +
+        '</template>');
+
+    var model = {
+      bar: 'bat'
+    };
+
+    recursivelySetTemplateModel(div, model);
+    Platform.performMicrotaskCheckpoint();
+    assert.equal('bat', div.childNodes[1].textContent);
+
+    model.bar = 'blat';
+    Platform.performMicrotaskCheckpoint();
+    assert.equal('blat', div.childNodes[1].textContent);
+  });
+
+  test('filter unexpected EOF', function() {
+    var div = createTestHtml(
+        '<template bind="{{ }}">' +
+            '{{ bar | }}' +
+        '</template>');
+
+    var model = {
+      bar: 'bat'
+    };
+
+    recursivelySetTemplateModel(div, model);
+    Platform.performMicrotaskCheckpoint();
+    assert.equal('', div.childNodes[1].textContent);
+
+    model.bar = 'blat';
+    Platform.performMicrotaskCheckpoint();
+    assert.equal('', div.childNodes[1].textContent);
+
+    assert.equal(errors[0][0], 'Invalid expression syntax: bar |');
+  });
+
+  test('filter not at EOF', function() {
+    var div = createTestHtml(
+        '<template bind="{{ }}">' +
+            '{{ bar | upperCase + 42 }}' +
+        '</template>');
+
+    var model = {
+      bar: 'bat'
+    };
+
+    recursivelySetTemplateModel(div, model);
+    Platform.performMicrotaskCheckpoint();
+    assert.equal('', div.childNodes[1].textContent);
+
+    model.bar = 'blat';
+    Platform.performMicrotaskCheckpoint();
+    assert.equal('', div.childNodes[1].textContent);
+
+    assert.equal(errors[0][0],
+                 'Invalid expression syntax: bar | upperCase + 42');
   });
 });

@@ -112,11 +112,8 @@
       var delegate = new ASTDelegate();
       esprima.parse(expressionText, delegate);
 
-      if (!delegate.statements.length && !delegate.labeledStatements.length)
+      if (!delegate.expression && !delegate.labeledStatements.length)
         return;
-
-      if (!delegate.labeledStatements.length && delegate.statements.length > 1)
-        throw Error('Multiple unlabelled statements are not allowed.');
 
       // TODO(rafaelw): This is a bit of hack. We'd like to support syntax for
       // binding to class like class="{{ foo: bar; baz: bat }}", so we're
@@ -124,7 +121,7 @@
       // is that ECMAScript indentifiers are more limited than CSS classnames.
       var resolveFn = delegate.labeledStatements.length ?
           newLabeledResolve(delegate.labeledStatements) :
-          resolveFn = delegate.statements[0];
+          resolveFn = delegate.expression;
 
       var paths = [];
       for (var prop in delegate.deps) {
@@ -149,7 +146,7 @@
     return function(values) {
       var labels = [];
       for (var i = 0; i < labeledStatements.length; i++) {
-        if (labeledStatements[i].body(values))
+        if (labeledStatements[i].expression(values))
           labels.push(labeledStatements[i].label);
       }
 
@@ -178,10 +175,16 @@
         return values[path];
       };
     }
+  };
+
+  function Filter(name, args) {
+    this.name = name;
+    this.args = args;
   }
 
   function ASTDelegate() {
-    this.statements = [];
+    this.expression = null;
+    this.filters = [];
     this.labeledStatements = [];
     this.deps = {};
     this.currentPath = undefined;
@@ -213,32 +216,25 @@
     '||': function(l, r) { return l||r; },
   };
 
+  function getFn(arg) {
+    return arg instanceof IdentPath ? arg.valueFn() : arg;
+  }
+
   ASTDelegate.prototype = {
 
-    getFn: function(arg) {
-      return arg instanceof IdentPath ? arg.valueFn() : arg;
-    },
-
-    createProgram: function() {},
-
-    createExpressionStatement: function(statement) {
-      this.statements.push(statement);
-      return statement;
-    },
-
-    createLabeledStatement: function(label, body) {
+    createLabeledStatement: function(label, expression) {
       this.labeledStatements.push({
-        label: label.getPath(),
-        body: body instanceof IdentPath ? body.valueFn() : body
+        label: label,
+        expression: expression instanceof IdentPath ? expression.valueFn() : expression
       });
-      return body;
+      return expression;
     },
 
     createUnaryExpression: function(op, argument) {
       if (!unaryOperators[op])
         throw Error('Disallowed operator: ' + op);
 
-      argument = this.getFn(argument);
+      argument = getFn(argument);
 
       return function(values) {
         return unaryOperators[op](argument(values));
@@ -249,8 +245,8 @@
       if (!binaryOperators[op])
         throw Error('Disallowed operator: ' + op);
 
-      left = this.getFn(left);
-      right = this.getFn(right);
+      left = getFn(left);
+      right = getFn(right);
 
       return function(values) {
         return binaryOperators[op](left(values), right(values));
@@ -258,9 +254,9 @@
     },
 
     createConditionalExpression: function(test, consequent, alternate) {
-      test = this.getFn(test);
-      consequent = this.getFn(consequent);
-      alternate = this.getFn(alternate);
+      test = getFn(test);
+      consequent = getFn(consequent);
+      alternate = getFn(alternate);
 
       return function(values) {
         return test(values) ? consequent(values) : alternate(values);
@@ -283,7 +279,7 @@
 
     createArrayExpression: function(elements) {
       for (var i = 0; i < elements.length; i++)
-        elements[i] = this.getFn(elements[i]);
+        elements[i] = getFn(elements[i]);
 
       return function(values) {
         var arr = []
@@ -302,7 +298,7 @@
 
     createObjectExpression: function(properties) {
       for (var i = 0; i < properties.length; i++)
-        properties[i].value = this.getFn(properties[i].value);
+        properties[i].value = getFn(properties[i].value);
 
       return function(values) {
         var obj = {};
@@ -312,8 +308,17 @@
       }
     },
 
-    createCallExpression: notImplemented, // args: callee, args
-    createEmptyStatement: notImplemented,
+    createFilter: function(name, args) {
+      var argValues = args.map(function(f) {
+        return f();
+      });
+      this.filters.push(new Filter(name, argValues));
+    },
+
+    createTopLevel: function(expression) {
+      this.expression = getFn(expression);
+    },
+
     createThisExpression: notImplemented
   }
 
