@@ -277,10 +277,6 @@
 
         ch2 = source[index + 1];
 
-        // 4-character punctuator: >>>=
-        // 3-character punctuators: >>> <<= >>=
-        // Binary operators are not supported.
-
         // Other 2-character punctuators: && ||
 
         if (ch1 === ch2 && ('&|'.indexOf(ch1) >= 0)) {
@@ -371,7 +367,7 @@
     // 7.8.4 String Literals
 
     function scanStringLiteral() {
-        var str = '', quote, start, ch, code, unescaped, restore, octal = false;
+        var str = '', quote, start, ch, octal = false;
 
         quote = source[index];
         assert((quote === '\'' || quote === '"'),
@@ -800,7 +796,7 @@
         return expr;
     }
 
-    function binaryPrecedence(token, allowIn) {
+    function binaryPrecedence(token) {
         var prec = 0;
 
         if (token.type !== Token.Punctuator && token.type !== Token.Keyword) {
@@ -815,11 +811,6 @@
         case '&&':
             prec = 2;
             break;
-
-        // Binary operators are not supported.
-        // case '|':
-        // case '^':
-        // case '&':
 
         case '==':
         case '!=':
@@ -837,13 +828,8 @@
             break;
 
         case 'in':
-            prec = allowIn ? 7 : 0;
+            prec = 7;
             break;
-
-        // Binary operators are not supported.
-        // case '<<':
-        // case '>>':
-        // case '>>>':
 
         case '+':
         case '-':
@@ -872,15 +858,12 @@
     // 11.11 Binary Logical Operators
 
     function parseBinaryExpression() {
-        var expr, token, prec, previousAllowIn, stack, right, operator, left, i;
-
-        previousAllowIn = state.allowIn;
-        state.allowIn = true;
+        var expr, token, prec, stack, right, operator, left, i;
 
         left = parseUnaryExpression();
 
         token = lookahead;
-        prec = binaryPrecedence(token, previousAllowIn);
+        prec = binaryPrecedence(token);
         if (prec === 0) {
             return left;
         }
@@ -891,7 +874,7 @@
 
         stack = [left, token, right];
 
-        while ((prec = binaryPrecedence(lookahead, previousAllowIn)) > 0) {
+        while ((prec = binaryPrecedence(lookahead)) > 0) {
 
             // Reduce: make a binary expression from the three topmost entries.
             while ((stack.length > 2) && (prec <= stack[stack.length - 2].prec)) {
@@ -910,8 +893,6 @@
             stack.push(expr);
         }
 
-        state.allowIn = previousAllowIn;
-
         // Final reduce to clean-up the stack.
         i = stack.length - 1;
         expr = stack[i];
@@ -927,16 +908,13 @@
     // 11.12 Conditional Operator
 
     function parseConditionalExpression() {
-        var expr, previousAllowIn, consequent, alternate;
+        var expr, consequent, alternate;
 
         expr = parseBinaryExpression();
 
         if (match('?')) {
             lex();
-            previousAllowIn = state.allowIn;
-            state.allowIn = true;
             consequent = parseConditionalExpression();
-            state.allowIn = previousAllowIn;
             expect(':');
             alternate = parseConditionalExpression();
 
@@ -976,7 +954,7 @@
 
     function parseFilters() {
         while (match('|')) {
-            var token = lex();
+            lex();
             parseFilter();
         }
     }
@@ -987,7 +965,6 @@
     //   Expression Filters
 
     function parseTopLevel() {
-        var key, labeledExpression;
         skipWhitespace();
         peek();
 
@@ -1038,33 +1015,14 @@
     }
 
     function parse(code, inDelegate) {
-        var program, toString;
-
-        toString = String;
-        if (typeof code !== 'string' && !(code instanceof String)) {
-            code = toString(code);
-        }
-
         delegate = inDelegate;
         source = code;
         index = 0;
         length = source.length;
         lookahead = null;
         state = {
-            allowIn: true,
             labelSet: {}
         };
-
-        if (length > 0) {
-            if (typeof source[0] === 'undefined') {
-                // Try first to convert to a string. This is good as fast path
-                // for old IE which understands string indexing for string
-                // literals only and not for string object.
-                if (code instanceof String) {
-                    source = code.valueOf();
-                }
-            }
-        }
 
         return parseTopLevel();
     }
