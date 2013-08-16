@@ -40,6 +40,10 @@ suite('PolymerExpressions', function() {
     unbindAll(testDiv);
     Platform.performMicrotaskCheckpoint();
     assert.strictEqual(4, Observer._allObserversCount);
+
+    delete PolymerExpressions.filters.hex;
+    delete PolymerExpressions.filters.toFixed;
+    delete PolymerExpressions.filters.upperCase;
   });
 
   function hasClass(node, className) {
@@ -73,6 +77,33 @@ suite('PolymerExpressions', function() {
       template.bindingDelegate = new PolymerExpressions;
       template.model = model;
     });
+  }
+
+  function hex() {
+    return {
+      toDOM: function(value) {
+        return Number(value).toString(16);
+      },
+      toModel: function(value) {
+        return parseInt(value, 16);
+      }
+    };
+  }
+
+  function toFixed(fractions) {
+    return {
+      toDOM: function(value) {
+        return Number(value).toFixed(fractions);
+      }
+    };
+  }
+
+  function upperCase() {
+    return {
+      toDOM: function(value) {
+        return String(value).toUpperCase();
+      }
+    };
   }
 
   test('ClassName Singular', function() {
@@ -530,6 +561,8 @@ suite('PolymerExpressions', function() {
   });
 
   test('filter without arguments', function() {
+    PolymerExpressions.filters.upperCase = upperCase;
+
     var div = createTestHtml(
         '<template bind="{{ }}">' +
             '{{ bar | upperCase }}' +
@@ -542,30 +575,55 @@ suite('PolymerExpressions', function() {
 
     recursivelySetTemplateModel(div, model);
     Platform.performMicrotaskCheckpoint();
-    assert.equal('batbat', div.childNodes[1].textContent);
+    assert.equal('BATBAT', div.childNodes[1].textContent);
 
     model.bar = 'blat';
     Platform.performMicrotaskCheckpoint();
-    assert.equal('blatblat', div.childNodes[1].textContent);
+    assert.equal('BLATBLAT', div.childNodes[1].textContent);
   });
 
   test('filter with arguments', function() {
+    PolymerExpressions.filters.toFixed = toFixed;
+
     var div = createTestHtml(
         '<template bind="{{ }}">' +
-            '{{ bar | toFixed(2) }}' +
+            '{{ bar | toFixed(4) }}' +
         '</template>');
 
     var model = {
-      bar: 'bat'
+      bar: 1.23456789
     };
 
     recursivelySetTemplateModel(div, model);
     Platform.performMicrotaskCheckpoint();
-    assert.equal('bat', div.childNodes[1].textContent);
+    assert.equal('1.2346', div.childNodes[1].textContent);
 
-    model.bar = 'blat';
+    model.bar = 9.87654321;
     Platform.performMicrotaskCheckpoint();
-    assert.equal('blat', div.childNodes[1].textContent);
+    assert.equal('9.8765', div.childNodes[1].textContent);
+  });
+
+  test('chained filters', function() {
+    PolymerExpressions.filters.hex = hex;
+    PolymerExpressions.filters.toFixed = toFixed;
+    PolymerExpressions.filters.upperCase = upperCase;
+
+    var div = createTestHtml(
+        '<template bind="{{ }}">' +
+            '{{ bar | toFixed(0) | hex | upperCase }}' +
+        '</template>');
+
+    var model = {
+      bar: 12.34
+    };
+
+    recursivelySetTemplateModel(div, model);
+    Platform.performMicrotaskCheckpoint();
+    assert.equal('C', div.childNodes[1].textContent);
+
+    model.bar = 14.56;
+    Platform.performMicrotaskCheckpoint();
+    assert.equal('F', div.childNodes[1].textContent);
   });
 
   test('filter unexpected EOF', function() {

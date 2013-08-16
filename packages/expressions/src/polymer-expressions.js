@@ -121,7 +121,11 @@
       // is that ECMAScript indentifiers are more limited than CSS classnames.
       var resolveFn = delegate.labeledStatements.length ?
           newLabeledResolve(delegate.labeledStatements) :
-          resolveFn = delegate.expression;
+          delegate.expression;
+
+      delegate.filters.forEach(function(filter) {
+        resolveFn = filter.toDOM(resolveFn);
+      });
 
       var paths = [];
       for (var prop in delegate.deps) {
@@ -180,7 +184,30 @@
   function Filter(name, args) {
     this.name = name;
     this.args = args;
+    this.object_ = null;
   }
+
+  Filter.prototype = {
+    get object() {
+      if (this.object_)
+        return this.object_;
+
+      var f = PolymerExpressions.filters[this.name];
+      var argumentValues = this.args.map(function(arg) {
+        var fn = getFn(arg);
+        return fn();
+      });
+      return this.object_ = f.apply(null, argumentValues);
+    },
+
+    toDOM: function(fn) {
+      var object = this.object;
+      return function(values) {
+        var value = fn(values);
+        return object.toDOM(value);
+      }
+    }
+  };
 
   function ASTDelegate() {
     this.expression = null;
@@ -316,10 +343,7 @@
     },
 
     createFilter: function(name, args) {
-      var argValues = args.map(function(f) {
-        return f();
-      });
-      this.filters.push(new Filter(name, argValues));
+      this.filters.push(new Filter(name, args));
     },
 
     createTopLevel: function(expression) {
@@ -330,6 +354,8 @@
   }
 
   function PolymerExpressions() {}
+
+  PolymerExpressions.filters = Object.create(null);
 
   PolymerExpressions.prototype = {
     getBinding: function(model, pathString, name, node) {
