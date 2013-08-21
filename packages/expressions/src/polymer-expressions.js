@@ -45,6 +45,25 @@
     })();
   }
 
+  // JScript does not have __proto__. We wrap all object literals with
+  // createObject which uses Object.create, Object.defineProperty and
+  // Object.getOwnPropertyDescriptor to create a new object that does the exact
+  // same thing. The main downside to this solution is that we have to extract
+  // all those property descriptors for IE.
+  var createObject = ('__proto__' in {}) ?
+      function(obj) { return obj; } :
+      function(obj) {
+        var proto = obj.__proto__;
+        if (!proto)
+          return obj;
+        var newObject = Object.create(proto);
+        Object.getOwnPropertyNames(obj).forEach(function(name) {
+          Object.defineProperty(newObject, name,
+                               Object.getOwnPropertyDescriptor(obj, name));
+        });
+        return newObject;
+      };
+
   var identStart = '[\$_a-zA-Z]';
   var identPart = '[\$_a-zA-Z0-9]';
   var ident = identStart + '+' + identPart + '*';
@@ -121,7 +140,7 @@
       // is that ECMAScript indentifiers are more limited than CSS classnames.
       var resolveFn = delegate.labeledStatements.length ?
           newLabeledResolve(delegate.labeledStatements) :
-          delegate.expression;
+          getFn(delegate.expression);
 
       delegate.filters.forEach(function(filter) {
         resolveFn = filter.toDOM(resolveFn);
@@ -134,6 +153,14 @@
 
       if (!paths.length)
         return { value: resolveFn({}) }; // only literals in expression.
+
+      if (paths.length === 1 && delegate.filters.length &&
+          delegate.expression instanceof IdentPath) {
+        var binding = new TwoWayFilterBinding(resolveFn, delegate.filters);
+        var path = delegate.expression.getPath();
+        binding.bind(path, model, path);
+        return binding;
+      }
 
       var binding = new CompoundBinding(resolveFn);
       for (var i = 0; i < paths.length; i++) {
@@ -157,6 +184,44 @@
       return labels.join(' ');
     }
   }
+
+  function TwoWayFilterBinding(combinator, filters) {
+    CompoundBinding.call(this, combinator);
+    this.model = null;
+    this.path = null;
+    this.filters = filters;
+    this.selfObserver = null;
+  }
+
+  TwoWayFilterBinding.prototype = createObject({
+    __proto__: CompoundBinding.prototype,
+
+    domValueChanged: function(value, oldValue) {
+      var modelValue = this.toModel(value);
+      PathObserver.setValueAtPath(this.model, this.path, modelValue);
+    },
+
+    bind: function(name, model, path) {
+      CompoundBinding.prototype.bind.call(this, name, model, path);
+      this.model = model;
+      this.path = path;
+      this.selfObserver = new PathObserver(this, 'value', this.domValueChanged,
+                                           this, name);
+    },
+
+    unbind: function(name) {
+      CompoundBinding.prototype.unbind.call(this, name);
+      if (this.selfObserver)
+        this.selfObserver.close();
+    },
+
+    toModel: function(value) {
+      for (var i = this.filters.length - 1; i >= 0; i--) {
+        value = this.filters[i].toModel(value);
+      }
+      return value;
+    }
+  });
 
   function IdentPath(deps, name, last) {
     this.deps = deps;
@@ -205,7 +270,14 @@
       return function(values) {
         var value = fn(values);
         return object.toDOM(value);
-      }
+      };
+    },
+
+    toModel: function(value) {
+      var object = this.object;
+      if (object.toModel)
+        return object.toModel(value);
+      return value;
     }
   };
 
@@ -347,7 +419,7 @@
     },
 
     createTopLevel: function(expression) {
-      this.expression = getFn(expression);
+      this.expression = expression;
     },
 
     createThisExpression: notImplemented

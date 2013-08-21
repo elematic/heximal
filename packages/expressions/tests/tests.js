@@ -42,9 +42,17 @@ suite('PolymerExpressions', function() {
     assert.strictEqual(4, Observer._allObserversCount);
 
     delete PolymerExpressions.filters.hex;
+    delete PolymerExpressions.filters.plusN;
     delete PolymerExpressions.filters.toFixed;
     delete PolymerExpressions.filters.upperCase;
   });
+
+  function dispatchEvent(type, target) {
+    var event = document.createEvent('Event');
+    event.initEvent(type, true, false);
+    target.dispatchEvent(event);
+    Platform.performMicrotaskCheckpoint();
+  }
 
   function hasClass(node, className) {
     return node.className.split(' ').some(function(name) {
@@ -102,6 +110,17 @@ suite('PolymerExpressions', function() {
     return {
       toDOM: function(value) {
         return String(value).toUpperCase();
+      }
+    };
+  }
+
+  function plusN(n) {
+    return {
+      toDOM: function(value) {
+        return Number(value) + n;
+      },
+      toModel: function(value) {
+        return Number(value) - n;
       }
     };
   }
@@ -624,6 +643,94 @@ suite('PolymerExpressions', function() {
     model.bar = 14.56;
     Platform.performMicrotaskCheckpoint();
     assert.equal('F', div.childNodes[1].textContent);
+  });
+
+  test('two-way filter', function() {
+    PolymerExpressions.filters.hex = hex;
+
+    var div = createTestHtml(
+        '<template bind="{{ }}">' +
+            '<input value="{{ bar | hex }}">' +
+        '</template>');
+
+    var model = {
+      bar: 32
+    };
+
+    recursivelySetTemplateModel(div, model);
+    Platform.performMicrotaskCheckpoint();
+    assert.equal('20', div.childNodes[1].value);
+
+    div.childNodes[1].value = 'ff';
+    dispatchEvent('input', div.childNodes[1]);
+
+    Platform.performMicrotaskCheckpoint();
+    assert.equal(255, model.bar);
+
+    model.bar = 15;
+    Platform.performMicrotaskCheckpoint();
+    assert.equal('f', div.childNodes[1].value);
+  });
+
+  test('two-way filter too many paths', function() {
+    PolymerExpressions.filters.hex = hex;
+
+    var div = createTestHtml(
+        '<template bind="{{ }}">' +
+            '<input value="{{ bar + num | hex }}">' +
+        '</template>');
+
+    var model = {
+      bar: 32,
+      num: 10
+    };
+
+    recursivelySetTemplateModel(div, model);
+    Platform.performMicrotaskCheckpoint();
+    assert.equal('2a', div.childNodes[1].value);
+
+    div.childNodes[1].value = 'ff';
+    dispatchEvent('input', div.childNodes[1]);
+
+    Platform.performMicrotaskCheckpoint();
+    assert.equal(32, model.bar);
+    assert.equal(10, model.num);
+
+    model.bar = 15;
+    Platform.performMicrotaskCheckpoint();
+    assert.equal('19', div.childNodes[1].value);
+
+    model.num = 5;
+    Platform.performMicrotaskCheckpoint();
+    assert.equal('14', div.childNodes[1].value);
+  });
+
+  test('two-way filter chained', function() {
+    PolymerExpressions.filters.hex = hex;
+    PolymerExpressions.filters.plusN = plusN;
+
+    var div = createTestHtml(
+        '<template bind="{{ }}">' +
+            '<input value="{{ bar | plusN(10) | hex }}">' +
+        '</template>');
+
+    var model = {
+      bar: 22
+    };
+
+    recursivelySetTemplateModel(div, model);
+    Platform.performMicrotaskCheckpoint();
+    assert.equal('20', div.childNodes[1].value);
+
+    div.childNodes[1].value = 'ff';
+    dispatchEvent('input', div.childNodes[1]);
+
+    Platform.performMicrotaskCheckpoint();
+    assert.equal(245, model.bar);
+
+    model.bar = 5;
+    Platform.performMicrotaskCheckpoint();
+    assert.equal('f', div.childNodes[1].value);
   });
 
   test('filter unexpected EOF', function() {
