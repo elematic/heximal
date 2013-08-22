@@ -125,11 +125,17 @@
     return binding;
   }
 
+  // TODO(rafaelw): Implement simple LRU.
+  var expressionParseCache = {};
+
   function getExpressionBinding(model, expressionText) {
     try {
-      // TODO(rafaelw): Cache expressions.
-      var delegate = new ASTDelegate();
-      esprima.parse(expressionText, delegate);
+      var delegate = expressionParseCache[expressionText];
+      if (!delegate) {
+        delegate = new ASTDelegate();
+        esprima.parse(expressionText, delegate);
+        expressionParseCache[expressionText] = delegate;
+      }
 
       if (!delegate.expression && !delegate.labeledStatements.length)
         return;
