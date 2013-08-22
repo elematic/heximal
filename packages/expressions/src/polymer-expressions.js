@@ -126,7 +126,7 @@
   }
 
   // TODO(rafaelw): Implement simple LRU.
-  var expressionParseCache = {};
+  var expressionParseCache = Object.create(null);
 
   function getExpressionBinding(model, expressionText) {
     try {
