@@ -952,7 +952,8 @@
     //   "|" Filter
     //   Filters "|" Filter
 
-    function parseFilters() {
+    function parseFilters(expr) {
+        delegate.createTopLevel(expr);
         while (match('|')) {
             lex();
             parseFilter();
@@ -961,23 +962,40 @@
 
     // TopLevel ::
     //   LabelledExpressions
+    //   AsExpression
+    //   InExpression
     //   Expression
     //   Expression Filters
+
+    // AsExpression ::
+    //   Expression as Identifier
+
+    // InExpression ::
+    //   Identifier in Expression
 
     function parseTopLevel() {
         skipWhitespace();
         peek();
 
-        var expr = parseLabelledExpressions();
+        var expr = parseExpression();
         if (expr) {
-            parseFilters();
+            if (lookahead.value === 'as') {
+                parseAsExpression(expr);
+            } else if (lookahead.value === 'in' &&
+                       expr.type === Syntax.Identifier) {
+                parseInExpression(expr);
+            } else if (match('|')) {
+                parseFilters(expr);
+            } else if (expr.type === Syntax.Identifier && match(':')) {
+                parseLabelledExpressions(expr);
+            } else {
+                delegate.createTopLevel(expr);
+            }
         }
 
         if (lookahead.type !== Token.EOF) {
             throwUnexpected(lookahead);
         }
-
-        return delegate.createTopLevel(expr);
     }
 
     // LabelledExpressions ::
@@ -988,12 +1006,7 @@
     // LabelExpression ::
     //   Identifier ":" Expression
 
-    function parseLabelledExpressions() {
-        var expr = parseExpression();
-        if (expr.type !== Syntax.Identifier || !match(':')) {
-            return expr;
-        }
-
+    function parseLabelledExpressions(expr) {
         var label = expr.name;
         expect(':');
 
@@ -1012,6 +1025,18 @@
         }
 
         return null;
+    }
+
+    function parseAsExpression(expr) {
+        lex();  // as
+        var identifier = lex().value;
+        delegate.createAsExpression(expr, identifier);
+    }
+
+    function parseInExpression(identifier) {
+        lex();  // in
+        var expr = parseExpression();
+        delegate.createInExpression(identifier.name, expr);
     }
 
     function parse(code, inDelegate) {

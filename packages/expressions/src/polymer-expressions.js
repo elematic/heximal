@@ -77,106 +77,97 @@
               ')*';
 
   var pathPattern = new RegExp('^' + path + '$');
-  var repeatPattern = new RegExp('^' + capturedIdent + '\\s* in (.*)$');
-  var bindPattern = new RegExp('^(.*) as \\s*' + capturedIdent + '$');
 
   var templateScopeTable = new SideTable;
 
-  function getNamedScopeBinding(model, pathString, name, node) {
-    if (node.nodeType !== Node.ELEMENT_NODE || node.tagName !== 'TEMPLATE' ||
-       (name !== 'bind' && name !== 'repeat')) {
+  function getBinding(model, pathString, name, node) {
+    var delegate;
+    try {
+      delegate = getDelegate(pathString);
+    } catch (ex) {
+      console.error('Invalid expression syntax: ' + pathString, ex);
       return;
     }
 
-    var ident, expressionText;
-    var match = pathString.match(repeatPattern);
-    if (match) {
-      ident = match[1];
-      expressionText = match[2];
-    } else {
-      match = pathString.match(bindPattern);
-      if (match) {
-        ident = match[2];
-        expressionText = match[1];
+    // as or in
+    if (delegate.ident) {
+      if (node.nodeType !== Node.ELEMENT_NODE ||
+          node.tagName !== 'TEMPLATE' ||
+          name !== 'bind' && name !== 'repeat') {
+        return;
       }
-    }
-    if (!match)
-      return;
 
-    var binding;
-    expressionText = expressionText.trim();
-    if (expressionText.match(pathPattern)) {
-      binding = new CompoundBinding(function(values) {
-        return values.path;
-      });
-      binding.bind('path', model, expressionText);
-    } else {
-      try {
-        binding = getExpressionBinding(model, expressionText);
-      } catch (ex) {
-        console.error('Invalid expression syntax: ' + expressionText, ex);
+      var binding;
+      if (delegate.expression instanceof IdentPath) {
+        binding = new CompoundBinding(function(values) {
+          return values.path;
+        });
+        binding.bind('path', model, delegate.expression.getPath());
+      } else {
+        binding = getExpressionBindingForDelegate(model, delegate);
       }
+
+      if (!binding)
+        return;
+
+      templateScopeTable.set(node, delegate.ident);
+      return binding;
     }
 
-    if (!binding)
-      return;
-
-    templateScopeTable.set(node, ident);
-    return binding;
+    return getExpressionBindingForDelegate(model, delegate);
   }
 
   // TODO(rafaelw): Implement simple LRU.
   var expressionParseCache = Object.create(null);
 
-  function getExpressionBinding(model, expressionText) {
-    try {
-      var delegate = expressionParseCache[expressionText];
-      if (!delegate) {
-        delegate = new ASTDelegate();
-        esprima.parse(expressionText, delegate);
-        expressionParseCache[expressionText] = delegate;
-      }
-
-      if (!delegate.expression && !delegate.labeledStatements.length)
-        return;
-
-      // TODO(rafaelw): This is a bit of hack. We'd like to support syntax for
-      // binding to class like class="{{ foo: bar; baz: bat }}", so we're
-      // abusing ECMAScript labelled statements for this use. The main downside
-      // is that ECMAScript indentifiers are more limited than CSS classnames.
-      var resolveFn = delegate.labeledStatements.length ?
-          newLabeledResolve(delegate.labeledStatements) :
-          getFn(delegate.expression);
-
-      delegate.filters.forEach(function(filter) {
-        resolveFn = filter.toDOM(resolveFn);
-      });
-
-      var paths = [];
-      for (var prop in delegate.deps) {
-        paths.push(prop);
-      }
-
-      if (!paths.length)
-        return { value: resolveFn({}) }; // only literals in expression.
-
-      if (paths.length === 1 && delegate.filters.length &&
-          delegate.expression instanceof IdentPath) {
-        var binding = new TwoWayFilterBinding(resolveFn, delegate.filters);
-        var path = delegate.expression.getPath();
-        binding.bind(path, model, path);
-        return binding;
-      }
-
-      var binding = new CompoundBinding(resolveFn);
-      for (var i = 0; i < paths.length; i++) {
-        binding.bind(paths[i], model, paths[i]);
-      }
-
-      return binding;
-    } catch (ex) {
-      console.error('Invalid expression syntax: ' + expressionText, ex);
+  function getDelegate(expressionText) {
+    var delegate = expressionParseCache[expressionText];
+    if (!delegate) {
+      delegate = new ASTDelegate();
+      esprima.parse(expressionText, delegate);
+      expressionParseCache[expressionText] = delegate;
     }
+    return delegate;
+  }
+
+  function getExpressionBindingForDelegate(model, delegate) {
+    if (!delegate.expression && !delegate.labeledStatements.length)
+      return;
+
+    // TODO(rafaelw): This is a bit of hack. We'd like to support syntax for
+    // binding to class like class="{{ foo: bar; baz: bat }}", so we're
+    // abusing ECMAScript labelled statements for this use. The main downside
+    // is that ECMAScript indentifiers are more limited than CSS classnames.
+    var resolveFn = delegate.labeledStatements.length ?
+        newLabeledResolve(delegate.labeledStatements) :
+        getFn(delegate.expression);
+
+    delegate.filters.forEach(function(filter) {
+      resolveFn = filter.toDOM(resolveFn);
+    });
+
+    var paths = [];
+    for (var prop in delegate.deps) {
+      paths.push(prop);
+    }
+
+    if (!paths.length)
+      return { value: resolveFn({}) }; // only literals in expression.
+
+    if (paths.length === 1 && delegate.filters.length &&
+        delegate.expression instanceof IdentPath) {
+      var binding = new TwoWayFilterBinding(resolveFn, delegate.filters);
+      var path = delegate.expression.getPath();
+      binding.bind(path, model, path);
+      return binding;
+    }
+
+    var binding = new CompoundBinding(resolveFn);
+    for (var i = 0; i < paths.length; i++) {
+      binding.bind(paths[i], model, paths[i]);
+    }
+
+    return binding;
   }
 
   function newLabeledResolve(labeledStatements) {
@@ -287,14 +278,6 @@
     }
   };
 
-  function ASTDelegate() {
-    this.expression = null;
-    this.filters = [];
-    this.labeledStatements = [];
-    this.deps = {};
-    this.currentPath = undefined;
-  }
-
   function notImplemented() { throw Error('Not Implemented'); }
 
   var unaryOperators = {
@@ -323,6 +306,15 @@
 
   function getFn(arg) {
     return arg instanceof IdentPath ? arg.valueFn() : arg;
+  }
+
+  function ASTDelegate() {
+    this.expression = null;
+    this.filters = [];
+    this.labeledStatements = [];
+    this.deps = {};
+    this.currentPath = undefined;
+    this.ident = undefined;
   }
 
   ASTDelegate.prototype = {
@@ -424,6 +416,16 @@
       this.filters.push(new Filter(name, args));
     },
 
+    createAsExpression: function(expression, ident) {
+      this.expression = expression;
+      this.ident = ident;
+    },
+
+    createInExpression: function(ident, expression) {
+      this.expression = expression;
+      this.ident = ident;
+    },
+
     createTopLevel: function(expression) {
       this.expression = expression;
     },
@@ -441,8 +443,7 @@
       if (!pathString || pathString.match(pathPattern))
         return; // bail out early if pathString is simple path.
 
-      return getNamedScopeBinding(model, pathString, name, node) ||
-             getExpressionBinding(model, pathString, name, node);
+      return getBinding(model, pathString, name, node);
     },
 
     getInstanceModel: function(template, model) {
