@@ -64,20 +64,6 @@
         return newObject;
       };
 
-  var identStart = '[\$_a-zA-Z]';
-  var identPart = '[\$_a-zA-Z0-9]';
-  var ident = identStart + '+' + identPart + '*';
-  var capturedIdent = '(' + ident + ')';
-  var elementIndex = '(?:[0-9]|[1-9]+[0-9]+)';
-  var identOrElementIndex = '(?:' + ident + '|' + elementIndex + ')';
-  var path = '(?:' +
-                identOrElementIndex +
-              ')(?:\\.' +
-                identOrElementIndex +
-              ')*';
-
-  var pathPattern = new RegExp('^' + path + '$');
-
   var templateScopeTable = new SideTable;
 
   function getBinding(model, pathString, name, node) {
@@ -439,8 +425,7 @@
 
   PolymerExpressions.prototype = {
     getBinding: function(model, pathString, name, node) {
-      pathString = pathString.trim();
-      if (!pathString || pathString.match(pathPattern))
+      if (Path.isValid(pathString))
         return; // bail out early if pathString is simple path.
 
       return getBinding(model, pathString, name, node);
