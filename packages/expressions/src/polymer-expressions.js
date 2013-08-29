@@ -85,10 +85,7 @@
 
       var binding;
       if (delegate.expression instanceof IdentPath) {
-        binding = new CompoundBinding(function(values) {
-          return values.path;
-        });
-        binding.bind('path', model, delegate.expression.getPath());
+        binding = new PathObserver(model, delegate.expression.getPath());
       } else {
         binding = getExpressionBindingForDelegate(model, delegate);
       }
@@ -132,27 +129,32 @@
       resolveFn = filter.toDOM(resolveFn);
     });
 
-    var paths = [];
-    for (var prop in delegate.deps) {
-      paths.push(prop);
-    }
+    var paths = delegate.depsList;
 
     if (!paths.length)
       return { value: resolveFn({}) }; // only literals in expression.
 
     if (paths.length === 1 && delegate.filters.length &&
         delegate.expression instanceof IdentPath) {
-      var binding = new TwoWayFilterBinding(resolveFn, delegate.filters);
-      var path = delegate.expression.getPath();
-      binding.bind(path, model, path);
-      return binding;
+      return new PathObserver(model, delegate.expression.getPath(), undefined,
+                              undefined,
+                              undefined,
+                              resolveFn,
+                              delegate.filtersSetValueFn);
     }
 
-    var binding = new CompoundBinding(resolveFn);
-    for (var i = 0; i < paths.length; i++) {
-      binding.bind(paths[i], model, paths[i]);
+    if (paths.length === 1) {
+      var binding = new PathObserver(model, paths[0], undefined, undefined,
+                                     undefined,
+                                     resolveFn);
+    } else {
+      var binding = new CompoundPathObserver(undefined, undefined, undefined,
+                                             resolveFn);
+      for (var i = 0; i < paths.length; i++) {
+        binding.addPath(model, paths[i]);
+      }
+      binding.start();
     }
-
     return binding;
   }
 
@@ -168,46 +170,8 @@
     }
   }
 
-  function TwoWayFilterBinding(combinator, filters) {
-    CompoundBinding.call(this, combinator);
-    this.model = null;
-    this.path = null;
-    this.filters = filters;
-    this.selfObserver = null;
-  }
-
-  TwoWayFilterBinding.prototype = createObject({
-    __proto__: CompoundBinding.prototype,
-
-    domValueChanged: function(value, oldValue) {
-      var modelValue = this.toModel(value);
-      PathObserver.setValueAtPath(this.model, this.path, modelValue);
-    },
-
-    bind: function(name, model, path) {
-      CompoundBinding.prototype.bind.call(this, name, model, path);
-      this.model = model;
-      this.path = path;
-      this.selfObserver = new PathObserver(this, 'value', this.domValueChanged,
-                                           this, name);
-    },
-
-    unbind: function(name) {
-      CompoundBinding.prototype.unbind.call(this, name);
-      if (this.selfObserver)
-        this.selfObserver.close();
-    },
-
-    toModel: function(value) {
-      for (var i = this.filters.length - 1; i >= 0; i--) {
-        value = this.filters[i].toModel(value);
-      }
-      return value;
-    }
-  });
-
-  function IdentPath(deps, name, last) {
-    this.deps = deps;
+  function IdentPath(delegate, name, last) {
+    this.delegate = delegate;
     this.name = name;
     this.last = last;
   }
@@ -221,11 +185,21 @@
     },
 
     valueFn: function() {
-      var path = this.getPath();
-      this.deps[path] = true;
-      return function(values) {
-        return values[path];
-      };
+      if (!this.valueFn_) {
+        var path = this.getPath();
+        var delegate = this.delegate;
+        var index = this.delegate.deps[path];
+        if (index === undefined) {
+          index = this.delegate.deps[path] = this.delegate.depsList.length;
+          this.delegate.depsList.push(path);
+        }
+
+        this.valueFn_ = function(values) {
+          return delegate.depsList.length === 1 ? values : values[index];
+        };
+      }
+
+      return this.valueFn_;
     }
   };
 
@@ -299,11 +273,26 @@
     this.filters = [];
     this.labeledStatements = [];
     this.deps = {};
+    this.depsList = [];
     this.currentPath = undefined;
     this.ident = undefined;
   }
 
   ASTDelegate.prototype = {
+
+    get filtersSetValueFn() {
+      if (!this.filtersSetValueFn_) {
+        var filters = this.filters;
+        this.filtersSetValueFn_ = function(value) {
+          for (var i = filters.length - 1; i >= 0; i--) {
+            value = filters[i].toModel(value);
+          }
+          return value;
+        };
+      }
+
+      return this.filtersSetValueFn_;
+    },
 
     createLabeledStatement: function(label, expression) {
       this.labeledStatements.push({
@@ -347,7 +336,7 @@
     },
 
     createIdentifier: function(name) {
-      var ident = new IdentPath(this.deps, name);
+      var ident = new IdentPath(this, name);
       ident.type = 'Identifier';
       return ident;
     },
@@ -360,7 +349,7 @@
           return object(values)[property(values)];
         };
       }
-      return new IdentPath(this.deps, property.name, object);
+      return new IdentPath(this, property.name, object);
     },
 
     createLiteral: function(token) {
