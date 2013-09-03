@@ -149,7 +149,10 @@
       if (!this.last)
         return this.name;
 
-      return this.last.getPath() + '.' + this.name;
+      if (!this.path_)
+        this.path_ = Path.get(this.last.getPath() + '.' + this.name);
+
+      return this.path_;
     },
 
     valueFn: function() {
