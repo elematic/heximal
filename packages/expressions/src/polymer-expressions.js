@@ -382,7 +382,7 @@
 
   PolymerExpressions.prototype = {
     getBinding: function(model, pathString, name, node) {
-      if (Path.get(pathString))
+      if (Path.isValid(pathString))
         return; // bail out early if pathString is simple path.
 
       return getBinding(model, pathString, name, node);
