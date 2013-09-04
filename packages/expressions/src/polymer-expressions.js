@@ -34,7 +34,7 @@
         return newObject;
       };
 
-  function getBinding(model, expressionText, name, node) {
+  function prepareBinding(expressionText, name, node) {
     var expression;
     try {
       expression = getExpression(expressionText);
@@ -49,11 +49,13 @@
       return;
     }
 
-    var binding = expression.getBinding(model);
-    if (expression.scopeIdent && binding)
-      node.polymerExpressionScopeName_ = expression.scopeIdent;
+    return function(model, name, node) {
+      var binding = expression.getBinding(model);
+      if (expression.scopeIdent && binding)
+        node.polymerExpressionScopeName_ = expression.scopeIdent;
 
-    return binding
+      return binding
+    }
   }
 
   // TODO(rafaelw): Implement simple LRU.
@@ -381,11 +383,11 @@
   PolymerExpressions.filters = Object.create(null);
 
   PolymerExpressions.prototype = {
-    getBinding: function(model, pathString, name, node) {
+    prepareBinding: function(pathString, name, node) {
       if (Path.get(pathString).valid)
         return; // bail out early if pathString is simple path.
 
-      return getBinding(model, pathString, name, node);
+      return prepareBinding(pathString, name, node);
     },
 
     getInstanceModel: function(template, model) {
