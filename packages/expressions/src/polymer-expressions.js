@@ -390,18 +390,20 @@
       return prepareBinding(pathString, name, node);
     },
 
-    getInstanceModel: function(template, model) {
+    prepareInstanceModel: function(template) {
       var scopeName = template.polymerExpressionScopeName_;
       if (!scopeName)
-        return model;
+        return;
 
       var parentScope = template.templateInstance ?
           template.templateInstance.model :
           template.model;
 
-      var scope = Object.create(parentScope);
-      scope[scopeName] = model;
-      return scope;
+      return function(model) {
+        var scope = Object.create(parentScope);
+        scope[scopeName] = model;
+        return scope;
+      };
     }
   };
 
