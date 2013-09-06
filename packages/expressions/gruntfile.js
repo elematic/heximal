@@ -14,27 +14,6 @@
 
 module.exports = function(grunt) {
 
-  // karma setup
-  var browsers;
-  (function() {
-    try {
-      var config = grunt.file.readJSON('local.json');
-      if (config.browsers) {
-        browsers = config.browsers;
-      }
-    } catch (e) {
-      var os = require('os');
-      browsers = ['Chrome', 'Firefox'];
-      //browsers = ['Chrome'];
-      if (os.type() === 'Darwin') {
-        browsers.push('ChromeCanary');
-      }
-      if (os.type() === 'Windows_NT') {
-        browsers.push('IE');
-      }
-    }
-  })();
-
   grunt.initConfig({
     karma: {
       options: {
@@ -42,12 +21,10 @@ module.exports = function(grunt) {
         keepalive: true
       },
       buildbot: {
-        browsers: browsers,
         reporters: ['crbot'],
         logLevel: 'OFF'
       },
       'polymer-expressions': {
-        browsers: browsers
       }
     }
   });
