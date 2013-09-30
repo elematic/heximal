@@ -14,6 +14,24 @@
 
 module.exports = function(grunt) {
 
+  // recursive module builder
+  var path = require('path');
+  function readManifest(filename, modules) {
+    modules = modules || [];
+    var lines = grunt.file.readJSON(filename);
+    var dir = path.dirname(filename);
+    lines.forEach(function(line) {
+      var fullpath = path.join(dir, line);
+      if (line.slice(-5) == '.json') {
+        // recurse
+        readManifest(fullpath, modules);
+      } else {
+        modules.push(fullpath);
+      }
+    });
+    return modules;
+  }
+
   grunt.initConfig({
     karma: {
       options: {
@@ -26,12 +44,20 @@ module.exports = function(grunt) {
       },
       'polymer-expressions': {
       }
+    },
+    concat: {
+      expressions: {
+        src: readManifest('build.json'),
+        dest: 'polymer-expressions.min.js',
+        nonull: true,
+      }
     }
   });
 
   grunt.loadNpmTasks('grunt-karma');
+  grunt.loadNpmTasks('grunt-contrib-concat');
 
-  grunt.registerTask('default', 'test');
+  grunt.registerTask('default', 'concat');
   grunt.registerTask('test', ['karma:polymer-expressions']);
   grunt.registerTask('test-buildbot', ['karma:buildbot']);
 };
