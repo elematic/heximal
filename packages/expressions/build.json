@@ -1,4 +1,5 @@
 [
+  "../TemplateBinding/build.json",
   "third_party/esprima/esprima.js",
   "src/polymer-expressions.js"
 ]

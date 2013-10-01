@@ -15,12 +15,13 @@
   "devDependencies": {
     "chai": "*",
     "mocha": ">=1.9",
-    "grunt": "*",
+    "grunt": "~0.4.1",
     "grunt-karma": "*",
     "karma-mocha": "*",
     "karma-ie-launcher": "*",
     "karma-safari-launcher": "*",
     "karma-script-launcher": "*",
-    "karma-crbot-reporter": "*"
+    "karma-crbot-reporter": "*",
+    "grunt-contrib-concat": "~0.3.0"
   }
 }
