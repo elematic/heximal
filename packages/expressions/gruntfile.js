@@ -54,10 +54,11 @@ module.exports = function(grunt) {
     }
   });
 
+  grunt.loadTasks('../tools/tasks');
   grunt.loadNpmTasks('grunt-karma');
   grunt.loadNpmTasks('grunt-contrib-concat');
 
   grunt.registerTask('default', 'concat');
-  grunt.registerTask('test', ['karma:polymer-expressions']);
-  grunt.registerTask('test-buildbot', ['karma:buildbot']);
+  grunt.registerTask('test', ['override-chrome-launcher', 'karma:polymer-expressions']);
+  grunt.registerTask('test-buildbot', ['override-chrome-launcher', 'karma:buildbot']);
 };
