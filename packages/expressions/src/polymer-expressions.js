@@ -384,6 +384,19 @@
 
   PolymerExpressions.filters = Object.create(null);
 
+  PolymerExpressions.filters.tokenList = function() {
+    return {
+      toDOM: function(value) {
+        var tokens = [];
+        for (var key in value) {
+          if (value[key])
+            tokens.push(key);
+        }
+        return tokens.join(' ');
+      }
+    };
+  };
+
   PolymerExpressions.prototype = {
     prepareBinding: function(pathString, name, node) {
       if (Path.get(pathString).valid)

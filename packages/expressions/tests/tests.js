@@ -127,7 +127,7 @@ suite('PolymerExpressions', function() {
 
   test('ClassName Singular', function() {
     var div = createTestHtml(
-        '<template bind><div class="{{ foo: bar }}">' +
+        '<template bind><div class="{{ {foo: bar} | tokenList }}">' +
         '</div></template>');
     var model = {bar: 1};
     recursivelySetTemplateModel(div, model);
@@ -144,7 +144,8 @@ suite('PolymerExpressions', function() {
   test('ClassName Multiple', function() {
     var div = createTestHtml(
         '<template bind>' +
-        '<div class="{{ foo: bar; baz: bat > 1; boo: bot.bam }}">' +
+        '<div class="{{ {foo: bar, baz: bat > 1, boo: bot.bam} ' +
+            '| tokenList }}">' +
         '</div></template>');
     var model = {bar: 1, bat: 1, bot: { bam: 1 }};
     recursivelySetTemplateModel(div, model);
@@ -163,6 +164,27 @@ suite('PolymerExpressions', function() {
     assertLacksClass(target, 'foo');
     assertHasClass(target, 'baz');
     assertHasClass(target, 'boo');
+  });
+
+  test('tokenList', function() {
+    var div = createTestHtml(
+        '<template bind>' +
+        '<div class="{{ object | tokenList }}">' +
+        '</div></template>');
+
+    var model = {
+      object: {bar: 1, bat: 1, bot: {bam: 1}}
+    };
+    recursivelySetTemplateModel(div, model);
+    Platform.performMicrotaskCheckpoint();
+
+    var target = div.childNodes[1];
+    assert.strictEqual('bar bat bot', target.className);
+
+    model.object = {bar: 1, bot: 1};
+    Platform.performMicrotaskCheckpoint();
+
+    assert.strictEqual('bar bot', target.className);
   });
 
   test('Named Scope Bind', function() {
