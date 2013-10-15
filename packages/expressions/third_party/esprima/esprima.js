@@ -221,7 +221,6 @@
         case 93:   // ]
         case 58:   // :
         case 63:   // ?
-        case 126:  // ~
             ++index;
             return {
                 type: Token.Punctuator,
@@ -243,8 +242,6 @@
                 case 47:  // /
                 case 60:  // <
                 case 62:  // >
-                // Binary operators are not supported.
-                // case 94:  // ^
                 case 124: // |
                     index += 2;
                     return {
