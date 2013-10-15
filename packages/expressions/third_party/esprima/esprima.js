@@ -971,6 +971,7 @@
     //   Expression as Identifier
 
     // InExpression ::
+    //   Identifier, Identifier in Expression
     //   Identifier in Expression
 
     function parseTopLevel() {
@@ -981,7 +982,7 @@
         if (expr) {
             if (lookahead.value === 'as') {
                 parseAsExpression(expr);
-            } else if (lookahead.value === 'in' &&
+            } else if (lookahead.value === ',' || lookahead.value == 'in' &&
                        expr.type === Syntax.Identifier) {
                 parseInExpression(expr);
             } else if (match('|')) {
@@ -1034,9 +1035,17 @@
     }
 
     function parseInExpression(identifier) {
+        var indexName;
+        if (lookahead.value === ',') {
+            lex();
+            if (lookahead.type !== Token.Identifier)
+                throwUnexpected(lookahead);
+            indexName = lex().value;
+        }
+
         lex();  // in
         var expr = parseExpression();
-        delegate.createInExpression(identifier.name, expr);
+        delegate.createInExpression(identifier.name, indexName, expr);
     }
 
     function parse(code, inDelegate) {

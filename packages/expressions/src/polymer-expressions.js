@@ -194,6 +194,7 @@
     this.depsList = [];
     this.currentPath = undefined;
     this.ident = undefined;
+    this.indexName = undefined;
   }
 
   ASTDelegate.prototype = {
@@ -314,9 +315,10 @@
       this.ident = ident;
     },
 
-    createInExpression: function(ident, expression) {
+    createInExpression: function(ident, indexName, expression) {
       this.expression = expression;
       this.ident = ident;
+      this.indexName = indexName;
     },
 
     createTopLevel: function(expression) {

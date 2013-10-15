@@ -862,4 +862,29 @@ suite('PolymerExpressions', function() {
     Platform.performMicrotaskCheckpoint();
     assert.equal('B', div.childNodes[1].textContent);
   });
+
+  test('in expression with index scope', function() {
+    var div = createTestHtml(
+        '<template repeat="{{ user, index in array }}">' +
+            '{{ index }}. {{ user }}' +
+        '</template>');
+
+    var model = {
+      array: ['a', 'b']
+    };
+
+    recursivelySetTemplateModel(div, model);
+    Platform.performMicrotaskCheckpoint();
+
+    // TODO(arv): Enable the rest of this test when we have hooked up the
+    // binding for the index.
+    // assert.strictEqual('0. a', div.childNodes[1].textContent);
+    // assert.strictEqual('1. b', div.childNodes[2].textContent);
+
+    // model.array.splice(1, 0, 'c');
+    // Platform.performMicrotaskCheckpoint();
+    // assert.strictEqual('0. a', div.childNodes[1].textContent);
+    // assert.strictEqual('1. c', div.childNodes[2].textContent);
+    // assert.strictEqual('2. b', div.childNodes[3].textContent);
+  });
 });
