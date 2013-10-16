@@ -397,6 +397,28 @@
     };
   };
 
+  /**
+   * Converts a style property name to a css property name. For example:
+   * "WebkitUserSelect" to "-webkit-user-select"
+   */
+  function convertStylePropertyName(name) {
+    return String(name).replace(/[A-Z]/g, function(c) {
+      return '-' + c.toLowerCase();
+    });
+  }
+
+  PolymerExpressions.filters.styleObject = function() {
+    return {
+      toDOM: function(value) {
+        var parts = [];
+        for (var key in value) {
+          parts.push(convertStylePropertyName(key) + ': ' + value[key]);
+        }
+        return parts.join('; ');
+      }
+    };
+  };
+
   PolymerExpressions.prototype = {
     prepareBinding: function(pathString, name, node) {
       if (Path.get(pathString).valid)

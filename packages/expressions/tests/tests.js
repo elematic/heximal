@@ -187,6 +187,64 @@ suite('PolymerExpressions', function() {
     assert.strictEqual('bar bot', target.className);
   });
 
+  test('styleObject', function() {
+    // IE removes invalid style attribute values so we use xstyle in this test.
+
+    var div = createTestHtml(
+        '<template bind>' +
+        '<div xstyle="{{ object | styleObject }}">' +
+        '</div></template>');
+
+    var model = {
+      object: {
+        width: '100px',
+        backgroundColor: 'blue',
+        WebkitUserSelect: 'none'
+      }
+    };
+    recursivelySetTemplateModel(div, model);
+    Platform.performMicrotaskCheckpoint();
+
+    var target = div.childNodes[1];
+    assert.strictEqual(target.getAttribute('xstyle'),
+        'width: 100px; background-color: blue; -webkit-user-select: none');
+
+    model.object = {
+      left: '50px',
+      whiteSpace: 'pre'
+    };
+    Platform.performMicrotaskCheckpoint();
+
+    assert.strictEqual(target.getAttribute('xstyle'),
+        'left: 50px; white-space: pre');
+  });
+
+  test('styleObject2', function() {
+    // IE removes invalid style attribute values so we use xstyle in this test.
+
+    var div = createTestHtml(
+        '<template bind>' +
+        '<div xstyle="{{ {width: w, backgroundColor: bc} | styleObject }}">' +
+        '</div></template>');
+
+    var model = {
+      w: '100px',
+      bc: 'blue'
+    };
+    recursivelySetTemplateModel(div, model);
+    Platform.performMicrotaskCheckpoint();
+
+    var target = div.childNodes[1];
+    assert.strictEqual(target.getAttribute('xstyle'),
+                       'width: 100px; background-color: blue');
+
+    model.w = 0;
+    Platform.performMicrotaskCheckpoint();
+
+    assert.strictEqual(target.getAttribute('xstyle'),
+        'width: 0; background-color: blue');
+  });
+
   test('Named Scope Bind', function() {
     var div = createTestHtml(
         '<template bind>' +
