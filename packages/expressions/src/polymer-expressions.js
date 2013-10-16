@@ -51,8 +51,11 @@
 
     return function(model, name, node) {
       var binding = expression.getBinding(model);
-      if (expression.scopeIdent && binding)
-        node.polymerExpressionScopeName_ = expression.scopeIdent;
+      if (expression.scopeIdent && binding) {
+        node.polymerExpressionScopeIdent_ = expression.scopeIdent;
+        if (expression.indexIdent)
+          node.polymerExpressionIndexIdent_ = expression.indexIdent;
+      }
 
       return binding
     }
@@ -193,8 +196,8 @@
     this.deps = {};
     this.depsList = [];
     this.currentPath = undefined;
-    this.ident = undefined;
-    this.indexName = undefined;
+    this.scopeIdent = undefined;
+    this.indexIdent = undefined;
   }
 
   ASTDelegate.prototype = {
@@ -310,15 +313,15 @@
       this.filters.push(new Filter(name, args));
     },
 
-    createAsExpression: function(expression, ident) {
+    createAsExpression: function(expression, scopeIdent) {
       this.expression = expression;
-      this.ident = ident;
+      this.scopeIdent = scopeIdent;
     },
 
-    createInExpression: function(ident, indexName, expression) {
+    createInExpression: function(scopeIdent, indexIdent, expression) {
       this.expression = expression;
-      this.ident = ident;
-      this.indexName = indexName;
+      this.scopeIdent = scopeIdent;
+      this.indexIdent = indexIdent;
     },
 
     createTopLevel: function(expression) {
@@ -329,7 +332,8 @@
   }
 
   function Expression(delegate) {
-    this.scopeIdent = delegate.ident;
+    this.scopeIdent = delegate.scopeIdent;
+    this.indexIdent = delegate.indexIdent;
 
     if (!delegate.expression && !delegate.labeledStatements.length)
       throw Error('No expression or labelled statements found.');
@@ -420,6 +424,16 @@
   };
 
   PolymerExpressions.prototype = {
+    prepareInstancePositionChanged: function(template) {
+      var indexIdent = template.polymerExpressionIndexIdent_;
+      if (!indexIdent)
+        return;
+
+      return function(templateInstance, index) {
+        templateInstance.model[indexIdent] = index;
+      };
+    },
+
     prepareBinding: function(pathString, name, node) {
       if (Path.get(pathString).valid)
         return; // bail out early if pathString is simple path.
@@ -428,7 +442,7 @@
     },
 
     prepareInstanceModel: function(template) {
-      var scopeName = template.polymerExpressionScopeName_;
+      var scopeName = template.polymerExpressionScopeIdent_;
       if (!scopeName)
         return;
 

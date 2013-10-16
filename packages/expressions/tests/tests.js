@@ -945,26 +945,101 @@ suite('PolymerExpressions', function() {
 
   test('in expression with index scope', function() {
     var div = createTestHtml(
-        '<template repeat="{{ user, index in array }}">' +
-            '{{ index }}. {{ user }}' +
+        '<template repeat="{{ value, i in array }}">' +
+          '{{ i }}. {{ value }}' +
         '</template>');
 
     var model = {
-      array: ['a', 'b']
+      array: ['a', 'b', 'c']
     };
 
     recursivelySetTemplateModel(div, model);
     Platform.performMicrotaskCheckpoint();
 
-    // TODO(arv): Enable the rest of this test when we have hooked up the
-    // binding for the index.
-    // assert.strictEqual('0. a', div.childNodes[1].textContent);
-    // assert.strictEqual('1. b', div.childNodes[2].textContent);
+    assert.strictEqual('0. a', div.childNodes[1].textContent);
+    assert.strictEqual('1. b', div.childNodes[2].textContent);
+    assert.strictEqual('2. c', div.childNodes[3].textContent);
 
-    // model.array.splice(1, 0, 'c');
-    // Platform.performMicrotaskCheckpoint();
-    // assert.strictEqual('0. a', div.childNodes[1].textContent);
-    // assert.strictEqual('1. c', div.childNodes[2].textContent);
-    // assert.strictEqual('2. b', div.childNodes[3].textContent);
+    model.array.splice(1, 1, 'd', 'e');
+    Platform.performMicrotaskCheckpoint();
+
+    assert.strictEqual('0. a', div.childNodes[1].textContent);
+    assert.strictEqual('1. d', div.childNodes[2].textContent);
+    assert.strictEqual('2. e', div.childNodes[3].textContent);
+    assert.strictEqual('3. c', div.childNodes[4].textContent);
+
+    model.array.reverse();
+    Platform.performMicrotaskCheckpoint();
+
+    assert.strictEqual('0. c', div.childNodes[1].textContent);
+    assert.strictEqual('1. e', div.childNodes[2].textContent);
+    assert.strictEqual('2. d', div.childNodes[3].textContent);
+    assert.strictEqual('3. a', div.childNodes[4].textContent);
+
+    model.array.sort();
+    Platform.performMicrotaskCheckpoint();
+
+    assert.strictEqual('0. a', div.childNodes[1].textContent);
+    assert.strictEqual('1. c', div.childNodes[2].textContent);
+    assert.strictEqual('2. d', div.childNodes[3].textContent);
+    assert.strictEqual('3. e', div.childNodes[4].textContent);
+
+    model.array.shift();
+    Platform.performMicrotaskCheckpoint();
+
+    assert.strictEqual('0. c', div.childNodes[1].textContent);
+    assert.strictEqual('1. d', div.childNodes[2].textContent);
+    assert.strictEqual('2. e', div.childNodes[3].textContent);
+
+    model.array.unshift('f');
+    model.array.push('g');
+    Platform.performMicrotaskCheckpoint();
+
+    assert.strictEqual('0. f', div.childNodes[1].textContent);
+    assert.strictEqual('1. c', div.childNodes[2].textContent);
+    assert.strictEqual('2. d', div.childNodes[3].textContent);
+    assert.strictEqual('3. e', div.childNodes[4].textContent);
+    assert.strictEqual('4. g', div.childNodes[5].textContent);
+  });
+
+  test('in expression with nested index scopes', function() {
+    var div = createTestHtml(
+        '<template repeat="{{ foo, i in foos }}">' +
+          '<template repeat="{{ value, j in foo }}">' +
+            '{{ i }}:{{ j }}. {{ value }}' +
+          '</template>' +
+        '</template>');
+
+    var model = {
+      foos: [
+        [ 'a', 'b'],
+        [ 'c', 'd']
+      ]
+    };
+
+    recursivelySetTemplateModel(div, model);
+    Platform.performMicrotaskCheckpoint();
+
+    assert.strictEqual('0:0. a', div.childNodes[2].textContent);
+    assert.strictEqual('0:1. b', div.childNodes[3].textContent);
+    assert.strictEqual('1:0. c', div.childNodes[5].textContent);
+    assert.strictEqual('1:1. d', div.childNodes[6].textContent);
+
+    model.foos.reverse();
+    Platform.performMicrotaskCheckpoint();
+
+    assert.strictEqual('0:0. c', div.childNodes[2].textContent);
+    assert.strictEqual('0:1. d', div.childNodes[3].textContent);
+    assert.strictEqual('1:0. a', div.childNodes[5].textContent);
+    assert.strictEqual('1:1. b', div.childNodes[6].textContent);
+
+    model.foos[0].reverse();
+    model.foos[1].reverse();
+    Platform.performMicrotaskCheckpoint();
+
+    assert.strictEqual('0:0. d', div.childNodes[2].textContent);
+    assert.strictEqual('0:1. c', div.childNodes[3].textContent);
+    assert.strictEqual('1:0. b', div.childNodes[5].textContent);
+    assert.strictEqual('1:1. a', div.childNodes[6].textContent);
   });
 });
