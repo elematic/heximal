@@ -1010,7 +1010,7 @@
     function parseLabelledExpressions(expr) {
         // TODO(arv): Link to documentation.
         console.warn('Labelled expressions are deprecated. ' +
-                    'Use tokenList filter instead');
+                     'Use tokenList filter instead');
         var label = expr.name;
         expect(':');
 
@@ -1029,7 +1029,7 @@
         }
 
         return null;
-    } 
+    }
 
     function parseAsExpression(expr) {
         lex();  // as
