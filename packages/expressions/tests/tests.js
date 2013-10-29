@@ -45,6 +45,7 @@ suite('PolymerExpressions', function() {
     delete PolymerExpressions.filters.plusN;
     delete PolymerExpressions.filters.toFixed;
     delete PolymerExpressions.filters.upperCase;
+    delete PolymerExpressions.filters.staticSort;
   });
 
   function dispatchEvent(type, target) {
@@ -121,6 +122,16 @@ suite('PolymerExpressions', function() {
       },
       toModel: function(value) {
         return Number(value) - n;
+      }
+    };
+  }
+
+  function staticSort() {
+    return {
+      toDOM: function(list) {
+        var copy = list.slice(0);
+        copy.sort();
+        return copy;
       }
     };
   }
@@ -1041,5 +1052,50 @@ suite('PolymerExpressions', function() {
     assert.strictEqual('0:1. c', div.childNodes[3].textContent);
     assert.strictEqual('1:0. b', div.childNodes[5].textContent);
     assert.strictEqual('1:1. a', div.childNodes[6].textContent);
+  });
+
+  test('Named Scope Bind with filter', function() {
+    PolymerExpressions.filters.hex = hex;
+
+    var div = createTestHtml(
+        '<template bind>' +
+          '<template bind="{{ value | hex as hexValue }}">' +
+            '{{ hexValue }}' +
+          '</template>' +
+        '</template>');
+
+    var model = {
+      value: 32
+    };
+    recursivelySetTemplateModel(div, model);
+    Platform.performMicrotaskCheckpoint();
+
+    var target = div.childNodes[2];
+    assert.strictEqual('20', div.childNodes[2].textContent);
+
+    model.value = 255;
+    Platform.performMicrotaskCheckpoint();
+
+    assert.strictEqual('ff', div.childNodes[2].textContent);
+  });
+
+  test('Named Scope Repeat with filter', function() {
+    PolymerExpressions.filters.staticSort = staticSort;
+
+    var div = createTestHtml(
+        '<template bind>' +
+          '<template repeat="{{ value in [ 3, 2, 1 ] | staticSort }}">' +
+            '{{ value }}' +
+          '</template>' +
+        '</template>');
+    var model = {};
+    recursivelySetTemplateModel(div, model);
+    Platform.performMicrotaskCheckpoint();
+
+    console.log(div.childNodes.length);
+
+    assert.strictEqual('1', div.childNodes[2].textContent);
+    assert.strictEqual('2', div.childNodes[3].textContent);
+    assert.strictEqual('3', div.childNodes[4].textContent);
   });
 });
