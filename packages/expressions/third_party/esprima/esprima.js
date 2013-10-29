@@ -949,8 +949,7 @@
     //   "|" Filter
     //   Filters "|" Filter
 
-    function parseFilters(expr) {
-        delegate.createTopLevel(expr);
+    function parseFilters() {
         while (match('|')) {
             lex();
             parseFilter();
@@ -961,15 +960,18 @@
     //   LabelledExpressions
     //   AsExpression
     //   InExpression
-    //   Expression
-    //   Expression Filters
+    //   FilterExpression
 
     // AsExpression ::
-    //   Expression as Identifier
+    //   FilterExpression as Identifier
 
     // InExpression ::
-    //   Identifier, Identifier in Expression
-    //   Identifier in Expression
+    //   Identifier, Identifier in FilterExpression
+    //   Identifier in FilterExpression
+
+    // FilterExpression ::
+    //   Expression
+    //   Expression Filters
 
     function parseTopLevel() {
         skipWhitespace();
@@ -977,17 +979,18 @@
 
         var expr = parseExpression();
         if (expr) {
-            if (lookahead.value === 'as') {
-                parseAsExpression(expr);
-            } else if (lookahead.value === ',' || lookahead.value == 'in' &&
+            if (lookahead.value === ',' || lookahead.value == 'in' &&
                        expr.type === Syntax.Identifier) {
                 parseInExpression(expr);
-            } else if (match('|')) {
-                parseFilters(expr);
-            } else if (expr.type === Syntax.Identifier && match(':')) {
+            } else if (expr.type === Syntax.Identifier && match(':')) { 
                 parseLabelledExpressions(expr);
             } else {
-                delegate.createTopLevel(expr);
+                parseFilters();
+                if (lookahead.value === 'as') {
+                    parseAsExpression(expr);
+                } else {
+                    delegate.createTopLevel(expr);
+                }
             }
         }
 
@@ -1045,6 +1048,7 @@
 
         lex();  // in
         var expr = parseExpression();
+        parseFilters();
         delegate.createInExpression(identifier.name, indexName, expr);
     }
 
