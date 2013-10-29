@@ -49,7 +49,7 @@
       return;
     }
 
-    return function(model, name, node) {
+    return function(model, node) {
       var binding = expression.getBinding(model);
       if (expression.scopeIdent && binding) {
         node.polymerExpressionScopeIdent_ = expression.scopeIdent;
