@@ -1092,8 +1092,6 @@ suite('PolymerExpressions', function() {
     recursivelySetTemplateModel(div, model);
     Platform.performMicrotaskCheckpoint();
 
-    console.log(div.childNodes.length);
-
     assert.strictEqual('1', div.childNodes[2].textContent);
     assert.strictEqual('2', div.childNodes[3].textContent);
     assert.strictEqual('3', div.childNodes[4].textContent);
