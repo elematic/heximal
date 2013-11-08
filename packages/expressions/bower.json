@@ -1,0 +1,20 @@
+{
+  "name": "polymer-expressions",
+  "version": "0.0.20131107",
+  "homepage": "https://github.com/Polymer/polymer-expressions",
+  "authors": [
+    "The Polymer Authors"
+  ],
+  "dependencies": {
+    "TemplateBinding": "Polymer/TemplateBinding#master"
+  },
+  "license": "BSD",
+  "private": true,
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ]
+}
