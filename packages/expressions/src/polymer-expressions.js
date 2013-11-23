@@ -368,12 +368,11 @@
 
       if (paths.length === 1) {
         return new PathObserver(model, paths[0], undefined, undefined,
-                                undefined,
                                 this.resolveFn,
                                 this.filtersSetValueFn);
       }
 
-      var binding = new CompoundPathObserver(undefined, undefined, undefined,
+      var binding = new CompoundPathObserver(undefined, undefined,
                                              this.resolveFn);
       for (var i = 0; i < paths.length; i++) {
         binding.addPath(model, paths[i]);
