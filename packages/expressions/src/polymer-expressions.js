@@ -120,6 +120,10 @@
       }
 
       return this.valueFn_;
+    },
+
+    setValue: function(object, newValue) {
+      return this.getPath().setValueFrom(object, newValue);
     }
   };
 
@@ -200,20 +204,6 @@
   }
 
   ASTDelegate.prototype = {
-
-    get filtersSetValueFn() {
-      if (!this.filtersSetValueFn_) {
-        var filters = this.filters;
-        this.filtersSetValueFn_ = function(value) {
-          for (var i = filters.length - 1; i >= 0; i--) {
-            value = filters[i].toModel(value);
-          }
-          return value;
-        };
-      }
-
-      return this.filtersSetValueFn_;
-    },
 
     createLabeledStatement: function(label, expression) {
       this.labeledStatements.push({
@@ -341,6 +331,8 @@
     // binding to class like class="{{ foo: bar; baz: bat }}", so we're
     // abusing ECMAScript labelled statements for this use. The main downside
     // is that ECMAScript indentifiers are more limited than CSS classnames.
+    this.expression = delegate.expression;
+
     var resolveFn = delegate.labeledStatements.length ?
         newLabeledResolve(delegate.labeledStatements) :
         getFn(delegate.expression);
@@ -351,12 +343,7 @@
 
     this.resolveFn = resolveFn;
     this.paths = delegate.depsList;
-
-    if (this.paths.length === 1 &&
-        delegate.filters.length &&
-        delegate.expression instanceof IdentPath) {
-      this.filtersSetValueFn = delegate.filtersSetValueFn;
-    }
+    this.filters = delegate.filters;
   }
 
   Expression.prototype = {
@@ -365,20 +352,37 @@
       if (!paths.length)
         return { value: this.resolveFn({}) }; // only literals in expression.
 
+      var self = this;
+      var setValueFn = function(newValue) {
+        self.setValue(model, newValue);
+      };
+
       if (paths.length === 1) {
         return new PathObserver(model, paths[0], undefined, undefined,
                                 this.resolveFn,
-                                this.filtersSetValueFn);
+                                setValueFn);
       }
 
       var binding = new CompoundPathObserver(undefined, undefined,
-                                             this.resolveFn);
+                                             this.resolveFn,
+                                             setValueFn);
+
       for (var i = 0; i < paths.length; i++) {
         binding.addPath(model, paths[i]);
       }
 
       binding.start();
       return binding;
+    },
+
+    setValue: function(model, newValue) {
+      var count = this.filters ? this.filters.length : 0;
+      while (count-- > 0) {
+        newValue = this.filters[count].toModel(newValue);
+      }
+
+      if (this.expression.setValue)
+        return this.expression.setValue(model, newValue);
     }
   }
 
