@@ -107,14 +107,13 @@
     valueFn: function() {
       if (!this.valueFn_) {
         var path = this.getPath();
-        var delegate = this.delegate;
         var index = this.delegate.deps[path];
         if (index === undefined) {
           index = this.delegate.deps[path] = this.delegate.depsList.length;
           this.delegate.depsList.push(path);
         }
 
-        var depsList = delegate.depsList;
+        var depsList = this.delegate.depsList;
         this.valueFn_ = function(values) {
           return depsList.length === 1 ? values : values[index];
         }
