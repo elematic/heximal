@@ -75,18 +75,6 @@
     return expression;
   }
 
-  function newLabeledResolve(labeledStatements) {
-    return function(values) {
-      var labels = [];
-      for (var i = 0; i < labeledStatements.length; i++) {
-        if (labeledStatements[i].expression(values))
-          labels.push(labeledStatements[i].label);
-      }
-
-      return labels.join(' ');
-    }
-  }
-
   function Literal(value) {
     this.value = value;
   }
@@ -238,7 +226,6 @@
   function ASTDelegate() {
     this.expression = null;
     this.filters = [];
-    this.labeledStatements = [];
     this.deps = {};
     this.depsList = [];
     this.currentPath = undefined;
@@ -247,16 +234,6 @@
   }
 
   ASTDelegate.prototype = {
-
-    createLabeledStatement: function(label, expression) {
-      this.labeledStatements.push({
-        label: label,
-        expression: typeof expression == 'function' ? expression
-                                                    : expression.valueFn()
-      });
-      return expression;
-    },
-
     createUnaryExpression: function(op, argument) {
       if (!unaryOperators[op])
         throw Error('Disallowed operator: ' + op);
@@ -369,21 +346,14 @@
     this.scopeIdent = delegate.scopeIdent;
     this.indexIdent = delegate.indexIdent;
 
-    if (!delegate.expression && !delegate.labeledStatements.length)
-      throw Error('No expression or labelled statements found.');
+    if (!delegate.expression)
+      throw Error('No expression found.');
 
     this.expression = delegate.expression;
     getFn(this.expression); // forces enumeration of path dependencies
 
     this.paths = delegate.depsList;
     this.filters = delegate.filters;
-
-    // TODO(rafaelw): This is a bit of hack. We'd like to support syntax for
-    // binding to class like class="{{ foo: bar; baz: bat }}", so we're
-    // abusing ECMAScript labelled statements for this use. The main downside
-    // is that ECMAScript indentifiers are more limited than CSS classnames.
-    if (delegate.labeledStatements.length)
-      this.expression = newLabeledResolve(delegate.labeledStatements);
   }
 
   Expression.prototype = {

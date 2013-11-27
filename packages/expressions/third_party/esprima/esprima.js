@@ -982,8 +982,6 @@
             if (lookahead.value === ',' || lookahead.value == 'in' &&
                        expr.type === Syntax.Identifier) {
                 parseInExpression(expr);
-            } else if (expr.type === Syntax.Identifier && match(':')) { 
-                parseLabelledExpressions(expr);
             } else {
                 parseFilters();
                 if (lookahead.value === 'as') {
@@ -997,38 +995,6 @@
         if (lookahead.type !== Token.EOF) {
             throwUnexpected(lookahead);
         }
-    }
-
-    // LabelledExpressions ::
-    //   LabelExpression
-    //   LabelExpression ";"
-    //   LabelledExpressions ";" LabelledExpression
-
-    // LabelExpression ::
-    //   Identifier ":" Expression
-
-    function parseLabelledExpressions(expr) {
-        // TODO(arv): Link to documentation.
-        console.warn('Labelled expressions are deprecated. ' +
-                     'Use tokenList filter instead');
-        var label = expr.name;
-        expect(':');
-
-        expr = parseExpression();
-        delegate.createLabeledStatement(label, expr);
-
-        consumeSemicolon();
-
-        while (lookahead.type === Token.Identifier) {
-            label = lex().value;
-            expect(':');
-            expr = parseExpression();
-            delegate.createLabeledStatement(label, expr);
-
-            consumeSemicolon();
-        }
-
-        return null;
     }
 
     function parseAsExpression(expr) {
