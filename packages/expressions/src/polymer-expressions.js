@@ -87,6 +87,17 @@
     }
   }
 
+  function Literal(value) {
+    this.value = value;
+  }
+
+  Literal.prototype = {
+    valueFn: function() {
+      var value = this.value;
+      return function() { return value; };
+    }
+  }
+
   function IdentPath(delegate, name, last) {
     this.delegate = delegate;
     this.name = name;
@@ -280,13 +291,19 @@
     },
 
     createMemberExpression: function(accessor, object, property) {
-      return accessor === '[' ?
-          new MemberExpression(getFn(object), getFn(property)) :
-          new IdentPath(this, property.name, object);
+      if (object instanceof IdentPath) {
+        if (accessor == '.')
+          return new IdentPath(this, property.name, object);
+
+        if (property instanceof Literal && Path.get(property.value).valid)
+          return new IdentPath(this, property.value, object);
+      }
+
+      return new MemberExpression(getFn(object), getFn(property));
     },
 
     createLiteral: function(token) {
-      return function() { return token.value; };
+      return new Literal(token.value);
     },
 
     createArrayExpression: function(elements) {
@@ -303,7 +320,7 @@
 
     createProperty: function(kind, key, value) {
       return {
-        key: key instanceof IdentPath ? key.getPath() : key(),
+        key: key instanceof IdentPath ? key.name : key.value,
         value: value
       };
     },

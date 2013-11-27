@@ -744,6 +744,27 @@ suite('PolymerExpressions', function() {
     assert.equal('b', model.bar['contains space']);
   });
 
+  test('two-way computed property 2', function() {
+    var div = createTestHtml(
+        '<template bind="{{ }}">' +
+            '<input value="{{ bar[0].bat }}">' +
+        '</template>');
+
+    var model = {
+      bar: [{ bat: 'a' }]
+    };
+
+    recursivelySetTemplateModel(div, model);
+    Platform.performMicrotaskCheckpoint();
+    assert.equal('a', div.childNodes[1].value);
+
+    div.childNodes[1].value = 'b';
+    dispatchEvent('input', div.childNodes[1]);
+
+    Platform.performMicrotaskCheckpoint();
+    assert.equal('b', model.bar[0].bat);
+  });
+
   test('dynamic two-way computed property', function() {
     var div = createTestHtml(
         '<template bind="{{ }}">' +
