@@ -1150,4 +1150,34 @@ suite('PolymerExpressions', function() {
     assert.strictEqual('2', div.childNodes[3].textContent);
     assert.strictEqual('3', div.childNodes[4].textContent);
   });
+
+  test('filter on model', function() {
+    var div = createTestHtml(
+        '<template bind="{{ }}">' +
+            '<input value="{{ value | multiple }}">' +
+        '</template>');
+
+    var model = {
+      factor: 2,
+      multiple: function(value) {
+        return Number(value)*this.factor;
+      },
+
+      value: 8
+    };
+
+    model.multiple.toModel = function(value) {
+      return Number(value)/this.factor;
+    }
+
+    recursivelySetTemplateModel(div, model);
+    Platform.performMicrotaskCheckpoint();
+    assert.equal('16', div.childNodes[1].value);
+
+    div.childNodes[1].value = 20;
+    dispatchEvent('input', div.childNodes[1]);
+
+    Platform.performMicrotaskCheckpoint();
+    assert.equal('10', model.value);
+  });
 });

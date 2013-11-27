@@ -34,7 +34,7 @@
         return newObject;
       };
 
-  function prepareBinding(expressionText, name, node, context) {
+  function prepareBinding(expressionText, name, node, filterRegistry) {
     var expression;
     try {
       expression = getExpression(expressionText);
@@ -50,7 +50,7 @@
     }
 
     return function(model, node) {
-      var binding = expression.getBinding(model, context);
+      var binding = expression.getBinding(model, filterRegistry);
       if (expression.scopeIdent && binding) {
         node.polymerExpressionScopeIdent_ = expression.scopeIdent;
         if (expression.indexIdent)
@@ -168,11 +168,17 @@
   }
 
   Filter.prototype = {
-    transform: function(value, depsValues, toModelDirection, context) {
-      var fn = context[this.name];
-      if (!fn) {
-        console.error('Cannot find filter: ' + this.name);
-        return;
+    transform: function(value, depsValues, toModelDirection, filterRegistry,
+                        context) {
+      var fn = filterRegistry[this.name];
+      if (fn) {
+        context = undefined;
+      } else {
+        fn = context[this.name];
+        if (!fn) {
+          console.error('Cannot find filter: ' + this.name);
+          return;
+        }
       }
 
       // If toModelDirection is falsey, then the "normal" (dom-bound) direction
@@ -195,7 +201,7 @@
         args[i + 1] = getFn(this.args[i])(depsValues);
       }
 
-      return fn.apply(undefined, args);
+      return fn.apply(context, args);
     }
   };
 
@@ -381,16 +387,16 @@
   }
 
   Expression.prototype = {
-    getBinding: function(model, context) {
+    getBinding: function(model, filterRegistry) {
       var paths = this.paths;
       if (!paths.length) {
         // only literals in expression.
-        return { value: this.getValue(undefined, context) };
+        return { value: this.getValue(undefined, filterRegistry, model) };
       }
 
       var self = this;
       function valueFn(values) {
-        return self.getValue(values, context);
+        return self.getValue(values, filterRegistry, model);
       }
 
       function setValueFn(newValue) {
@@ -408,7 +414,7 @@
           }
         }
 
-        self.setValue(model, newValue, values, context);
+        self.setValue(model, newValue, values, filterRegistry, model);
       }
 
       if (paths.length === 1) {
@@ -427,19 +433,22 @@
       return binding;
     },
 
-    getValue: function(depsValues, context) {
+    getValue: function(depsValues, filterRegistry, context) {
       var value = getFn(this.expression)(depsValues);
       for (var i = 0; i < this.filters.length; i++) {
-        value = this.filters[i].transform(value, depsValues, false, context);
+        value = this.filters[i].transform(value, depsValues, false,
+                                          filterRegistry,
+                                          context);
       }
 
       return value;
     },
 
-    setValue: function(model, newValue, depsValues, context) {
+    setValue: function(model, newValue, depsValues, filterRegistry, context) {
       var count = this.filters ? this.filters.length : 0;
       while (count-- > 0) {
         newValue = this.filters[count].transform(newValue, depsValues, true,
+                                                 filterRegistry,
                                                  context);
       }
 
@@ -494,8 +503,7 @@
       if (Path.get(pathString).valid)
         return; // bail out early if pathString is simple path.
 
-      var self = this;
-      return prepareBinding(pathString, name, node, self);
+      return prepareBinding(pathString, name, node, this);
     },
 
     prepareInstanceModel: function(template) {
