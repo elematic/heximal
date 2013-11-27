@@ -34,7 +34,7 @@
         return newObject;
       };
 
-  function prepareBinding(expressionText, name, node) {
+  function prepareBinding(expressionText, name, node, context) {
     var expression;
     try {
       expression = getExpression(expressionText);
@@ -50,14 +50,14 @@
     }
 
     return function(model, node) {
-      var binding = expression.getBinding(model);
+      var binding = expression.getBinding(model, context);
       if (expression.scopeIdent && binding) {
         node.polymerExpressionScopeIdent_ = expression.scopeIdent;
         if (expression.indexIdent)
           node.polymerExpressionIndexIdent_ = expression.indexIdent;
       }
 
-      return binding
+      return binding;
     }
   }
 
@@ -168,8 +168,8 @@
   }
 
   Filter.prototype = {
-    transform: function(value, depsValues, toModelDirection) {
-      var fn = PolymerExpressions.filters[this.name];
+    transform: function(value, depsValues, toModelDirection, context) {
+      var fn = context[this.name];
       if (!fn) {
         console.error('Cannot find filter: ' + this.name);
         return;
@@ -381,14 +381,16 @@
   }
 
   Expression.prototype = {
-    getBinding: function(model) {
+    getBinding: function(model, context) {
       var paths = this.paths;
-      if (!paths.length)
-        return { value: this.getValue() }; // only literals in expression.
+      if (!paths.length) {
+        // only literals in expression.
+        return { value: this.getValue(undefined, context) };
+      }
 
       var self = this;
       function valueFn(values) {
-        return self.getValue(values);
+        return self.getValue(values, context);
       }
 
       function setValueFn(newValue) {
@@ -406,7 +408,7 @@
           }
         }
 
-        self.setValue(model, newValue, values);
+        self.setValue(model, newValue, values, context);
       }
 
       if (paths.length === 1) {
@@ -425,38 +427,26 @@
       return binding;
     },
 
-    getValue: function(depsValues) {
+    getValue: function(depsValues, context) {
       var value = getFn(this.expression)(depsValues);
       for (var i = 0; i < this.filters.length; i++) {
-        value = this.filters[i].transform(value, depsValues);
+        value = this.filters[i].transform(value, depsValues, false, context);
       }
 
       return value;
     },
 
-    setValue: function(model, newValue, depsValues) {
+    setValue: function(model, newValue, depsValues, context) {
       var count = this.filters ? this.filters.length : 0;
       while (count-- > 0) {
-        newValue = this.filters[count].transform(newValue, depsValues, true);
+        newValue = this.filters[count].transform(newValue, depsValues, true,
+                                                 context);
       }
 
       if (this.expression.setValue)
         return this.expression.setValue(model, newValue, depsValues);
     }
   }
-
-  function PolymerExpressions() {}
-
-  PolymerExpressions.filters = Object.create(null);
-
-  PolymerExpressions.filters.tokenList = function(value) {
-    var tokens = [];
-    for (var key in value) {
-      if (value[key])
-        tokens.push(key);
-    }
-    return tokens.join(' ');
-  };
 
   /**
    * Converts a style property name to a css property name. For example:
@@ -468,15 +458,28 @@
     });
   }
 
-  PolymerExpressions.filters.styleObject = function(value) {
-    var parts = [];
-    for (var key in value) {
-      parts.push(convertStylePropertyName(key) + ': ' + value[key]);
-    }
-    return parts.join('; ');
-  };
+  function PolymerExpressions() {}
 
   PolymerExpressions.prototype = {
+    // "built-in" filters
+    styleObject: function(value) {
+      var parts = [];
+      for (var key in value) {
+        parts.push(convertStylePropertyName(key) + ': ' + value[key]);
+      }
+      return parts.join('; ');
+    },
+
+    tokenList: function(value) {
+      var tokens = [];
+      for (var key in value) {
+        if (value[key])
+          tokens.push(key);
+      }
+      return tokens.join(' ');
+    },
+
+    // binding delegate API
     prepareInstancePositionChanged: function(template) {
       var indexIdent = template.polymerExpressionIndexIdent_;
       if (!indexIdent)
@@ -491,7 +494,8 @@
       if (Path.get(pathString).valid)
         return; // bail out early if pathString is simple path.
 
-      return prepareBinding(pathString, name, node);
+      var self = this;
+      return prepareBinding(pathString, name, node, self);
     },
 
     prepareInstanceModel: function(template) {

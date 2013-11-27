@@ -40,12 +40,6 @@ suite('PolymerExpressions', function() {
     unbindAll(testDiv);
     Platform.performMicrotaskCheckpoint();
     assert.strictEqual(4, Observer._allObserversCount);
-
-    delete PolymerExpressions.filters.hex;
-    delete PolymerExpressions.filters.plusN;
-    delete PolymerExpressions.filters.toFixed;
-    delete PolymerExpressions.filters.upperCase;
-    delete PolymerExpressions.filters.staticSort;
   });
 
   function dispatchEvent(type, target) {
@@ -83,42 +77,40 @@ suite('PolymerExpressions', function() {
 
   function recursivelySetTemplateModel(node, model) {
     HTMLTemplateElement.forAllTemplatesFrom_(node, function(template) {
-      template.bindingDelegate = new PolymerExpressions;
+      var delegate = new PolymerExpressions;
+
+      // testing filters
+      delegate.hex = function(value) {
+        return Number(value).toString(16);
+      };
+      // toModel as property on toDOM function
+      delegate.hex.toModel = function(value) {
+        return parseInt(value, 16);
+      };
+      delegate.toFixed = function(value, fractions) {
+        return Number(value).toFixed(fractions);
+      };
+      delegate.upperCase = function(value) {
+        return String(value).toUpperCase();
+      };
+      // filter as full object with toDOM and toModel properties
+      delegate.plusN = {
+        toDOM: function(value, n) {
+          return Number(value) + n;
+        },
+        toModel: function(value, n) {
+          return Number(value) - n;
+        }
+      };
+      delegate.staticSort = function(list) {
+        var copy = list.slice(0);
+        copy.sort();
+        return copy;
+      };
+
+      template.bindingDelegate = delegate;
       template.model = model;
     });
-  }
-
-  function hex(value) {
-    return Number(value).toString(16);
-  }
-
-  // toModel as property on toDOM function
-  hex.toModel = function(value) {
-    return parseInt(value, 16);
-  };
-
-  function toFixed(value, fractions) {
-    return Number(value).toFixed(fractions);
-  }
-
-  function upperCase(value) {
-    return String(value).toUpperCase();
-  }
-
-  // filter as full object with toDOM and toModel properties
-  var plusN = {
-    toDOM: function(value, n) {
-      return Number(value) + n;
-    },
-    toModel: function(value, n) {
-      return Number(value) - n;
-    }
-  };
-
-  function staticSort(list) {
-    var copy = list.slice(0);
-    copy.sort();
-    return copy;
   }
 
   test('ClassName Singular', function() {
@@ -656,8 +648,6 @@ suite('PolymerExpressions', function() {
   });
 
   test('filter without arguments', function() {
-    PolymerExpressions.filters.upperCase = upperCase;
-
     var div = createTestHtml(
         '<template bind="{{ }}">' +
             '{{ bar | upperCase }}' +
@@ -678,8 +668,6 @@ suite('PolymerExpressions', function() {
   });
 
   test('filter with arguments', function() {
-    PolymerExpressions.filters.toFixed = toFixed;
-
     var div = createTestHtml(
         '<template bind="{{ }}">' +
             '{{ bar | toFixed(4) }}' +
@@ -699,10 +687,6 @@ suite('PolymerExpressions', function() {
   });
 
   test('chained filters', function() {
-    PolymerExpressions.filters.hex = hex;
-    PolymerExpressions.filters.toFixed = toFixed;
-    PolymerExpressions.filters.upperCase = upperCase;
-
     var div = createTestHtml(
         '<template bind="{{ }}">' +
             '{{ bar | toFixed(0) | hex | upperCase }}' +
@@ -803,8 +787,6 @@ suite('PolymerExpressions', function() {
   });
 
   test('two-way filter', function() {
-    PolymerExpressions.filters.plusN = plusN;
-
     var div = createTestHtml(
         '<template bind="{{ }}">' +
             '<input value="{{ bar | plusN(bat) | plusN(boo) }}">' +
@@ -845,8 +827,6 @@ suite('PolymerExpressions', function() {
   });
 
   test('two-way filter too many paths', function() {
-    PolymerExpressions.filters.hex = hex;
-
     var div = createTestHtml(
         '<template bind="{{ }}">' +
             '<input value="{{ bar + num | hex }}">' +
@@ -878,9 +858,6 @@ suite('PolymerExpressions', function() {
   });
 
   test('two-way filter chained', function() {
-    PolymerExpressions.filters.hex = hex;
-    PolymerExpressions.filters.plusN = plusN;
-
     var div = createTestHtml(
         '<template bind="{{ }}">' +
             '<input value="{{ bar | plusN(10) | hex }}">' +
@@ -1136,8 +1113,6 @@ suite('PolymerExpressions', function() {
   });
 
   test('Named Scope Bind with filter', function() {
-    PolymerExpressions.filters.hex = hex;
-
     var div = createTestHtml(
         '<template bind>' +
           '<template bind="{{ value | hex as hexValue }}">' +
@@ -1161,8 +1136,6 @@ suite('PolymerExpressions', function() {
   });
 
   test('Named Scope Repeat with filter', function() {
-    PolymerExpressions.filters.staticSort = staticSort;
-
     var div = createTestHtml(
         '<template bind>' +
           '<template repeat="{{ value in [ 3, 2, 1 ] | staticSort }}">' +
