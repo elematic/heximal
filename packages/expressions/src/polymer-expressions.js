@@ -127,6 +127,27 @@
     }
   };
 
+  function MemberExpression(object, property) {
+    this.object = object;
+    this.property = property;
+  }
+
+  MemberExpression.prototype = {
+    valueFn: function() {
+      var object = this.object;
+      var property = this.property;
+      return function(values) {
+        return object(values)[property(values)];
+      };
+    },
+
+    setValue: function(object, newValue, depsValues) {
+      object = this.object(depsValues);
+      var property = this.property(depsValues);
+      return object[property] = newValue;
+    }
+  };
+
   function Filter(name, args) {
     this.name = name;
     this.args = args;
@@ -189,7 +210,7 @@
   };
 
   function getFn(arg) {
-    return arg instanceof IdentPath ? arg.valueFn() : arg;
+    return typeof arg == 'function' ? arg : arg.valueFn();
   }
 
   function ASTDelegate() {
@@ -208,7 +229,8 @@
     createLabeledStatement: function(label, expression) {
       this.labeledStatements.push({
         label: label,
-        expression: expression instanceof IdentPath ? expression.valueFn() : expression
+        expression: typeof expression == 'function' ? expression
+                                                    : expression.valueFn()
       });
       return expression;
     },
@@ -253,14 +275,9 @@
     },
 
     createMemberExpression: function(accessor, object, property) {
-      if (accessor === '[') {
-        object = getFn(object);
-        property = getFn(property);
-        return function(values) {
-          return object(values)[property(values)];
-        };
-      }
-      return new IdentPath(this, property.name, object);
+      return accessor === '[' ?
+          new MemberExpression(getFn(object), getFn(property)) :
+          new IdentPath(this, property.name, object);
     },
 
     createLiteral: function(token) {
@@ -354,7 +371,16 @@
 
       var self = this;
       var setValueFn = function(newValue) {
-        self.setValue(model, newValue);
+        var values;
+        if (self.paths.length == 1) {
+          values = self.paths[0].getValueFrom(model);
+        } else {
+          values = [];
+          for (var i = 0; i < self.paths.length; i++)
+            values[i] = self.paths[i].getValueFrom(model);
+        }
+
+        self.setValue(model, newValue, values);
       };
 
       if (paths.length === 1) {
@@ -375,14 +401,14 @@
       return binding;
     },
 
-    setValue: function(model, newValue) {
+    setValue: function(model, newValue, depsValues) {
       var count = this.filters ? this.filters.length : 0;
       while (count-- > 0) {
         newValue = this.filters[count].toModel(newValue);
       }
 
       if (this.expression.setValue)
-        return this.expression.setValue(model, newValue);
+        return this.expression.setValue(model, newValue, depsValues);
     }
   }
 

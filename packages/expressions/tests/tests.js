@@ -736,6 +736,66 @@ suite('PolymerExpressions', function() {
     assert.equal('F', div.childNodes[1].textContent);
   });
 
+  test('two-way computed property', function() {
+    var div = createTestHtml(
+        '<template bind="{{ }}">' +
+            '<input value="{{ bar[\'contains space\'] }}">' +
+        '</template>');
+
+    var model = {
+      bar: {
+        'contains space': 'a'
+      }
+    };
+
+    recursivelySetTemplateModel(div, model);
+    Platform.performMicrotaskCheckpoint();
+    assert.equal('a', div.childNodes[1].value);
+
+    div.childNodes[1].value = 'b';
+    dispatchEvent('input', div.childNodes[1]);
+
+    Platform.performMicrotaskCheckpoint();
+    assert.equal('b', model.bar['contains space']);
+  });
+
+  test('dynamic two-way computed property', function() {
+    var div = createTestHtml(
+        '<template bind="{{ }}">' +
+            '<input value="{{ foo[bar] }}">' +
+        '</template>');
+
+    var model = {
+      foo: {
+        a: '1',
+        b: '3'
+      },
+      bar: 'a'
+    };
+
+    recursivelySetTemplateModel(div, model);
+    Platform.performMicrotaskCheckpoint();
+    assert.equal('1', div.childNodes[1].value);
+
+    div.childNodes[1].value = '2';
+    dispatchEvent('input', div.childNodes[1]);
+
+    Platform.performMicrotaskCheckpoint();
+    assert.equal('2', model.foo.a);
+    assert.equal('3', model.foo.b);
+
+    model.bar = 'b';
+    Platform.performMicrotaskCheckpoint();
+    assert.equal('3', div.childNodes[1].value);
+
+    div.childNodes[1].value = '4';
+    dispatchEvent('input', div.childNodes[1]);
+
+    Platform.performMicrotaskCheckpoint();
+    assert.equal('2', model.foo.a);
+    assert.equal('4', model.foo.b);
+  });
+
   test('two-way filter', function() {
     PolymerExpressions.filters.hex = hex;
 
