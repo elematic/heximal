@@ -88,52 +88,37 @@ suite('PolymerExpressions', function() {
     });
   }
 
-  function hex() {
-    return {
-      toDOM: function(value) {
-        return Number(value).toString(16);
-      },
-      toModel: function(value) {
-        return parseInt(value, 16);
-      }
-    };
+  function hex(value) {
+    return Number(value).toString(16);
   }
 
-  function toFixed(fractions) {
-    return {
-      toDOM: function(value) {
-        return Number(value).toFixed(fractions);
-      }
-    };
+  // toModel as property on toDOM function
+  hex.toModel = function(value) {
+    return parseInt(value, 16);
+  };
+
+  function toFixed(value, fractions) {
+    return Number(value).toFixed(fractions);
   }
 
-  function upperCase() {
-    return {
-      toDOM: function(value) {
-        return String(value).toUpperCase();
-      }
-    };
+  function upperCase(value) {
+    return String(value).toUpperCase();
   }
 
-  function plusN(n) {
-    return {
-      toDOM: function(value) {
-        return Number(value) + n;
-      },
-      toModel: function(value) {
-        return Number(value) - n;
-      }
-    };
-  }
+  // filter as full object with toDOM and toModel properties
+  var plusN = {
+    toDOM: function(value, n) {
+      return Number(value) + n;
+    },
+    toModel: function(value, n) {
+      return Number(value) - n;
+    }
+  };
 
-  function staticSort() {
-    return {
-      toDOM: function(list) {
-        var copy = list.slice(0);
-        copy.sort();
-        return copy;
-      }
-    };
+  function staticSort(list) {
+    var copy = list.slice(0);
+    copy.sort();
+    return copy;
   }
 
   test('ClassName Singular', function() {
@@ -797,30 +782,45 @@ suite('PolymerExpressions', function() {
   });
 
   test('two-way filter', function() {
-    PolymerExpressions.filters.hex = hex;
+    PolymerExpressions.filters.plusN = plusN;
 
     var div = createTestHtml(
         '<template bind="{{ }}">' +
-            '<input value="{{ bar | hex }}">' +
+            '<input value="{{ bar | plusN(bat) | plusN(boo) }}">' +
         '</template>');
 
     var model = {
-      bar: 32
+      bar: 10,
+      bat: 1,
+      boo: 3
     };
 
     recursivelySetTemplateModel(div, model);
     Platform.performMicrotaskCheckpoint();
-    assert.equal('20', div.childNodes[1].value);
+    assert.equal('14', div.childNodes[1].value);
 
-    div.childNodes[1].value = 'ff';
+    div.childNodes[1].value = 8;
     dispatchEvent('input', div.childNodes[1]);
 
     Platform.performMicrotaskCheckpoint();
-    assert.equal(255, model.bar);
+    assert.equal(4, model.bar);
+    assert.equal(1, model.bat);
+    assert.equal(3, model.boo);
 
-    model.bar = 15;
+    model.bar = 5;
+    model.bat = 3;
+    model.boo = -2;
+
     Platform.performMicrotaskCheckpoint();
-    assert.equal('f', div.childNodes[1].value);
+    assert.equal('6', div.childNodes[1].value);
+
+    div.childNodes[1].value = 10;
+    dispatchEvent('input', div.childNodes[1]);
+
+    Platform.performMicrotaskCheckpoint();
+    assert.equal(9, model.bar);
+    assert.equal(3, model.bat);
+    assert.equal(-2, model.boo);
   });
 
   test('two-way filter too many paths', function() {

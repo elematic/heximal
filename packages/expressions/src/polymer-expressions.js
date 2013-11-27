@@ -122,8 +122,8 @@
       return this.valueFn_;
     },
 
-    setValue: function(object, newValue) {
-      return this.getPath().setValueFrom(object, newValue);
+    setValue: function(model, newValue) {
+      return this.getPath().setValueFrom(model, newValue);
     }
   };
 
@@ -150,32 +150,38 @@
 
   function Filter(name, args) {
     this.name = name;
-    this.args = args;
-    this.object_ = null;
+    this.args = [];
+    for (var i = 0; i < args.length; i++) {
+      this.args[i] = getFn(args[i]);
+    }
   }
 
   Filter.prototype = {
-    get object() {
-      if (this.object_)
-        return this.object_;
+    transform: function(value, depsValues, toModel) {
+      var args = [value];
+      for (var i = 0; i < this.args.length; i++) {
+        args[i+1] = getFn(this.args[i])(depsValues);
+      }
 
-      var f = PolymerExpressions.filters[this.name];
-      var argumentValues = this.args.map(function(arg) {
-        var fn = getFn(arg);
-        return fn();
-      });
-      return this.object_ = f.apply(null, argumentValues);
-    },
+      var fn = PolymerExpressions.filters[this.name];
+      if (!fn) {
+        console.error('Cannot find filter: ' + this.name);
+        return;
+      }
 
-    toDOM: function(value) {
-      return this.object.toDOM(value);
-    },
+      if (toModel) {
+        fn = fn.toModel;
+      } else if (typeof fn.toDOM == 'function') {
+        fn = fn.toDOM;
+      }
 
-    toModel: function(value) {
-      var object = this.object;
-      if (object.toModel)
-        return object.toModel(value);
-      return value;
+      if (typeof fn != 'function') {
+        console.error('No ' + (toModel ? 'toModel' : 'toDOM') + ' found on' +
+                      this.name);
+        return;
+      }
+
+      return fn.apply(undefined, args);
     }
   };
 
@@ -361,22 +367,23 @@
         return { value: this.getValue() }; // only literals in expression.
 
       var self = this;
-      var valueFn = function(values) {
+      function valueFn(values) {
         return self.getValue(values);
-      };
+      }
 
-      var setValueFn = function(newValue) {
+      function setValueFn(newValue) {
         var values;
         if (self.paths.length == 1) {
           values = self.paths[0].getValueFrom(model);
         } else {
           values = [];
-          for (var i = 0; i < self.paths.length; i++)
+          for (var i = 0; i < self.paths.length; i++) {
             values[i] = self.paths[i].getValueFrom(model);
+          }
         }
 
         self.setValue(model, newValue, values);
-      };
+      }
 
       if (paths.length === 1) {
         return new PathObserver(model, paths[0], undefined, undefined, valueFn,
@@ -396,15 +403,17 @@
 
     getValue: function(depsValues) {
       var value = getFn(this.expression)(depsValues);
-      for (var i = 0; i < this.filters.length; i++)
-        value = this.filters[i].toDOM(value);
+      for (var i = 0; i < this.filters.length; i++) {
+        value = this.filters[i].transform(value, depsValues);
+      }
+
       return value;
     },
 
     setValue: function(model, newValue, depsValues) {
       var count = this.filters ? this.filters.length : 0;
       while (count-- > 0) {
-        newValue = this.filters[count].toModel(newValue);
+        newValue = this.filters[count].transform(newValue, depsValues, true);
       }
 
       if (this.expression.setValue)
@@ -416,17 +425,13 @@
 
   PolymerExpressions.filters = Object.create(null);
 
-  PolymerExpressions.filters.tokenList = function() {
-    return {
-      toDOM: function(value) {
-        var tokens = [];
-        for (var key in value) {
-          if (value[key])
-            tokens.push(key);
-        }
-        return tokens.join(' ');
-      }
-    };
+  PolymerExpressions.filters.tokenList = function(value) {
+    var tokens = [];
+    for (var key in value) {
+      if (value[key])
+        tokens.push(key);
+    }
+    return tokens.join(' ');
   };
 
   /**
@@ -439,16 +444,12 @@
     });
   }
 
-  PolymerExpressions.filters.styleObject = function() {
-    return {
-      toDOM: function(value) {
-        var parts = [];
-        for (var key in value) {
-          parts.push(convertStylePropertyName(key) + ': ' + value[key]);
-        }
-        return parts.join('; ');
-      }
-    };
+  PolymerExpressions.filters.styleObject = function(value) {
+    var parts = [];
+    for (var key in value) {
+      parts.push(convertStylePropertyName(key) + ': ' + value[key]);
+    }
+    return parts.join('; ');
   };
 
   PolymerExpressions.prototype = {
