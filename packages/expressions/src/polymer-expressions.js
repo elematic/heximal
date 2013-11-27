@@ -157,28 +157,31 @@
   }
 
   Filter.prototype = {
-    transform: function(value, depsValues, toModel) {
-      var args = [value];
-      for (var i = 0; i < this.args.length; i++) {
-        args[i+1] = getFn(this.args[i])(depsValues);
-      }
-
+    transform: function(value, depsValues, toModelDirection) {
       var fn = PolymerExpressions.filters[this.name];
       if (!fn) {
         console.error('Cannot find filter: ' + this.name);
         return;
       }
 
-      if (toModel) {
+      // If toModelDirection is falsey, then the "normal" (dom-bound) direction
+      // is used. Otherwise, it looks for a 'toModel' property function on the
+      // object.
+      if (toModelDirection) {
         fn = fn.toModel;
       } else if (typeof fn.toDOM == 'function') {
         fn = fn.toDOM;
       }
 
       if (typeof fn != 'function') {
-        console.error('No ' + (toModel ? 'toModel' : 'toDOM') + ' found on' +
-                      this.name);
+        console.error('No ' + (toModelDirection ? 'toModel' : 'toDOM') +
+                      ' found on' + this.name);
         return;
+      }
+
+      var args = [value];
+      for (var i = 0; i < this.args.length; i++) {
+        args[i + 1] = getFn(this.args[i])(depsValues);
       }
 
       return fn.apply(undefined, args);
@@ -374,8 +377,12 @@
       function setValueFn(newValue) {
         var values;
         if (self.paths.length == 1) {
+          // In the singular-dep case, a PathObserver is used and the callback
+          // is a scalar value.
           values = self.paths[0].getValueFrom(model);
         } else {
+          // Multiple-deps uses a CompoundPathObserver whose callback is an
+          // array of values.
           values = [];
           for (var i = 0; i < self.paths.length; i++) {
             values[i] = self.paths[i].getValueFrom(model);
