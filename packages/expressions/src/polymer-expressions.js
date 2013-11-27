@@ -167,12 +167,8 @@
       return this.object_ = f.apply(null, argumentValues);
     },
 
-    toDOM: function(fn) {
-      var object = this.object;
-      return function(values) {
-        var value = fn(values);
-        return object.toDOM(value);
-      };
+    toDOM: function(value) {
+      return this.object.toDOM(value);
     },
 
     toModel: function(value) {
@@ -344,32 +340,31 @@
     if (!delegate.expression && !delegate.labeledStatements.length)
       throw Error('No expression or labelled statements found.');
 
+    this.expression = delegate.expression;
+    getFn(this.expression); // forces enumeration of path dependencies
+
+    this.paths = delegate.depsList;
+    this.filters = delegate.filters;
+
     // TODO(rafaelw): This is a bit of hack. We'd like to support syntax for
     // binding to class like class="{{ foo: bar; baz: bat }}", so we're
     // abusing ECMAScript labelled statements for this use. The main downside
     // is that ECMAScript indentifiers are more limited than CSS classnames.
-    this.expression = delegate.expression;
-
-    var resolveFn = delegate.labeledStatements.length ?
-        newLabeledResolve(delegate.labeledStatements) :
-        getFn(delegate.expression);
-
-    delegate.filters.forEach(function(filter) {
-      resolveFn = filter.toDOM(resolveFn);
-    });
-
-    this.resolveFn = resolveFn;
-    this.paths = delegate.depsList;
-    this.filters = delegate.filters;
+    if (delegate.labeledStatements.length)
+      this.expression = newLabeledResolve(delegate.labeledStatements);
   }
 
   Expression.prototype = {
     getBinding: function(model) {
       var paths = this.paths;
       if (!paths.length)
-        return { value: this.resolveFn({}) }; // only literals in expression.
+        return { value: this.getValue() }; // only literals in expression.
 
       var self = this;
+      var valueFn = function(values) {
+        return self.getValue(values);
+      };
+
       var setValueFn = function(newValue) {
         var values;
         if (self.paths.length == 1) {
@@ -384,13 +379,11 @@
       };
 
       if (paths.length === 1) {
-        return new PathObserver(model, paths[0], undefined, undefined,
-                                this.resolveFn,
+        return new PathObserver(model, paths[0], undefined, undefined, valueFn,
                                 setValueFn);
       }
 
-      var binding = new CompoundPathObserver(undefined, undefined,
-                                             this.resolveFn,
+      var binding = new CompoundPathObserver(undefined, undefined, valueFn,
                                              setValueFn);
 
       for (var i = 0; i < paths.length; i++) {
@@ -399,6 +392,13 @@
 
       binding.start();
       return binding;
+    },
+
+    getValue: function(depsValues) {
+      var value = getFn(this.expression)(depsValues);
+      for (var i = 0; i < this.filters.length; i++)
+        value = this.filters[i].toDOM(value);
+      return value;
     },
 
     setValue: function(model, newValue, depsValues) {
