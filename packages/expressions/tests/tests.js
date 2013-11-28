@@ -1160,14 +1160,14 @@ suite('PolymerExpressions', function() {
     var model = {
       factor: 2,
       multiple: function(value) {
-        return Number(value)*this.factor;
+        return Number(value) * this.factor;
       },
 
       value: 8
     };
 
     model.multiple.toModel = function(value) {
-      return Number(value)/this.factor;
+      return Number(value) / this.factor;
     }
 
     recursivelySetTemplateModel(div, model);
