@@ -342,6 +342,16 @@
     createThisExpression: notImplemented
   }
 
+  function ConstantObservable(value) {
+    this.value_ = value;
+  }
+
+  ConstantObservable.prototype = {
+    open: function() { return this.value_; },
+    reset: function() { return this.value_; },
+    close: function() {},
+  }
+
   function Expression(delegate) {
     this.scopeIdent = delegate.scopeIdent;
     this.indexIdent = delegate.indexIdent;
@@ -361,7 +371,8 @@
       var paths = this.paths;
       if (!paths.length) {
         // only literals in expression.
-        return { value: this.getValue(undefined, filterRegistry, model) };
+        return new ConstantObservable(this.getValue(undefined, filterRegistry,
+                                                    model));
       }
 
       var self = this;
@@ -376,7 +387,7 @@
           // is a scalar value.
           values = self.paths[0].getValueFrom(model);
         } else {
-          // Multiple-deps uses a CompoundPathObserver whose callback is an
+          // Multiple-deps uses a CompoundObserver whose callback is an
           // array of values.
           values = [];
           for (var i = 0; i < self.paths.length; i++) {
@@ -385,22 +396,20 @@
         }
 
         self.setValue(model, newValue, values, filterRegistry, model);
+        return newValue;
       }
 
+      var observer;
       if (paths.length === 1) {
-        return new PathObserver(model, paths[0], undefined, undefined, valueFn,
-                                setValueFn);
+        observer = new PathObserver(model, paths[0]);
+      } else {
+        observer = new CompoundObserver();
+        for (var i = 0; i < paths.length; i++) {
+          observer.addPath(model, paths[i]);
+        }
       }
 
-      var binding = new CompoundPathObserver(undefined, undefined, valueFn,
-                                             setValueFn);
-
-      for (var i = 0; i < paths.length; i++) {
-        binding.addPath(model, paths[i]);
-      }
-
-      binding.start();
-      return binding;
+      return new ObserverTransform(observer, valueFn, setValueFn, true);
     },
 
     getValue: function(depsValues, filterRegistry, context) {
