@@ -349,6 +349,7 @@
   ConstantObservable.prototype = {
     open: function() { return this.value_; },
     discardChanges: function() { return this.value_; },
+    deliver: function() {},
     close: function() {},
   }
 
