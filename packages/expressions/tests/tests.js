@@ -129,6 +129,23 @@ suite('PolymerExpressions', function() {
     assertLacksClass(target, 'foo');
   });
 
+
+  test('ClassName Singular Static', function() {
+    var div = createTestHtml(
+        '<template bind><div class="[[ {foo: bar} | tokenList ]]">' +
+        '</div></template>');
+    var model = {bar: 1};
+    recursivelySetTemplateModel(div, model);
+    Platform.performMicrotaskCheckpoint();
+
+    var target = div.childNodes[1];
+    assertHasClass(target, 'foo');
+
+    model.bar = 0;
+    Platform.performMicrotaskCheckpoint();
+    assertHasClass(target, 'foo');
+  });
+
   test('ClassName Multiple', function() {
     var div = createTestHtml(
         '<template bind>' +
@@ -154,6 +171,31 @@ suite('PolymerExpressions', function() {
     assertHasClass(target, 'boo');
   });
 
+  test('ClassName Multiple - static', function() {
+    var div = createTestHtml(
+        '<template bind>' +
+        '<div class="[[ {foo: bar, baz: bat > 1, boo: bot.bam} ' +
+            '| tokenList ]]">' +
+        '</div></template>');
+    var model = {bar: 1, bat: 1, bot: { bam: 1 }};
+    recursivelySetTemplateModel(div, model);
+    Platform.performMicrotaskCheckpoint();
+
+    var target = div.childNodes[1];
+    assert.strictEqual('foo boo', target.className);
+    assertHasClass(target, 'foo');
+    assertLacksClass(target, 'baz');
+    assertHasClass(target, 'boo');
+
+    model.bar = 0;
+    model.bat = 2;
+    Platform.performMicrotaskCheckpoint();
+    assert.strictEqual('foo boo', target.className);
+    assertHasClass(target, 'foo');
+    assertLacksClass(target, 'baz');
+    assertHasClass(target, 'boo');
+  });
+
   test('tokenList', function() {
     var div = createTestHtml(
         '<template bind>' +
@@ -173,6 +215,27 @@ suite('PolymerExpressions', function() {
     Platform.performMicrotaskCheckpoint();
 
     assert.strictEqual('bar bot', target.className);
+  });
+
+  test('tokenList - static', function() {
+    var div = createTestHtml(
+        '<template bind>' +
+        '<div class="[[ object | tokenList ]]">' +
+        '</div></template>');
+
+    var model = {
+      object: {bar: 1, bat: 1, bot: {bam: 1}}
+    };
+    recursivelySetTemplateModel(div, model);
+    Platform.performMicrotaskCheckpoint();
+
+    var target = div.childNodes[1];
+    assert.strictEqual('bar bat bot', target.className);
+
+    model.object = {bar: 1, bot: 1};
+    Platform.performMicrotaskCheckpoint();
+
+    assert.strictEqual('bar bat bot', target.className);
   });
 
   test('styleObject', function() {

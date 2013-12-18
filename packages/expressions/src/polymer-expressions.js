@@ -49,8 +49,8 @@
       return;
     }
 
-    return function(model, node) {
-      var binding = expression.getBinding(model, filterRegistry);
+    return function(model, node, oneTime) {
+      var binding = expression.getBinding(model, filterRegistry, oneTime);
       if (expression.scopeIdent && binding) {
         node.polymerExpressionScopeIdent_ = expression.scopeIdent;
         if (expression.indexIdent)
@@ -368,8 +368,22 @@
   }
 
   Expression.prototype = {
-    getBinding: function(model, filterRegistry) {
+    getBinding: function(model, filterRegistry, oneTime) {
       var paths = this.paths;
+      if (oneTime) {
+        var values;
+
+        if (paths.length == 1) {
+          values = paths[0].getValueFrom(model);
+        } else if (paths.length > 1) {
+          values = [];
+          for (var i = 0; i < paths.length; i++)
+            values[i] = paths[i].getValueFrom(model);
+        }
+
+        return this.getValue(values, filterRegistry, model);
+      }
+
       if (!paths.length) {
         // only literals in expression.
         return new ConstantObservable(this.getValue(undefined, filterRegistry,
