@@ -39,7 +39,7 @@ suite('PolymerExpressions', function() {
     document.body.removeChild(testDiv);
     unbindAll(testDiv);
     Platform.performMicrotaskCheckpoint();
-    assert.strictEqual(4, Observer._allObserversCount);
+    assert.strictEqual(2, Observer._allObserversCount);
   });
 
   function dispatchEvent(type, target) {
