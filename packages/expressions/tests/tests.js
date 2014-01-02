@@ -42,6 +42,19 @@ suite('PolymerExpressions', function() {
     assert.strictEqual(2, Observer._allObserversCount);
   });
 
+  function then(fn) {
+    setTimeout(function() {
+      Platform.performMicrotaskCheckpoint();
+      fn();
+    }, 0);
+
+    return {
+      then: function(next) {
+        return then(next);
+      }
+    };
+  }
+
   function dispatchEvent(type, target) {
     var event = document.createEvent('Event');
     event.initEvent(type, true, false);
@@ -113,40 +126,50 @@ suite('PolymerExpressions', function() {
     });
   }
 
-  test('ClassName Singular', function() {
+  test('ClassName Singular', function(done) {
     var div = createTestHtml(
         '<template bind><div class="{{ {foo: bar} | tokenList }}">' +
         '</div></template>');
     var model = {bar: 1};
     recursivelySetTemplateModel(div, model);
-    Platform.performMicrotaskCheckpoint();
 
-    var target = div.childNodes[1];
-    assertHasClass(target, 'foo');
+    var target;
+    then(function() {
+      target = div.childNodes[1];
+      assertHasClass(target, 'foo');
 
-    model.bar = 0;
-    Platform.performMicrotaskCheckpoint();
-    assertLacksClass(target, 'foo');
+      model.bar = 0;
+
+    }).then(function() {
+      assertLacksClass(target, 'foo');
+
+      done();
+    });
   });
 
 
-  test('ClassName Singular Static', function() {
+  test('ClassName Singular Static', function(done) {
     var div = createTestHtml(
         '<template bind><div class="[[ {foo: bar} | tokenList ]]">' +
         '</div></template>');
     var model = {bar: 1};
     recursivelySetTemplateModel(div, model);
-    Platform.performMicrotaskCheckpoint();
 
-    var target = div.childNodes[1];
-    assertHasClass(target, 'foo');
+    var target;
+    then(function() {
+      target = div.childNodes[1];
+      assertHasClass(target, 'foo');
 
-    model.bar = 0;
-    Platform.performMicrotaskCheckpoint();
-    assertHasClass(target, 'foo');
+      model.bar = 0;
+
+    }).then(function() {
+      assertHasClass(target, 'foo');
+
+      done();
+    });
   });
 
-  test('ClassName Multiple', function() {
+  test('ClassName Multiple', function(done) {
     var div = createTestHtml(
         '<template bind>' +
         '<div class="{{ {foo: bar, baz: bat > 1, boo: bot.bam} ' +
@@ -154,24 +177,29 @@ suite('PolymerExpressions', function() {
         '</div></template>');
     var model = {bar: 1, bat: 1, bot: { bam: 1 }};
     recursivelySetTemplateModel(div, model);
-    Platform.performMicrotaskCheckpoint();
 
-    var target = div.childNodes[1];
-    assert.strictEqual('foo boo', target.className);
-    assertHasClass(target, 'foo');
-    assertLacksClass(target, 'baz');
-    assertHasClass(target, 'boo');
+    var target;
+    then(function() {
+      target = div.childNodes[1];
+      assert.strictEqual('foo boo', target.className);
+      assertHasClass(target, 'foo');
+      assertLacksClass(target, 'baz');
+      assertHasClass(target, 'boo');
 
-    model.bar = 0;
-    model.bat = 2;
-    Platform.performMicrotaskCheckpoint();
-    assert.strictEqual('baz boo', target.className);
-    assertLacksClass(target, 'foo');
-    assertHasClass(target, 'baz');
-    assertHasClass(target, 'boo');
+      model.bar = 0;
+      model.bat = 2;
+
+    }).then(function() {
+      assert.strictEqual('baz boo', target.className);
+      assertLacksClass(target, 'foo');
+      assertHasClass(target, 'baz');
+      assertHasClass(target, 'boo');
+
+      done();
+    });
   });
 
-  test('ClassName Multiple - static', function() {
+  test('ClassName Multiple - static', function(done) {
     var div = createTestHtml(
         '<template bind>' +
         '<div class="[[ {foo: bar, baz: bat > 1, boo: bot.bam} ' +
@@ -179,24 +207,29 @@ suite('PolymerExpressions', function() {
         '</div></template>');
     var model = {bar: 1, bat: 1, bot: { bam: 1 }};
     recursivelySetTemplateModel(div, model);
-    Platform.performMicrotaskCheckpoint();
 
-    var target = div.childNodes[1];
-    assert.strictEqual('foo boo', target.className);
-    assertHasClass(target, 'foo');
-    assertLacksClass(target, 'baz');
-    assertHasClass(target, 'boo');
+    var target;
+    then(function() {
+      target = div.childNodes[1];
+      assert.strictEqual('foo boo', target.className);
+      assertHasClass(target, 'foo');
+      assertLacksClass(target, 'baz');
+      assertHasClass(target, 'boo');
 
-    model.bar = 0;
-    model.bat = 2;
-    Platform.performMicrotaskCheckpoint();
-    assert.strictEqual('foo boo', target.className);
-    assertHasClass(target, 'foo');
-    assertLacksClass(target, 'baz');
-    assertHasClass(target, 'boo');
+      model.bar = 0;
+      model.bat = 2;
+
+    }).then(function() {
+      assert.strictEqual('foo boo', target.className);
+      assertHasClass(target, 'foo');
+      assertLacksClass(target, 'baz');
+      assertHasClass(target, 'boo');
+
+      done();
+    });
   });
 
-  test('tokenList', function() {
+  test('tokenList', function(done) {
     var div = createTestHtml(
         '<template bind>' +
         '<div class="{{ object | tokenList }}">' +
@@ -206,18 +239,22 @@ suite('PolymerExpressions', function() {
       object: {bar: 1, bat: 1, bot: {bam: 1}}
     };
     recursivelySetTemplateModel(div, model);
-    Platform.performMicrotaskCheckpoint();
 
-    var target = div.childNodes[1];
-    assert.strictEqual('bar bat bot', target.className);
+    var target;
+    then(function() {
+      target = div.childNodes[1];
+      assert.strictEqual('bar bat bot', target.className);
 
-    model.object = {bar: 1, bot: 1};
-    Platform.performMicrotaskCheckpoint();
+      model.object = {bar: 1, bot: 1};
 
-    assert.strictEqual('bar bot', target.className);
+    }).then(function() {
+      assert.strictEqual('bar bot', target.className);
+
+      done();
+    });
   });
 
-  test('tokenList - static', function() {
+  test('tokenList - static', function(done) {
     var div = createTestHtml(
         '<template bind>' +
         '<div class="[[ object | tokenList ]]">' +
@@ -227,18 +264,22 @@ suite('PolymerExpressions', function() {
       object: {bar: 1, bat: 1, bot: {bam: 1}}
     };
     recursivelySetTemplateModel(div, model);
-    Platform.performMicrotaskCheckpoint();
 
-    var target = div.childNodes[1];
-    assert.strictEqual('bar bat bot', target.className);
+    var target;
+    then(function() {
+      target = div.childNodes[1];
+      assert.strictEqual('bar bat bot', target.className);
 
-    model.object = {bar: 1, bot: 1};
-    Platform.performMicrotaskCheckpoint();
+      model.object = {bar: 1, bot: 1};
 
-    assert.strictEqual('bar bat bot', target.className);
+    }).then(function() {
+      assert.strictEqual('bar bat bot', target.className);
+
+      done();
+    });
   });
 
-  test('styleObject', function() {
+  test('styleObject', function(done) {
     // IE removes invalid style attribute values so we use xstyle in this test.
 
     var div = createTestHtml(
@@ -254,23 +295,27 @@ suite('PolymerExpressions', function() {
       }
     };
     recursivelySetTemplateModel(div, model);
-    Platform.performMicrotaskCheckpoint();
 
-    var target = div.childNodes[1];
-    assert.strictEqual(target.getAttribute('xstyle'),
-        'width: 100px; background-color: blue; -webkit-user-select: none');
+    var target;
+    then(function() {
+      target = div.childNodes[1];
+      assert.strictEqual(target.getAttribute('xstyle'),
+          'width: 100px; background-color: blue; -webkit-user-select: none');
 
-    model.object = {
-      left: '50px',
-      whiteSpace: 'pre'
-    };
-    Platform.performMicrotaskCheckpoint();
+      model.object = {
+        left: '50px',
+        whiteSpace: 'pre'
+      };
 
-    assert.strictEqual(target.getAttribute('xstyle'),
-        'left: 50px; white-space: pre');
+    }).then(function() {
+      assert.strictEqual(target.getAttribute('xstyle'),
+          'left: 50px; white-space: pre');
+
+      done();
+    });
   });
 
-  test('styleObject2', function() {
+  test('styleObject2', function(done) {
     // IE removes invalid style attribute values so we use xstyle in this test.
 
     var div = createTestHtml(
@@ -283,20 +328,24 @@ suite('PolymerExpressions', function() {
       bc: 'blue'
     };
     recursivelySetTemplateModel(div, model);
-    Platform.performMicrotaskCheckpoint();
 
-    var target = div.childNodes[1];
-    assert.strictEqual(target.getAttribute('xstyle'),
-                       'width: 100px; background-color: blue');
+    var target;
+    then(function() {
+      target = div.childNodes[1];
+      assert.strictEqual(target.getAttribute('xstyle'),
+                         'width: 100px; background-color: blue');
 
-    model.w = 0;
-    Platform.performMicrotaskCheckpoint();
+      model.w = 0;
 
-    assert.strictEqual(target.getAttribute('xstyle'),
-        'width: 0; background-color: blue');
+    }).then(function() {
+      assert.strictEqual(target.getAttribute('xstyle'),
+          'width: 0; background-color: blue');
+
+      done();
+    });
   });
 
-  test('Named Scope Bind', function() {
+  test('Named Scope Bind', function(done) {
     var div = createTestHtml(
         '<template bind>' +
           '<template bind="{{ foo.bar as baz }}">' +
@@ -305,12 +354,15 @@ suite('PolymerExpressions', function() {
         '</template>');
     var model = { id: 'id', foo: { bar: { bat: 'boo' }}};
     recursivelySetTemplateModel(div, model);
-    Platform.performMicrotaskCheckpoint();
 
-    assert.strictEqual('id:boo', div.childNodes[2].textContent);
+    then(function() {
+      assert.strictEqual('id:boo', div.childNodes[2].textContent);
+
+      done();
+    });
   });
 
-  test('Named Scope Repeat', function() {
+  test('Named Scope Repeat', function(done) {
     var div = createTestHtml(
         '<template bind>' +
           '<template repeat="{{ user in users }}">' +
@@ -325,13 +377,16 @@ suite('PolymerExpressions', function() {
       ]
     };
     recursivelySetTemplateModel(div, model);
-    Platform.performMicrotaskCheckpoint();
 
-    assert.strictEqual('id:Tim', div.childNodes[2].textContent);
-    assert.strictEqual('id:Sally', div.childNodes[3].textContent);
+    then(function() {
+      assert.strictEqual('id:Tim', div.childNodes[2].textContent);
+      assert.strictEqual('id:Sally', div.childNodes[3].textContent);
+
+      done();
+    });
   });
 
-  test('Named Scope Deep Nesting', function() {
+  test('Named Scope Deep Nesting', function(done) {
     var div = createTestHtml(
         '<template bind>' +
           '<template repeat="{{ user in users }}">' +
@@ -349,17 +404,20 @@ suite('PolymerExpressions', function() {
       ]
     };
     recursivelySetTemplateModel(div, model);
-    Platform.performMicrotaskCheckpoint();
 
-    assert.strictEqual('id:Tim', div.childNodes[2].textContent);
-    assert.strictEqual('id:Tim:Bob', div.childNodes[4].textContent);
-    assert.strictEqual('id:Tim:Sam', div.childNodes[5].textContent);
+    then(function() {
+      assert.strictEqual('id:Tim', div.childNodes[2].textContent);
+      assert.strictEqual('id:Tim:Bob', div.childNodes[4].textContent);
+      assert.strictEqual('id:Tim:Sam', div.childNodes[5].textContent);
 
-    assert.strictEqual('id:Sally', div.childNodes[6].textContent);
-    assert.strictEqual('id:Sally:Steve', div.childNodes[8].textContent);
+      assert.strictEqual('id:Sally', div.childNodes[6].textContent);
+      assert.strictEqual('id:Sally:Steve', div.childNodes[8].textContent);
+
+      done();
+    });
   });
 
-  test('Named Scope Unnamed resets', function() {
+  test('Named Scope Unnamed resets', function(done) {
     var div = createTestHtml(
         '<template bind>' +
           '<template bind="{{ foo as bar }}">' +
@@ -378,13 +436,16 @@ suite('PolymerExpressions', function() {
       },
     };
     recursivelySetTemplateModel(div, model);
-    Platform.performMicrotaskCheckpoint();
 
-    assert.strictEqual('2', div.childNodes[2].textContent);
-    assert.strictEqual('bot:', div.childNodes[4].textContent);
+    then(function() {
+      assert.strictEqual('2', div.childNodes[2].textContent);
+      assert.strictEqual('bot:', div.childNodes[4].textContent);
+
+      done();
+    });
   });
 
-  test('Expressions Arithmetic, + - / *', function() {
+  test('Expressions Arithmetic, + - / *', function(done) {
     var div = createTestHtml(
         '<template bind>' +
             '{{ (a.b + c.d)/e - f * g.h }}' +
@@ -403,16 +464,21 @@ suite('PolymerExpressions', function() {
       }
     };
     recursivelySetTemplateModel(div, model);
-    Platform.performMicrotaskCheckpoint();
-    assert.strictEqual('-1', div.childNodes[1].textContent);
 
-    model.a.b = 11;
-    model.f = -2;
-    Platform.performMicrotaskCheckpoint();
-    assert.strictEqual('12', div.childNodes[1].textContent);
+    then(function() {
+      assert.strictEqual('-1', div.childNodes[1].textContent);
+
+      model.a.b = 11;
+      model.f = -2;
+
+    }).then(function() {
+      assert.strictEqual('12', div.childNodes[1].textContent);
+
+      done();
+    });
   });
 
-  test('Expressions Unary - +', function() {
+  test('Expressions Unary - +', function(done) {
     var div = createTestHtml(
         '<template bind>' +
             '{{ (-a.b) - (+c) }}' +
@@ -424,16 +490,21 @@ suite('PolymerExpressions', function() {
       c: 3
     };
     recursivelySetTemplateModel(div, model);
-    Platform.performMicrotaskCheckpoint();
-    assert.strictEqual('-8', div.childNodes[1].textContent);
 
-    model.a.b = -1;
-    model.c = -4;
-    Platform.performMicrotaskCheckpoint();
-    assert.strictEqual('5', div.childNodes[1].textContent);
+    then(function() {
+      assert.strictEqual('-8', div.childNodes[1].textContent);
+
+      model.a.b = -1;
+      model.c = -4;
+
+    }).then(function() {
+      assert.strictEqual('5', div.childNodes[1].textContent);
+
+      done();
+    });
   });
 
-  test('Expressions Logical !', function() {
+  test('Expressions Logical !', function(done) {
     var div = createTestHtml(
         '<template bind>' +
             '{{ !a.b }}:{{ !c }}:{{ !d }}' +
@@ -446,16 +517,21 @@ suite('PolymerExpressions', function() {
       d: false
     };
     recursivelySetTemplateModel(div, model);
-    Platform.performMicrotaskCheckpoint();
-    assert.strictEqual('false:true:true', div.childNodes[1].textContent);
 
-    model.a.b = 0;
-    model.c = 'foo'
-    Platform.performMicrotaskCheckpoint();
-    assert.strictEqual('true:false:true', div.childNodes[1].textContent);
+    then(function() {
+      assert.strictEqual('false:true:true', div.childNodes[1].textContent);
+
+      model.a.b = 0;
+      model.c = 'foo'
+
+    }).then(function() {
+      assert.strictEqual('true:false:true', div.childNodes[1].textContent);
+
+      done();
+    });
   });
 
-  test('Expressions Arithmetic, Additive', function() {
+  test('Expressions Arithmetic, Additive', function(done) {
     var div = createTestHtml(
         '<template bind>' +
             '{{ (a.b + c.d) - (f + g.h) }}' +
@@ -474,16 +550,21 @@ suite('PolymerExpressions', function() {
       }
     };
     recursivelySetTemplateModel(div, model);
-    Platform.performMicrotaskCheckpoint();
-    assert.strictEqual('5', div.childNodes[1].textContent);
 
-    model.a.b = 7;
-    model.g.h = -5;
-    Platform.performMicrotaskCheckpoint();
-    assert.strictEqual('14', div.childNodes[1].textContent);
+    then(function() {
+      assert.strictEqual('5', div.childNodes[1].textContent);
+
+      model.a.b = 7;
+      model.g.h = -5;
+
+    }).then(function() {
+      assert.strictEqual('14', div.childNodes[1].textContent);
+
+      done();
+    });
   });
 
-  test('Expressions Arithmetic, Multiplicative', function() {
+  test('Expressions Arithmetic, Multiplicative', function(done) {
     var div = createTestHtml(
         '<template bind>' +
             '{{ (a.b * c.d) / (f % g.h) }}' +
@@ -502,16 +583,21 @@ suite('PolymerExpressions', function() {
       }
     };
     recursivelySetTemplateModel(div, model);
-    Platform.performMicrotaskCheckpoint();
-    assert.strictEqual('10', div.childNodes[1].textContent);
 
-    model.a.b = 10;
-    model.f = 16;
-    Platform.performMicrotaskCheckpoint();
-    assert.strictEqual('60', div.childNodes[1].textContent);
+    then(function() {
+      assert.strictEqual('10', div.childNodes[1].textContent);
+
+      model.a.b = 10;
+      model.f = 16;
+
+    }).then(function() {
+      assert.strictEqual('60', div.childNodes[1].textContent);
+
+      done();
+    });
   });
 
-  test('Expressions Relational', function() {
+  test('Expressions Relational', function(done) {
     var div = createTestHtml(
         '<template bind>' +
             '{{ a.b > c }}:{{ a.b < c }}:{{ c >= d }}:{{ d <= e }}' +
@@ -525,16 +611,21 @@ suite('PolymerExpressions', function() {
       e: 2
     };
     recursivelySetTemplateModel(div, model);
-    Platform.performMicrotaskCheckpoint();
-    assert.strictEqual('true:false:true:false', div.childNodes[1].textContent);
 
-    model.a.b = 1;
-    model.d = -5;
-    Platform.performMicrotaskCheckpoint();
-    assert.strictEqual('false:true:true:true', div.childNodes[1].textContent);
+    then(function() {
+      assert.strictEqual('true:false:true:false', div.childNodes[1].textContent);
+
+      model.a.b = 1;
+      model.d = -5;
+
+    }).then(function() {
+      assert.strictEqual('false:true:true:true', div.childNodes[1].textContent);
+
+      done();
+    });
   });
 
-  test('Expressions Equality', function() {
+  test('Expressions Equality', function(done) {
     var div = createTestHtml(
         '<template bind>' +
             '{{ a.b == c }}:{{ a.b != c }}:{{ c === d }}:{{ d !== e }}' +
@@ -549,16 +640,21 @@ suite('PolymerExpressions', function() {
     model.e = model.d;
 
     recursivelySetTemplateModel(div, model);
-    Platform.performMicrotaskCheckpoint();
-    assert.strictEqual('true:false:false:false', div.childNodes[1].textContent);
 
-    model.a.b = 3;
-    model.e = {};
-    Platform.performMicrotaskCheckpoint();
-    assert.strictEqual('false:true:false:true', div.childNodes[1].textContent);
+    then(function() {
+      assert.strictEqual('true:false:false:false', div.childNodes[1].textContent);
+
+      model.a.b = 3;
+      model.e = {};
+
+    }).then(function() {
+      assert.strictEqual('false:true:false:true', div.childNodes[1].textContent);
+
+      done();
+    });
   });
 
-  test('Expressions Binary Logical', function() {
+  test('Expressions Binary Logical', function(done) {
     var div = createTestHtml(
         '<template bind>' +
             '{{ a.b && c }}:{{ a.b || c }}:{{ c && d }}:{{ d || e }}' +
@@ -573,16 +669,21 @@ suite('PolymerExpressions', function() {
     };
 
     recursivelySetTemplateModel(div, model);
-    Platform.performMicrotaskCheckpoint();
-    assert.strictEqual('0:5:true:true', div.childNodes[1].textContent);
 
-    model.a.b = true;
-    model.d = 0;
-    Platform.performMicrotaskCheckpoint();
-    assert.strictEqual('5:true:0:', div.childNodes[1].textContent);
+    then(function() {
+      assert.strictEqual('0:5:true:true', div.childNodes[1].textContent);
+
+      model.a.b = true;
+      model.d = 0;
+
+    }).then(function() {
+      assert.strictEqual('5:true:0:', div.childNodes[1].textContent);
+
+      done();
+    });
   });
 
-  test('Expressions Conditional', function() {
+  test('Expressions Conditional', function(done) {
     var div = createTestHtml(
         '<template bind>' +
             '{{ a.b ? c : d.e }}:{{ f ? g.h : i }}' +
@@ -603,17 +704,22 @@ suite('PolymerExpressions', function() {
     };
 
     recursivelySetTemplateModel(div, model);
-    Platform.performMicrotaskCheckpoint();
-    assert.strictEqual('5:bar', div.childNodes[1].textContent);
 
-    model.c = 6;
-    model.f = '';
-    model.i = 'bat'
-    Platform.performMicrotaskCheckpoint();
-    assert.strictEqual('6:bat', div.childNodes[1].textContent);
+    then(function() {
+      assert.strictEqual('5:bar', div.childNodes[1].textContent);
+
+      model.c = 6;
+      model.f = '';
+      model.i = 'bat'
+
+    }).then(function() {
+      assert.strictEqual('6:bat', div.childNodes[1].textContent);
+
+      done();
+    });
   });
 
-  test('Expressions Literals', function() {
+  test('Expressions Literals', function(done) {
     var div = createTestHtml(
         '<template bind>' +
             '{{ +1 }}:{{ "foo" }}:{{ true ? true : false }}:' +
@@ -622,11 +728,15 @@ suite('PolymerExpressions', function() {
     var model = {};
 
     recursivelySetTemplateModel(div, model);
-    Platform.performMicrotaskCheckpoint();
-    assert.strictEqual('1:foo:true:null', div.childNodes[1].textContent);
+
+    then(function() {
+      assert.strictEqual('1:foo:true:null', div.childNodes[1].textContent);
+
+      done();
+    });
   });
 
-  test('Expressions Array Literals', function() {
+  test('Expressions Array Literals', function(done) {
     var div = createTestHtml(
         '<template repeat="{{ [foo, bar] }}">' +
             '{{}}' +
@@ -638,18 +748,23 @@ suite('PolymerExpressions', function() {
     };
 
     recursivelySetTemplateModel(div, model);
-    Platform.performMicrotaskCheckpoint();
-    assert.strictEqual('bar', div.childNodes[1].textContent);
-    assert.strictEqual('bat', div.childNodes[2].textContent);
 
-    model.foo = 'boo';
-    model.bar = 'blat';
-    Platform.performMicrotaskCheckpoint();
-    assert.strictEqual('boo', div.childNodes[1].textContent);
-    assert.strictEqual('blat', div.childNodes[2].textContent);
+    then(function() {
+      assert.strictEqual('bar', div.childNodes[1].textContent);
+      assert.strictEqual('bat', div.childNodes[2].textContent);
+
+      model.foo = 'boo';
+      model.bar = 'blat';
+
+    }).then(function() {
+      assert.strictEqual('boo', div.childNodes[1].textContent);
+      assert.strictEqual('blat', div.childNodes[2].textContent);
+
+      done();
+    });
   });
 
-  test('Expressions Object Literals', function() {
+  test('Expressions Object Literals', function(done) {
     var div = createTestHtml(
         '<template bind="{{ { \'id\': 1, foo: bar } }}">' +
             '{{id}}:{{foo}}' +
@@ -660,15 +775,20 @@ suite('PolymerExpressions', function() {
     };
 
     recursivelySetTemplateModel(div, model);
-    Platform.performMicrotaskCheckpoint();
-    assert.strictEqual('1:bat', div.childNodes[1].textContent);
 
-    model.bar = 'blat';
-    Platform.performMicrotaskCheckpoint();
-    assert.strictEqual('1:blat', div.childNodes[1].textContent);
+    then(function() {
+      assert.strictEqual('1:bat', div.childNodes[1].textContent);
+
+      model.bar = 'blat';
+
+    }).then(function() {
+      assert.strictEqual('1:blat', div.childNodes[1].textContent);
+
+      done();
+    });
   });
 
-  test('Expressions Array Literals, Named Scope', function() {
+  test('Expressions Array Literals, Named Scope', function(done) {
     var div = createTestHtml(
         '<template repeat="{{ user in [foo, bar] }}">' +
             '{{ user }}' +
@@ -680,18 +800,23 @@ suite('PolymerExpressions', function() {
     };
 
     recursivelySetTemplateModel(div, model);
-    Platform.performMicrotaskCheckpoint();
-    assert.strictEqual('bar', div.childNodes[1].textContent);
-    assert.strictEqual('bat', div.childNodes[2].textContent);
 
-    model.foo = 'boo';
-    model.bar = 'blat';
-    Platform.performMicrotaskCheckpoint();
-    assert.strictEqual('boo', div.childNodes[1].textContent);
-    assert.strictEqual('blat', div.childNodes[2].textContent);
+    then(function() {
+      assert.strictEqual('bar', div.childNodes[1].textContent);
+      assert.strictEqual('bat', div.childNodes[2].textContent);
+
+      model.foo = 'boo';
+      model.bar = 'blat';
+
+    }).then(function() {
+      assert.strictEqual('boo', div.childNodes[1].textContent);
+      assert.strictEqual('blat', div.childNodes[2].textContent);
+
+      done();
+    });
   });
 
-  test('Expressions Object Literals, Named Scope', function() {
+  test('Expressions Object Literals, Named Scope', function(done) {
     var div = createTestHtml(
         '<template bind="{{ { \'id\': 1, foo: bar } as t }}">' +
             '{{t.id}}:{{t.foo}}' +
@@ -702,15 +827,20 @@ suite('PolymerExpressions', function() {
     };
 
     recursivelySetTemplateModel(div, model);
-    Platform.performMicrotaskCheckpoint();
-    assert.strictEqual('1:bat', div.childNodes[1].textContent);
 
-    model.bar = 'blat';
-    Platform.performMicrotaskCheckpoint();
-    assert.strictEqual('1:blat', div.childNodes[1].textContent);
+    then(function() {
+      assert.strictEqual('1:bat', div.childNodes[1].textContent);
+
+      model.bar = 'blat';
+
+    }).then(function() {
+      assert.strictEqual('1:blat', div.childNodes[1].textContent);
+
+      done();
+    });
   });
 
-  test('filter without arguments', function() {
+  test('filter without arguments', function(done) {
     var div = createTestHtml(
         '<template bind="{{ }}">' +
             '{{ bar | upperCase }}' +
@@ -722,15 +852,20 @@ suite('PolymerExpressions', function() {
     };
 
     recursivelySetTemplateModel(div, model);
-    Platform.performMicrotaskCheckpoint();
-    assert.equal('BATBAT', div.childNodes[1].textContent);
 
-    model.bar = 'blat';
-    Platform.performMicrotaskCheckpoint();
-    assert.equal('BLATBLAT', div.childNodes[1].textContent);
+    then(function() {
+      assert.equal('BATBAT', div.childNodes[1].textContent);
+
+      model.bar = 'blat';
+
+    }).then(function() {
+      assert.equal('BLATBLAT', div.childNodes[1].textContent);
+
+      done();
+    });
   });
 
-  test('filter with arguments', function() {
+  test('filter with arguments', function(done) {
     var div = createTestHtml(
         '<template bind="{{ }}">' +
             '{{ bar | toFixed(4) }}' +
@@ -741,15 +876,20 @@ suite('PolymerExpressions', function() {
     };
 
     recursivelySetTemplateModel(div, model);
-    Platform.performMicrotaskCheckpoint();
-    assert.equal('1.2346', div.childNodes[1].textContent);
 
-    model.bar = 9.87654321;
-    Platform.performMicrotaskCheckpoint();
-    assert.equal('9.8765', div.childNodes[1].textContent);
+    then(function() {
+      assert.equal('1.2346', div.childNodes[1].textContent);
+
+      model.bar = 9.87654321;
+
+    }).then(function() {
+      assert.equal('9.8765', div.childNodes[1].textContent);
+
+      done();
+    });
   });
 
-  test('chained filters', function() {
+  test('chained filters', function(done) {
     var div = createTestHtml(
         '<template bind="{{ }}">' +
             '{{ bar | toFixed(0) | hex | upperCase }}' +
@@ -760,15 +900,20 @@ suite('PolymerExpressions', function() {
     };
 
     recursivelySetTemplateModel(div, model);
-    Platform.performMicrotaskCheckpoint();
-    assert.equal('C', div.childNodes[1].textContent);
 
-    model.bar = 14.56;
-    Platform.performMicrotaskCheckpoint();
-    assert.equal('F', div.childNodes[1].textContent);
+    then(function() {
+      assert.equal('C', div.childNodes[1].textContent);
+
+      model.bar = 14.56;
+
+    }).then(function() {
+      assert.equal('F', div.childNodes[1].textContent);
+
+      done();
+    });
   });
 
-  test('two-way computed property', function() {
+  test('two-way computed property', function(done) {
     var div = createTestHtml(
         '<template bind="{{ }}">' +
             '<input value="{{ bar[\'contains space\'] }}">' +
@@ -781,17 +926,21 @@ suite('PolymerExpressions', function() {
     };
 
     recursivelySetTemplateModel(div, model);
-    Platform.performMicrotaskCheckpoint();
-    assert.equal('a', div.childNodes[1].value);
 
-    div.childNodes[1].value = 'b';
-    dispatchEvent('input', div.childNodes[1]);
+    then(function() {
+      assert.equal('a', div.childNodes[1].value);
 
-    Platform.performMicrotaskCheckpoint();
-    assert.equal('b', model.bar['contains space']);
+      div.childNodes[1].value = 'b';
+      dispatchEvent('input', div.childNodes[1]);
+
+    }).then(function() {
+      assert.equal('b', model.bar['contains space']);
+
+      done();
+    });
   });
 
-  test('two-way computed property 2', function() {
+  test('two-way computed property 2', function(done) {
     var div = createTestHtml(
         '<template bind="{{ }}">' +
             '<input value="{{ bar[0].bat }}">' +
@@ -802,17 +951,21 @@ suite('PolymerExpressions', function() {
     };
 
     recursivelySetTemplateModel(div, model);
-    Platform.performMicrotaskCheckpoint();
-    assert.equal('a', div.childNodes[1].value);
 
-    div.childNodes[1].value = 'b';
-    dispatchEvent('input', div.childNodes[1]);
+    then(function() {
+      assert.equal('a', div.childNodes[1].value);
 
-    Platform.performMicrotaskCheckpoint();
-    assert.equal('b', model.bar[0].bat);
+      div.childNodes[1].value = 'b';
+      dispatchEvent('input', div.childNodes[1]);
+
+    }).then(function() {
+      assert.equal('b', model.bar[0].bat);
+
+      done();
+    });
   });
 
-  test('dynamic two-way computed property', function() {
+  test('dynamic two-way computed property', function(done) {
     var div = createTestHtml(
         '<template bind="{{ }}">' +
             '<input value="{{ foo[bar] }}">' +
@@ -827,29 +980,34 @@ suite('PolymerExpressions', function() {
     };
 
     recursivelySetTemplateModel(div, model);
-    Platform.performMicrotaskCheckpoint();
-    assert.equal('1', div.childNodes[1].value);
 
-    div.childNodes[1].value = '2';
-    dispatchEvent('input', div.childNodes[1]);
+    then(function() {
+      assert.equal('1', div.childNodes[1].value);
 
-    Platform.performMicrotaskCheckpoint();
-    assert.equal('2', model.foo.a);
-    assert.equal('3', model.foo.b);
+      div.childNodes[1].value = '2';
+      dispatchEvent('input', div.childNodes[1]);
 
-    model.bar = 'b';
-    Platform.performMicrotaskCheckpoint();
-    assert.equal('3', div.childNodes[1].value);
+    }).then(function() {
+      assert.equal('2', model.foo.a);
+      assert.equal('3', model.foo.b);
 
-    div.childNodes[1].value = '4';
-    dispatchEvent('input', div.childNodes[1]);
+      model.bar = 'b';
 
-    Platform.performMicrotaskCheckpoint();
-    assert.equal('2', model.foo.a);
-    assert.equal('4', model.foo.b);
+    }).then(function() {
+      assert.equal('3', div.childNodes[1].value);
+
+      div.childNodes[1].value = '4';
+      dispatchEvent('input', div.childNodes[1]);
+
+    }).then(function() {
+      assert.equal('2', model.foo.a);
+      assert.equal('4', model.foo.b);
+
+      done();
+    });
   });
 
-  test('two-way filter', function() {
+  test('two-way filter', function(done) {
     var div = createTestHtml(
         '<template bind="{{ }}">' +
             '<input value="{{ bar | plusN(bat) | plusN(boo) }}">' +
@@ -862,34 +1020,38 @@ suite('PolymerExpressions', function() {
     };
 
     recursivelySetTemplateModel(div, model);
-    Platform.performMicrotaskCheckpoint();
-    assert.equal('14', div.childNodes[1].value);
 
-    div.childNodes[1].value = 8;
-    dispatchEvent('input', div.childNodes[1]);
+    then(function() {
+      assert.equal('14', div.childNodes[1].value);
 
-    Platform.performMicrotaskCheckpoint();
-    assert.equal(4, model.bar);
-    assert.equal(1, model.bat);
-    assert.equal(3, model.boo);
+      div.childNodes[1].value = 8;
+      dispatchEvent('input', div.childNodes[1]);
 
-    model.bar = 5;
-    model.bat = 3;
-    model.boo = -2;
+    }).then(function() {
+      assert.equal(4, model.bar);
+      assert.equal(1, model.bat);
+      assert.equal(3, model.boo);
 
-    Platform.performMicrotaskCheckpoint();
-    assert.equal('6', div.childNodes[1].value);
+      model.bar = 5;
+      model.bat = 3;
+      model.boo = -2;
 
-    div.childNodes[1].value = 10;
-    dispatchEvent('input', div.childNodes[1]);
+    }).then(function() {
+      assert.equal('6', div.childNodes[1].value);
 
-    Platform.performMicrotaskCheckpoint();
-    assert.equal(9, model.bar);
-    assert.equal(3, model.bat);
-    assert.equal(-2, model.boo);
+      div.childNodes[1].value = 10;
+      dispatchEvent('input', div.childNodes[1]);
+
+    }).then(function() {
+      assert.equal(9, model.bar);
+      assert.equal(3, model.bat);
+      assert.equal(-2, model.boo);
+
+      done();
+    })
   });
 
-  test('two-way filter too many paths', function() {
+  test('two-way filter too many paths', function(done) {
     var div = createTestHtml(
         '<template bind="{{ }}">' +
             '<input value="{{ bar + num | hex }}">' +
@@ -901,26 +1063,32 @@ suite('PolymerExpressions', function() {
     };
 
     recursivelySetTemplateModel(div, model);
-    Platform.performMicrotaskCheckpoint();
-    assert.equal('2a', div.childNodes[1].value);
 
-    div.childNodes[1].value = 'ff';
-    dispatchEvent('input', div.childNodes[1]);
+    then(function() {
+      assert.equal('2a', div.childNodes[1].value);
 
-    Platform.performMicrotaskCheckpoint();
-    assert.equal(32, model.bar);
-    assert.equal(10, model.num);
+      div.childNodes[1].value = 'ff';
+      dispatchEvent('input', div.childNodes[1]);
 
-    model.bar = 15;
-    Platform.performMicrotaskCheckpoint();
-    assert.equal('19', div.childNodes[1].value);
+    }).then(function() {
+      assert.equal(32, model.bar);
+      assert.equal(10, model.num);
 
-    model.num = 5;
-    Platform.performMicrotaskCheckpoint();
-    assert.equal('14', div.childNodes[1].value);
+      model.bar = 15;
+
+    }).then(function() {
+      assert.equal('19', div.childNodes[1].value);
+
+      model.num = 5;
+
+    }).then(function() {
+      assert.equal('14', div.childNodes[1].value);
+
+      done();
+    });
   });
 
-  test('two-way filter chained', function() {
+  test('two-way filter chained', function(done) {
     var div = createTestHtml(
         '<template bind="{{ }}">' +
             '<input value="{{ bar | plusN(10) | hex }}">' +
@@ -931,21 +1099,26 @@ suite('PolymerExpressions', function() {
     };
 
     recursivelySetTemplateModel(div, model);
-    Platform.performMicrotaskCheckpoint();
-    assert.equal('20', div.childNodes[1].value);
 
-    div.childNodes[1].value = 'ff';
-    dispatchEvent('input', div.childNodes[1]);
+    then(function() {
+      assert.equal('20', div.childNodes[1].value);
 
-    Platform.performMicrotaskCheckpoint();
-    assert.equal(245, model.bar);
+      div.childNodes[1].value = 'ff';
+      dispatchEvent('input', div.childNodes[1]);
 
-    model.bar = 5;
-    Platform.performMicrotaskCheckpoint();
-    assert.equal('f', div.childNodes[1].value);
+    }).then(function() {
+      assert.equal(245, model.bar);
+
+      model.bar = 5;
+
+    }).then(function() {
+      assert.equal('f', div.childNodes[1].value);
+
+      done();
+    });
   });
 
-  test('filter unexpected EOF', function() {
+  test('filter unexpected EOF', function(done) {
     var div = createTestHtml(
         '<template bind="{{ }}">' +
             '{{ bar | }}' +
@@ -956,17 +1129,22 @@ suite('PolymerExpressions', function() {
     };
 
     recursivelySetTemplateModel(div, model);
-    Platform.performMicrotaskCheckpoint();
-    assert.equal('', div.childNodes[1].textContent);
 
-    model.bar = 'blat';
-    Platform.performMicrotaskCheckpoint();
-    assert.equal('', div.childNodes[1].textContent);
+    then(function() {
+      assert.equal('', div.childNodes[1].textContent);
 
-    assert.equal(errors[0][0], 'Invalid expression syntax: bar |');
+      model.bar = 'blat';
+
+    }).then(function() {
+      assert.equal('', div.childNodes[1].textContent);
+
+      assert.equal(errors[0][0], 'Invalid expression syntax: bar |');
+
+      done();
+    });
   });
 
-  test('filter not at EOF', function() {
+  test('filter not at EOF', function(done) {
     var div = createTestHtml(
         '<template bind="{{ }}">' +
             '{{ bar | upperCase + 42 }}' +
@@ -977,18 +1155,23 @@ suite('PolymerExpressions', function() {
     };
 
     recursivelySetTemplateModel(div, model);
-    Platform.performMicrotaskCheckpoint();
-    assert.equal('', div.childNodes[1].textContent);
 
-    model.bar = 'blat';
-    Platform.performMicrotaskCheckpoint();
-    assert.equal('', div.childNodes[1].textContent);
+    then(function() {
+      assert.equal('', div.childNodes[1].textContent);
 
-    assert.equal(errors[0][0],
-                 'Invalid expression syntax: bar | upperCase + 42');
+      model.bar = 'blat';
+
+    }).then(function() {
+      assert.equal('', div.childNodes[1].textContent);
+
+      assert.equal(errors[0][0],
+                   'Invalid expression syntax: bar | upperCase + 42');
+
+      done();
+    });
   });
 
-  test('Member lookup with constant expressions', function() {
+  test('Member lookup with constant expressions', function(done) {
     var div = createTestHtml(
         '<template bind>' +
           '{{ array[0] }} {{ object["a"] }}' +
@@ -1001,19 +1184,25 @@ suite('PolymerExpressions', function() {
     };
 
     recursivelySetTemplateModel(div, model);
-    Platform.performMicrotaskCheckpoint();
-    assert.equal('a A', div.childNodes[1].textContent);
 
-    model.array = ['c', 'd'];
-    Platform.performMicrotaskCheckpoint();
-    assert.equal('c A', div.childNodes[1].textContent);
+    then(function() {
+      assert.equal('a A', div.childNodes[1].textContent);
 
-    model.object = {a: 'E'};
-    Platform.performMicrotaskCheckpoint();
-    assert.equal('c E', div.childNodes[1].textContent);
+      model.array = ['c', 'd'];
+
+    }).then(function() {
+      assert.equal('c A', div.childNodes[1].textContent);
+
+      model.object = {a: 'E'};
+
+    }).then(function() {
+      assert.equal('c E', div.childNodes[1].textContent);
+
+      done();
+    });
   });
 
-  test('Member lookup', function() {
+  test('Member lookup', function(done) {
     var div = createTestHtml(
         '<template bind>' +
           '{{ array[index] }} {{ object[key] }}' +
@@ -1029,30 +1218,38 @@ suite('PolymerExpressions', function() {
     };
 
     recursivelySetTemplateModel(div, model);
-    Platform.performMicrotaskCheckpoint();
-    assert.equal('a A', div.childNodes[1].textContent);
 
-    model.index = 1;
-    Platform.performMicrotaskCheckpoint();
-    assert.equal('b A', div.childNodes[1].textContent);
+    then(function() {
+      assert.equal('a A', div.childNodes[1].textContent);
 
-    model.key = 'b';
-    Platform.performMicrotaskCheckpoint();
-    assert.equal('b B', div.childNodes[1].textContent);
+      model.index = 1;
 
-    model.array = ['c', 'd'];
-    Platform.performMicrotaskCheckpoint();
-    assert.equal('d B', div.childNodes[1].textContent);
+    }).then(function() {
+      assert.equal('b A', div.childNodes[1].textContent);
 
-    model.object = {
-      a: 'C',
-      b: 'D'
-    };
-    Platform.performMicrotaskCheckpoint();
-    assert.equal('d D', div.childNodes[1].textContent);
+      model.key = 'b';
+
+    }).then(function() {
+      assert.equal('b B', div.childNodes[1].textContent);
+
+      model.array = ['c', 'd'];
+
+    }).then(function() {
+      assert.equal('d B', div.childNodes[1].textContent);
+
+      model.object = {
+        a: 'C',
+        b: 'D'
+      };
+
+    }).then(function() {
+      assert.equal('d D', div.childNodes[1].textContent);
+
+      done();
+    });
   });
 
-  test('Member lookup nested', function() {
+  test('Member lookup nested', function(done) {
     var div = createTestHtml(
         '<template bind>' +
           '{{ object[array[index]] }}' +
@@ -1067,15 +1264,21 @@ suite('PolymerExpressions', function() {
     };
 
     recursivelySetTemplateModel(div, model);
-    Platform.performMicrotaskCheckpoint();
-    assert.equal('A', div.childNodes[1].textContent);
 
-    model.index = 1;
-    Platform.performMicrotaskCheckpoint();
-    assert.equal('B', div.childNodes[1].textContent);
+    then(function() {
+      assert.equal('A', div.childNodes[1].textContent);
+
+      model.index = 1;
+
+    }).then(function() {
+      Platform.performMicrotaskCheckpoint();
+      assert.equal('B', div.childNodes[1].textContent);
+
+      done();
+    });
   });
 
-  test('in expression with index scope', function() {
+  test('in expression with index scope', function(done) {
     var div = createTestHtml(
         '<template repeat="{{ value, i in array }}">' +
           '{{ i }}. {{ value }}' +
@@ -1086,55 +1289,58 @@ suite('PolymerExpressions', function() {
     };
 
     recursivelySetTemplateModel(div, model);
-    Platform.performMicrotaskCheckpoint();
 
-    assert.strictEqual('0. a', div.childNodes[1].textContent);
-    assert.strictEqual('1. b', div.childNodes[2].textContent);
-    assert.strictEqual('2. c', div.childNodes[3].textContent);
+    then(function() {
+      assert.strictEqual('0. a', div.childNodes[1].textContent);
+      assert.strictEqual('1. b', div.childNodes[2].textContent);
+      assert.strictEqual('2. c', div.childNodes[3].textContent);
 
-    model.array.splice(1, 1, 'd', 'e');
-    Platform.performMicrotaskCheckpoint();
+      model.array.splice(1, 1, 'd', 'e');
 
-    assert.strictEqual('0. a', div.childNodes[1].textContent);
-    assert.strictEqual('1. d', div.childNodes[2].textContent);
-    assert.strictEqual('2. e', div.childNodes[3].textContent);
-    assert.strictEqual('3. c', div.childNodes[4].textContent);
+    }).then(function() {
+      assert.strictEqual('0. a', div.childNodes[1].textContent);
+      assert.strictEqual('1. d', div.childNodes[2].textContent);
+      assert.strictEqual('2. e', div.childNodes[3].textContent);
+      assert.strictEqual('3. c', div.childNodes[4].textContent);
 
-    model.array.reverse();
-    Platform.performMicrotaskCheckpoint();
+      model.array.reverse();
 
-    assert.strictEqual('0. c', div.childNodes[1].textContent);
-    assert.strictEqual('1. e', div.childNodes[2].textContent);
-    assert.strictEqual('2. d', div.childNodes[3].textContent);
-    assert.strictEqual('3. a', div.childNodes[4].textContent);
+    }).then(function() {
+      assert.strictEqual('0. c', div.childNodes[1].textContent);
+      assert.strictEqual('1. e', div.childNodes[2].textContent);
+      assert.strictEqual('2. d', div.childNodes[3].textContent);
+      assert.strictEqual('3. a', div.childNodes[4].textContent);
 
-    model.array.sort();
-    Platform.performMicrotaskCheckpoint();
+      model.array.sort();
 
-    assert.strictEqual('0. a', div.childNodes[1].textContent);
-    assert.strictEqual('1. c', div.childNodes[2].textContent);
-    assert.strictEqual('2. d', div.childNodes[3].textContent);
-    assert.strictEqual('3. e', div.childNodes[4].textContent);
+    }).then(function() {
+      assert.strictEqual('0. a', div.childNodes[1].textContent);
+      assert.strictEqual('1. c', div.childNodes[2].textContent);
+      assert.strictEqual('2. d', div.childNodes[3].textContent);
+      assert.strictEqual('3. e', div.childNodes[4].textContent);
 
-    model.array.shift();
-    Platform.performMicrotaskCheckpoint();
+      model.array.shift();
 
-    assert.strictEqual('0. c', div.childNodes[1].textContent);
-    assert.strictEqual('1. d', div.childNodes[2].textContent);
-    assert.strictEqual('2. e', div.childNodes[3].textContent);
+    }).then(function() {
+      assert.strictEqual('0. c', div.childNodes[1].textContent);
+      assert.strictEqual('1. d', div.childNodes[2].textContent);
+      assert.strictEqual('2. e', div.childNodes[3].textContent);
 
-    model.array.unshift('f');
-    model.array.push('g');
-    Platform.performMicrotaskCheckpoint();
+      model.array.unshift('f');
+      model.array.push('g');
 
-    assert.strictEqual('0. f', div.childNodes[1].textContent);
-    assert.strictEqual('1. c', div.childNodes[2].textContent);
-    assert.strictEqual('2. d', div.childNodes[3].textContent);
-    assert.strictEqual('3. e', div.childNodes[4].textContent);
-    assert.strictEqual('4. g', div.childNodes[5].textContent);
+    }).then(function() {
+      assert.strictEqual('0. f', div.childNodes[1].textContent);
+      assert.strictEqual('1. c', div.childNodes[2].textContent);
+      assert.strictEqual('2. d', div.childNodes[3].textContent);
+      assert.strictEqual('3. e', div.childNodes[4].textContent);
+      assert.strictEqual('4. g', div.childNodes[5].textContent);
+
+      done();
+    });
   });
 
-  test('in expression with nested index scopes', function() {
+  test('in expression with nested index scopes', function(done) {
     var div = createTestHtml(
         '<template repeat="{{ foo, i in foos }}">' +
           '<template repeat="{{ value, j in foo }}">' +
@@ -1150,32 +1356,35 @@ suite('PolymerExpressions', function() {
     };
 
     recursivelySetTemplateModel(div, model);
-    Platform.performMicrotaskCheckpoint();
 
-    assert.strictEqual('0:0. a', div.childNodes[2].textContent);
-    assert.strictEqual('0:1. b', div.childNodes[3].textContent);
-    assert.strictEqual('1:0. c', div.childNodes[5].textContent);
-    assert.strictEqual('1:1. d', div.childNodes[6].textContent);
+    then(function() {
+      assert.strictEqual('0:0. a', div.childNodes[2].textContent);
+      assert.strictEqual('0:1. b', div.childNodes[3].textContent);
+      assert.strictEqual('1:0. c', div.childNodes[5].textContent);
+      assert.strictEqual('1:1. d', div.childNodes[6].textContent);
 
-    model.foos.reverse();
-    Platform.performMicrotaskCheckpoint();
+      model.foos.reverse();
 
-    assert.strictEqual('0:0. c', div.childNodes[2].textContent);
-    assert.strictEqual('0:1. d', div.childNodes[3].textContent);
-    assert.strictEqual('1:0. a', div.childNodes[5].textContent);
-    assert.strictEqual('1:1. b', div.childNodes[6].textContent);
+    }).then(function() {
+      assert.strictEqual('0:0. c', div.childNodes[2].textContent);
+      assert.strictEqual('0:1. d', div.childNodes[3].textContent);
+      assert.strictEqual('1:0. a', div.childNodes[5].textContent);
+      assert.strictEqual('1:1. b', div.childNodes[6].textContent);
 
-    model.foos[0].reverse();
-    model.foos[1].reverse();
-    Platform.performMicrotaskCheckpoint();
+      model.foos[0].reverse();
+      model.foos[1].reverse();
 
-    assert.strictEqual('0:0. d', div.childNodes[2].textContent);
-    assert.strictEqual('0:1. c', div.childNodes[3].textContent);
-    assert.strictEqual('1:0. b', div.childNodes[5].textContent);
-    assert.strictEqual('1:1. a', div.childNodes[6].textContent);
+    }).then(function() {
+      assert.strictEqual('0:0. d', div.childNodes[2].textContent);
+      assert.strictEqual('0:1. c', div.childNodes[3].textContent);
+      assert.strictEqual('1:0. b', div.childNodes[5].textContent);
+      assert.strictEqual('1:1. a', div.childNodes[6].textContent);
+
+      done();
+    });
   });
 
-  test('Named Scope Bind with filter', function() {
+  test('Named Scope Bind with filter', function(done) {
     var div = createTestHtml(
         '<template bind>' +
           '<template bind="{{ value | hex as hexValue }}">' +
@@ -1187,18 +1396,21 @@ suite('PolymerExpressions', function() {
       value: 32
     };
     recursivelySetTemplateModel(div, model);
-    Platform.performMicrotaskCheckpoint();
 
-    var target = div.childNodes[2];
-    assert.strictEqual('20', div.childNodes[2].textContent);
+    then(function() {
+      var target = div.childNodes[2];
+      assert.strictEqual('20', div.childNodes[2].textContent);
 
-    model.value = 255;
-    Platform.performMicrotaskCheckpoint();
+      model.value = 255;
 
-    assert.strictEqual('ff', div.childNodes[2].textContent);
+    }).then(function() {
+      assert.strictEqual('ff', div.childNodes[2].textContent);
+
+      done();
+    });
   });
 
-  test('Named Scope Repeat with filter', function() {
+  test('Named Scope Repeat with filter', function(done) {
     var div = createTestHtml(
         '<template bind>' +
           '<template repeat="{{ value in [ 3, 2, 1 ] | staticSort }}">' +
@@ -1207,14 +1419,17 @@ suite('PolymerExpressions', function() {
         '</template>');
     var model = {};
     recursivelySetTemplateModel(div, model);
-    Platform.performMicrotaskCheckpoint();
 
-    assert.strictEqual('1', div.childNodes[2].textContent);
-    assert.strictEqual('2', div.childNodes[3].textContent);
-    assert.strictEqual('3', div.childNodes[4].textContent);
+    then(function() {
+      assert.strictEqual('1', div.childNodes[2].textContent);
+      assert.strictEqual('2', div.childNodes[3].textContent);
+      assert.strictEqual('3', div.childNodes[4].textContent);
+
+      done();
+    });
   });
 
-  test('filter on model', function() {
+  test('filter on model', function(done) {
     var div = createTestHtml(
         '<template bind="{{ }}">' +
             '<input value="{{ value | multiple }}">' +
@@ -1234,13 +1449,17 @@ suite('PolymerExpressions', function() {
     }
 
     recursivelySetTemplateModel(div, model);
-    Platform.performMicrotaskCheckpoint();
-    assert.equal('16', div.childNodes[1].value);
 
-    div.childNodes[1].value = 20;
-    dispatchEvent('input', div.childNodes[1]);
+    then(function() {
+      assert.equal('16', div.childNodes[1].value);
 
-    Platform.performMicrotaskCheckpoint();
-    assert.equal('10', model.value);
+      div.childNodes[1].value = 20;
+      dispatchEvent('input', div.childNodes[1]);
+
+    }).then(function() {
+      assert.equal('10', model.value);
+
+      done();
+    });
   });
 });
