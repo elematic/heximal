@@ -3,5 +3,3 @@ mocha.setup({
   ignoreLeaks: true
 });
 var assert = chai.assert;
-
-var forceCollectObservers = true;
