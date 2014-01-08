@@ -913,6 +913,30 @@ suite('PolymerExpressions', function() {
     });
   });
 
+  test('computed property with ident index', function(done) {
+    var div = createTestHtml(
+        '<template bind="{{ }}">' +
+            '<div foo="{{ myArray[myIndex] }}">' +
+        '</template>');
+
+    var model = {
+      myArray: ['baz', 'bar'],
+      myIndex: 1
+    };
+
+    recursivelySetTemplateModel(div, model);
+
+    then(function() {
+      assert.equal('bar', div.childNodes[1].getAttribute('foo'));
+      model.myIndex = 0;
+
+    }).then(function() {
+      assert.equal('baz', div.childNodes[1].getAttribute('foo'));
+
+      done();
+    });
+  });
+
   test('two-way computed property', function(done) {
     var div = createTestHtml(
         '<template bind="{{ }}">' +
