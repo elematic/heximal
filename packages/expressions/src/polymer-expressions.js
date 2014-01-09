@@ -501,7 +501,6 @@
   };
 
   global.PolymerExpressions = PolymerExpressions;
-  if (exposeGetExpression)
+  if (global.exposeGetExpression)
     global.getExpression_ = getExpression
-
 })(this);
