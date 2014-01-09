@@ -386,6 +386,31 @@ suite('PolymerExpressions', function() {
     });
   });
 
+  test('Named Scope Repeat - semantic template', function(done) {
+    var div = createTestHtml(
+        '<template bind>' +
+          '<table><tr template repeat="{{ user in users }}">' +
+            '<td>{{ id }}:{{ user.name }}</td>' +
+          '</tr></table>' +
+        '</template>');
+    var model = {
+      id: 'id',
+      users: [
+        { name: 'Tim' },
+        { name: 'Sally'}
+      ]
+    };
+    recursivelySetTemplateModel(div, model);
+
+    then(function() {
+      var tbody = div.firstChild.nextSibling.firstChild;
+      assert.strictEqual('id:Tim', tbody.childNodes[1].firstChild.textContent);
+      assert.strictEqual('id:Sally', tbody.childNodes[2].firstChild.textContent);
+
+      done();
+    });
+  });
+
   test('Named Scope Deep Nesting', function(done) {
     var div = createTestHtml(
         '<template bind>' +
