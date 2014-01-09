@@ -961,6 +961,10 @@ suite('PolymerExpressions', function() {
     }).then(function() {
       assert.equal('baz', div.childNodes[1].getAttribute('foo'));
 
+      model.myArray = ['hello', 'world'];
+    }).then(function() {
+      assert.equal('hello', div.childNodes[1].getAttribute('foo'));
+
       done();
     });
   });
