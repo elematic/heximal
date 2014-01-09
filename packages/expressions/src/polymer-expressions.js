@@ -81,40 +81,32 @@
 
   Literal.prototype = {
     valueFn: function() {
-      var value = this.value;
-      return function() { return value; };
+      if (!this.valueFn_) {
+        var value = this.value;
+        this.valueFn_ = function() {
+          return value;
+        }
+      }
+
+      return this.valueFn_;
     }
   }
 
-  function IdentPath(delegate, name, last) {
-    this.delegate = delegate;
+  function IdentPath(name) {
     this.name = name;
-    this.last = last;
+    this.path = Path.get(name);
   }
 
   IdentPath.prototype = {
-    getPath: function() {
-      if (!this.path_) {
-        if (this.last)
-          this.path_ = Path.get(this.last.getPath() + '.' + this.name);
-        else
-          this.path_ = Path.get(this.name);
-      }
-      return this.path_;
-    },
-
     valueFn: function() {
       if (!this.valueFn_) {
-        var path = this.getPath();
-        var index = this.delegate.deps[path];
-        if (index === undefined) {
-          index = this.delegate.deps[path] = this.delegate.depsList.length;
-          this.delegate.depsList.push(path);
-        }
+        var name = this.name;
+        var path = this.path;
+        this.valueFn_ = function(model, observer) {
+          if (observer)
+            observer.addPath(model, path);
 
-        var depsList = this.delegate.depsList;
-        this.valueFn_ = function(values) {
-          return depsList.length === 1 ? values : values[index];
+          return path.getValueFrom(model);
         }
       }
 
@@ -122,28 +114,55 @@
     },
 
     setValue: function(model, newValue) {
-      return this.getPath().setValueFrom(model, newValue);
+      return this.path.setValueFrom(model, newValue);
     }
   };
 
-  function MemberExpression(object, property) {
-    this.object = object;
-    this.property = property;
+  function MemberExpression(object, property, accessor) {
+    if (typeof object == 'function' || object.dynamic)
+      this.nonModelPath = true;
+
+    if (typeof property == 'function' || property.dynamic ||
+        (accessor == '[' && (!(property instanceof Literal)))) {
+      this.dynamic = true;
+    }
+
+    this.object = getFn(object);
+    this.property = accessor == '.' ? property : getFn(property);
   }
 
   MemberExpression.prototype = {
+    dynamic: false,
+    nonModelPath: false,
     valueFn: function() {
-      var object = this.object;
-      var property = this.property;
-      return function(values) {
-        return object(values)[property(values)];
-      };
+      if (!this.valueFn_) {
+        var object = this.object;
+        var property = this.property;
+        var path = property instanceof IdentPath ?
+            Path.get(property.name) : undefined;
+
+        this.valueFn_ = function(model, observer) {
+          var context = object(model, observer);
+          if (path) {
+            if (observer)
+              observer.addPath(context, path);
+            return context[property.name];
+          }
+
+          var propName = property(model, observer);
+          if (observer)
+            observer.addPath(context, propName);
+          return context[propName];
+        };
+      }
+      return this.valueFn_;
     },
 
-    setValue: function(object, newValue, depsValues) {
-      object = this.object(depsValues);
-      var property = this.property(depsValues);
-      return object[property] = newValue;
+    setValue: function(model, newValue) {
+      var object = this.object(model);
+      var propName = this.property instanceof IdentPath ? this.property.name :
+          this.property(model);
+      return object[propName] = newValue;
     }
   };
 
@@ -156,9 +175,10 @@
   }
 
   Filter.prototype = {
-    transform: function(value, depsValues, toModelDirection, filterRegistry,
-                        context) {
+    transform: function(value, toModelDirection, filterRegistry, model,
+                        observer) {
       var fn = filterRegistry[this.name];
+      var context = model;
       if (fn) {
         context = undefined;
       } else {
@@ -186,7 +206,7 @@
 
       var args = [value];
       for (var i = 0; i < this.args.length; i++) {
-        args[i + 1] = getFn(this.args[i])(depsValues);
+        args[i + 1] = getFn(this.args[i])(model, observer);
       }
 
       return fn.apply(context, args);
@@ -227,21 +247,21 @@
     this.expression = null;
     this.filters = [];
     this.deps = {};
-    this.depsList = [];
     this.currentPath = undefined;
     this.scopeIdent = undefined;
     this.indexIdent = undefined;
   }
 
   ASTDelegate.prototype = {
+    nonModelPath: false,
     createUnaryExpression: function(op, argument) {
       if (!unaryOperators[op])
         throw Error('Disallowed operator: ' + op);
 
       argument = getFn(argument);
 
-      return function(values) {
-        return unaryOperators[op](argument(values));
+      return function(model, observer) {
+        return unaryOperators[op](argument(model, observer));
       };
     },
 
@@ -252,8 +272,8 @@
       left = getFn(left);
       right = getFn(right);
 
-      return function(values) {
-        return binaryOperators[op](left(values), right(values));
+      return function(model, observer) {
+        return binaryOperators[op](left(model, observer), right(model, observer));
       };
     },
 
@@ -262,27 +282,23 @@
       consequent = getFn(consequent);
       alternate = getFn(alternate);
 
-      return function(values) {
-        return test(values) ? consequent(values) : alternate(values);
+      return function(model, observer) {
+        return test(model, observer) ?
+            consequent(model, observer) : alternate(model, observer);
       }
     },
 
     createIdentifier: function(name) {
-      var ident = new IdentPath(this, name);
+      var ident = new IdentPath(name);
       ident.type = 'Identifier';
       return ident;
     },
 
     createMemberExpression: function(accessor, object, property) {
-      if (object instanceof IdentPath) {
-        if (accessor == '.')
-          return new IdentPath(this, property.name, object);
-
-        if (property instanceof Literal && Path.get(property.value).valid)
-          return new IdentPath(this, property.value, object);
-      }
-
-      return new MemberExpression(getFn(object), getFn(property));
+      var ex = new MemberExpression(object, property, accessor);
+      if (ex.nonModelPath)
+        this.nonModelPath = true;
+      return ex;
     },
 
     createLiteral: function(token) {
@@ -293,10 +309,10 @@
       for (var i = 0; i < elements.length; i++)
         elements[i] = getFn(elements[i]);
 
-      return function(values) {
+      return function(model, observer) {
         var arr = []
         for (var i = 0; i < elements.length; i++)
-          arr.push(elements[i](values));
+          arr.push(elements[i](model, observer));
         return arr;
       }
     },
@@ -312,10 +328,10 @@
       for (var i = 0; i < properties.length; i++)
         properties[i].value = getFn(properties[i].value);
 
-      return function(values) {
+      return function(model, observer) {
         var obj = {};
         for (var i = 0; i < properties.length; i++)
-          obj[properties[i].key] = properties[i].value(values);
+          obj[properties[i].key] = properties[i].value(model, observer);
         return obj;
       }
     },
@@ -363,91 +379,58 @@
     this.expression = delegate.expression;
     getFn(this.expression); // forces enumeration of path dependencies
 
-    this.paths = delegate.depsList;
     this.filters = delegate.filters;
+    this.nonModelPath = delegate.nonModelPath;
   }
 
   Expression.prototype = {
     getBinding: function(model, filterRegistry, oneTime) {
-      var paths = this.paths;
-      if (oneTime) {
-        var values;
+      if (oneTime)
+        return this.getValue(model, undefined, filterRegistry);
 
-        if (paths.length == 1) {
-          values = paths[0].getValueFrom(model);
-        } else if (paths.length > 1) {
-          values = [];
-          for (var i = 0; i < paths.length; i++)
-            values[i] = paths[i].getValueFrom(model);
-        }
-
-        return this.getValue(values, filterRegistry, model);
-      }
-
-      if (!paths.length) {
-        // only literals in expression.
-        return new ConstantObservable(this.getValue(undefined, filterRegistry,
-                                                    model));
-      }
-
+      var observer = oneTime ? undefined : new CompoundObserver();
+      var value = this.getValue(model, observer, filterRegistry);
       var self = this;
-      function valueFn(values) {
-        return self.getValue(values, filterRegistry, model);
+
+      function valueFn() {
+        if (self.nonModelPath)
+          observer.startReset();
+
+        value = self.getValue(model, self.nonModelPath ? observer : undefined,
+                              filterRegistry);
+        if (self.nonModelPath)
+          observer.finishReset();
+
+        return value;
       }
 
       function setValueFn(newValue) {
-        var values;
-        if (self.paths.length == 1) {
-          // In the singular-dep case, a PathObserver is used and the callback
-          // is a scalar value.
-          values = self.paths[0].getValueFrom(model);
-        } else {
-          // Multiple-deps uses a CompoundObserver whose callback is an
-          // array of values.
-          values = [];
-          for (var i = 0; i < self.paths.length; i++) {
-            values[i] = self.paths[i].getValueFrom(model);
-          }
-        }
-
-        self.setValue(model, newValue, values, filterRegistry, model);
+        self.setValue(model, newValue, filterRegistry);
         return newValue;
-      }
-
-      var observer;
-      if (paths.length === 1) {
-        observer = new PathObserver(model, paths[0]);
-      } else {
-        observer = new CompoundObserver();
-        for (var i = 0; i < paths.length; i++) {
-          observer.addPath(model, paths[i]);
-        }
       }
 
       return new ObserverTransform(observer, valueFn, setValueFn, true);
     },
 
-    getValue: function(depsValues, filterRegistry, context) {
-      var value = getFn(this.expression)(depsValues);
+    getValue: function(model, observer, filterRegistry) {
+      var value = getFn(this.expression)(model, observer);
       for (var i = 0; i < this.filters.length; i++) {
-        value = this.filters[i].transform(value, depsValues, false,
-                                          filterRegistry,
-                                          context);
+        value = this.filters[i].transform(value, false, filterRegistry, model,
+                                          observer);
       }
 
       return value;
     },
 
-    setValue: function(model, newValue, depsValues, filterRegistry, context) {
+    setValue: function(model, newValue, filterRegistry) {
       var count = this.filters ? this.filters.length : 0;
       while (count-- > 0) {
-        newValue = this.filters[count].transform(newValue, depsValues, true,
-                                                 filterRegistry,
-                                                 context);
+        newValue = this.filters[count].transform(newValue, true, filterRegistry,
+                                                 model);
       }
 
       if (this.expression.setValue)
-        return this.expression.setValue(model, newValue, depsValues);
+        return this.expression.setValue(model, newValue);
     }
   }
 
@@ -518,5 +501,7 @@
   };
 
   global.PolymerExpressions = PolymerExpressions;
+  if (exposeGetExpression)
+    global.getExpression_ = getExpression
 
 })(this);

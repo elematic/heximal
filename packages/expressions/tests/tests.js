@@ -913,6 +913,34 @@ suite('PolymerExpressions', function() {
     });
   });
 
+  test('complex computed property expression', function(done) {
+    var div = createTestHtml(
+        '<template bind="{{ }}">' +
+            '<div foo="{{ foo[bar + 2].baz + bat }}">' +
+        '</template>');
+
+    var model = {
+      foo: [{ baz: 'bo' }, { baz: 'ba' }],
+      bar: -2,
+      bat: 't'
+    };
+
+    recursivelySetTemplateModel(div, model);
+
+    then(function() {
+      assert.equal('bot', div.childNodes[1].getAttribute('foo'));
+      model.myIndex = 0;
+      model.bar = -1;
+      model.bat = 'r';
+
+    }).then(function() {
+      assert.equal('bar', div.childNodes[1].getAttribute('foo'));
+
+      done();
+    });
+  });
+
+
   test('computed property with ident index', function(done) {
     var div = createTestHtml(
         '<template bind="{{ }}">' +
@@ -1485,5 +1513,20 @@ suite('PolymerExpressions', function() {
 
       done();
     });
+  });
+
+  test('Non-model path expressions', function() {
+    assert.isFalse(getExpression_('a + b').nonModelPath);
+    assert.isFalse(getExpression_('a + b > 3 + hello["kitty"]').nonModelPath);
+    assert.isFalse(getExpression_('a[a.b]').nonModelPath);
+    assert.isFalse(getExpression_('a[a.b] + d[e]').nonModelPath);
+    assert.isFalse(getExpression_('a[0].c').nonModelPath);
+    assert.isFalse(getExpression_('a[1][0]').nonModelPath);
+
+    assert.isTrue(getExpression_('a[b].c').nonModelPath);
+    assert.isTrue(getExpression_('(a + 1).c').nonModelPath);
+    assert.isTrue(getExpression_('a[a.b].c').nonModelPath);
+    assert.isTrue(getExpression_('a[a][0]').nonModelPath);
+    assert.isTrue(getExpression_('a[a.b] + d[e].f').nonModelPath);
   });
 });
