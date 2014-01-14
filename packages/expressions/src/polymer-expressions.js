@@ -146,13 +146,13 @@
           if (path) {
             if (observer)
               observer.addPath(context, path);
-            return context[property.name];
+            return path.getValueFrom(context);
           }
 
           var propName = property(model, observer);
           if (observer)
             observer.addPath(context, propName);
-          return context[propName];
+          return context ? context[propName] : undefined;
         };
       }
       return this.valueFn_;

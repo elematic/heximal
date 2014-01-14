@@ -1602,6 +1602,24 @@ suite('PolymerExpressions', function() {
     });
   });
 
+  // https://github.com/Polymer/polymer-expressions/issues/19
+  test('issue-19', function(done) {
+    var div = createTestHtml(
+        '<template id="t" bind="{{ foo.bar as b }}">' +
+          '<span>{{ b }}</span>' +
+        '</template>');
+
+    var model = {};
+
+    recursivelySetTemplateModel(div, model);
+
+    then(function() {
+      var target = div.childNodes[1];
+
+      done();
+    });
+  });
+
   test('Non-model path expressions', function() {
     assert.isFalse(getExpression_('a + b').nonModelPath);
     assert.isFalse(getExpression_('a + b > 3 + hello["kitty"]').nonModelPath);
