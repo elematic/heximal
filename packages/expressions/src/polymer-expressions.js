@@ -444,6 +444,43 @@
     });
   }
 
+  function isEventHandler(name) {
+    return name[0] === 'o' &&
+           name[1] === 'n' &&
+           name[2] === '-';
+  }
+
+  function prepareEventBinding(path, name) {
+    var eventType = name.substring(3);
+
+    return function(model, node, oneTime) {
+      var fn = path.getValueFrom(model);
+
+      function handler() {
+        if (!oneTime)
+          fn = path.getValueFrom(model);
+        fn.apply(model, arguments);
+      }
+
+      node.addEventListener(eventType, handler);
+
+      if (oneTime)
+        return;
+
+      function bindingValue() {
+        return '{{ ' + path + ' }}';
+      }
+
+      return {
+        open: bindingValue,
+        discardChanges: bindingValue,
+        close: function() {
+          node.removeEventListener(eventType, handler);
+        }
+      };
+    }
+  }
+
   function PolymerExpressions() {}
 
   PolymerExpressions.prototype = {
@@ -477,6 +514,16 @@
     },
 
     prepareBinding: function(pathString, name, node) {
+      if (isEventHandler(name)) {
+        var path = Path.get(pathString);
+        if (!path.valid) {
+          console.error('on-* bindings must be simple path expressions');
+          return;
+        }
+
+        return prepareEventBinding(path, name);
+      }
+
       if (Path.get(pathString).valid)
         return; // bail out early if pathString is simple path.
 

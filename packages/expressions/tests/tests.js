@@ -1544,6 +1544,64 @@ suite('PolymerExpressions', function() {
     });
   });
 
+  test('on-* event bindings', function(done) {
+    var div = createTestHtml(
+        '<template bind>' +
+          '<div on-foo="{{ handleFoo }}" ' +
+               'on-bar="{{ bar.handleBar }}" ' +
+               'on-baz="[[ handleBaz ]]">' +
+          '</div>' +
+        '</template>');
+
+    var model = {
+      callCount: 0,
+      receiverValue: undefined,
+      handleFoo: function() {
+        this.callCount++;
+        this.receiverValue = 'foo';
+      },
+      bar: {
+        handleBar: function() {
+          this.callCount++;
+          this.receiverValue = 'bar';
+        }
+      },
+      handleBaz: function() {
+        this.callCount++;
+        this.receiverValue = 'baz';
+      }
+    };
+
+    recursivelySetTemplateModel(div, model);
+
+    then(function() {
+      var target = div.childNodes[1];
+
+      dispatchEvent('foo', target);
+      assert.strictEqual(1, model.callCount);
+      assert.strictEqual('foo', model.receiverValue);
+
+      dispatchEvent('bar', target);
+      assert.strictEqual(2, model.callCount);
+      assert.strictEqual('bar', model.receiverValue);
+
+      dispatchEvent('baz', target);
+      assert.strictEqual(3, model.callCount);
+      assert.strictEqual('baz', model.receiverValue);
+
+      // should be ignored because of one-time binding
+      model.handleBaz = function() {
+        this.receiverValue = 'newBaz';
+      };
+
+      dispatchEvent('baz', target);
+      assert.strictEqual(4, model.callCount);
+      assert.strictEqual('baz', model.receiverValue);
+
+      done();
+    });
+  });
+
   test('Non-model path expressions', function() {
     assert.isFalse(getExpression_('a + b').nonModelPath);
     assert.isFalse(getExpression_('a + b > 3 + hello["kitty"]').nonModelPath);
