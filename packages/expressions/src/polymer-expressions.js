@@ -77,6 +77,7 @@
 
   function Literal(value) {
     this.value = value;
+    this.valueFn_ = undefined;
   }
 
   Literal.prototype = {
@@ -119,21 +120,15 @@
   };
 
   function MemberExpression(object, property, accessor) {
-    if (typeof object == 'function' || object.dynamic)
-      this.nonModelPath = true;
-
-    if (typeof property == 'function' || property.dynamic ||
-        (accessor == '[' && (!(property instanceof Literal)))) {
-      this.dynamic = true;
-    }
-
+    this.dynamicDeps = typeof object == 'function' || object.dynamic;
+    this.dynamic =
+        typeof property == 'function' || property.dynamic ||
+        (accessor == '[' && !(property instanceof Literal));
     this.object = getFn(object);
     this.property = accessor == '.' ? property : getFn(property);
   }
 
   MemberExpression.prototype = {
-    dynamic: false,
-    nonModelPath: false,
     valueFn: function() {
       if (!this.valueFn_) {
         var object = this.object;
@@ -250,10 +245,10 @@
     this.currentPath = undefined;
     this.scopeIdent = undefined;
     this.indexIdent = undefined;
+    this.dynamicDeps = false;
   }
 
   ASTDelegate.prototype = {
-    nonModelPath: false,
     createUnaryExpression: function(op, argument) {
       if (!unaryOperators[op])
         throw Error('Disallowed operator: ' + op);
@@ -273,7 +268,8 @@
       right = getFn(right);
 
       return function(model, observer) {
-        return binaryOperators[op](left(model, observer), right(model, observer));
+        return binaryOperators[op](left(model, observer),
+                                   right(model, observer));
       };
     },
 
@@ -296,8 +292,8 @@
 
     createMemberExpression: function(accessor, object, property) {
       var ex = new MemberExpression(object, property, accessor);
-      if (ex.nonModelPath)
-        this.nonModelPath = true;
+      if (ex.dynamicDeps)
+        this.dynamicDeps = true;
       return ex;
     },
 
@@ -380,7 +376,7 @@
     getFn(this.expression); // forces enumeration of path dependencies
 
     this.filters = delegate.filters;
-    this.nonModelPath = delegate.nonModelPath;
+    this.dynamicDeps = delegate.dynamicDeps;
   }
 
   Expression.prototype = {
@@ -388,17 +384,18 @@
       if (oneTime)
         return this.getValue(model, undefined, filterRegistry);
 
-      var observer = oneTime ? undefined : new CompoundObserver();
-      var value = this.getValue(model, observer, filterRegistry);
+      var observer = new CompoundObserver();
+      this.getValue(model, observer, filterRegistry);  // captures deps.
       var self = this;
 
       function valueFn() {
-        if (self.nonModelPath)
+        if (self.dynamicDeps)
           observer.startReset();
 
-        value = self.getValue(model, self.nonModelPath ? observer : undefined,
-                              filterRegistry);
-        if (self.nonModelPath)
+        var value = self.getValue(model,
+                                  self.dynamicDeps ? observer : undefined,
+                                  filterRegistry);
+        if (self.dynamicDeps)
           observer.finishReset();
 
         return value;

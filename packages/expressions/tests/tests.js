@@ -1624,18 +1624,18 @@ suite('PolymerExpressions', function() {
     });
   });
 
-  test('Non-model path expressions', function() {
-    assert.isFalse(getExpression_('a + b').nonModelPath);
-    assert.isFalse(getExpression_('a + b > 3 + hello["kitty"]').nonModelPath);
-    assert.isFalse(getExpression_('a[a.b]').nonModelPath);
-    assert.isFalse(getExpression_('a[a.b] + d[e]').nonModelPath);
-    assert.isFalse(getExpression_('a[0].c').nonModelPath);
-    assert.isFalse(getExpression_('a[1][0]').nonModelPath);
+  test('Dynamic deps path expressions', function() {
+    assert.isFalse(getExpression_('a + b').dynamicDeps);
+    assert.isFalse(getExpression_('a + b > 3 + hello["kitty"]').dynamicDeps);
+    assert.isFalse(getExpression_('a[a.b]').dynamicDeps);
+    assert.isFalse(getExpression_('a[a.b] + d[e]').dynamicDeps);
+    assert.isFalse(getExpression_('a[0].c').dynamicDeps);
+    assert.isFalse(getExpression_('a[1][0]').dynamicDeps);
 
-    assert.isTrue(getExpression_('a[b].c').nonModelPath);
-    assert.isTrue(getExpression_('(a + 1).c').nonModelPath);
-    assert.isTrue(getExpression_('a[a.b].c').nonModelPath);
-    assert.isTrue(getExpression_('a[a][0]').nonModelPath);
-    assert.isTrue(getExpression_('a[a.b] + d[e].f').nonModelPath);
+    assert.isTrue(getExpression_('a[b].c').dynamicDeps);
+    assert.isTrue(getExpression_('(a + 1).c').dynamicDeps);
+    assert.isTrue(getExpression_('a[a.b].c').dynamicDeps);
+    assert.isTrue(getExpression_('a[a][0]').dynamicDeps);
+    assert.isTrue(getExpression_('a[a.b] + d[e].f').dynamicDeps);
   });
 });
