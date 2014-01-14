@@ -405,7 +405,8 @@ suite('PolymerExpressions', function() {
     then(function() {
       var tbody = div.firstChild.nextSibling.firstChild;
       assert.strictEqual('id:Tim', tbody.childNodes[1].firstChild.textContent);
-      assert.strictEqual('id:Sally', tbody.childNodes[2].firstChild.textContent);
+      assert.strictEqual('id:Sally',
+                         tbody.childNodes[2].firstChild.textContent);
 
       done();
     });
@@ -638,7 +639,8 @@ suite('PolymerExpressions', function() {
     recursivelySetTemplateModel(div, model);
 
     then(function() {
-      assert.strictEqual('true:false:true:false', div.childNodes[1].textContent);
+      assert.strictEqual('true:false:true:false',
+                         div.childNodes[1].textContent);
 
       model.a.b = 1;
       model.d = -5;
@@ -667,13 +669,15 @@ suite('PolymerExpressions', function() {
     recursivelySetTemplateModel(div, model);
 
     then(function() {
-      assert.strictEqual('true:false:false:false', div.childNodes[1].textContent);
+      assert.strictEqual('true:false:false:false',
+                         div.childNodes[1].textContent);
 
       model.a.b = 3;
       model.e = {};
 
     }).then(function() {
-      assert.strictEqual('false:true:false:true', div.childNodes[1].textContent);
+      assert.strictEqual('false:true:false:true',
+                          div.childNodes[1].textContent);
 
       done();
     });
