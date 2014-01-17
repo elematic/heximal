@@ -120,40 +120,89 @@
   };
 
   function MemberExpression(object, property, accessor) {
+    // convert literal computed property access where literal value is a value
+    // path to ident dot-access.
+    if (accessor == '[' &&
+        property instanceof Literal &&
+        Path.get(property.value).valid) {
+      accessor = '.';
+      property = new IdentPath(property.value);
+    }
+
     this.dynamicDeps = typeof object == 'function' || object.dynamic;
-    this.dynamic =
-        typeof property == 'function' || property.dynamic ||
-        (accessor == '[' && !(property instanceof Literal));
-    this.object = getFn(object);
+
+    this.dynamic = typeof property == 'function' ||
+                   property.dynamic ||
+                   accessor == '[';
+
+    this.simplePath =
+        !this.dynamic &&
+        !this.dynamicDeps &&
+        property instanceof IdentPath &&
+        (object instanceof MemberExpression || object instanceof IdentPath);
+
+    this.object = this.simplePath ? object : getFn(object);
     this.property = accessor == '.' ? property : getFn(property);
   }
 
   MemberExpression.prototype = {
+    get fullPath() {
+      if (!this.fullPath_) {
+        var last = this.object instanceof IdentPath ?
+            this.object.name : this.object.fullPath;
+        this.fullPath_ = Path.get(last + '.' + this.property.name);
+      }
+
+      return this.fullPath_;
+    },
+
     valueFn: function() {
       if (!this.valueFn_) {
         var object = this.object;
-        var property = this.property;
-        var path = property instanceof IdentPath ?
-            Path.get(property.name) : undefined;
 
-        this.valueFn_ = function(model, observer) {
-          var context = object(model, observer);
-          if (path) {
+        if (this.simplePath) {
+          var path = this.fullPath;
+
+          this.valueFn_ = function(model, observer) {
+            if (observer)
+              observer.addPath(model, path);
+
+            return path.getValueFrom(model);
+          };
+        } else if (this.property instanceof IdentPath) {
+          var path = Path.get(this.property.name);
+
+          this.valueFn_ = function(model, observer) {
+            var context = object(model, observer);
+
             if (observer)
               observer.addPath(context, path);
+
             return path.getValueFrom(context);
           }
+        } else {
+          // Computed property.
+          var property = this.property;
 
-          var propName = property(model, observer);
-          if (observer)
-            observer.addPath(context, propName);
-          return context ? context[propName] : undefined;
-        };
+          this.valueFn_ = function(model, observer) {
+            var context = object(model, observer);
+            var propName = property(model, observer);
+            if (observer)
+              observer.addPath(context, propName);
+
+            return context ? context[propName] : undefined;
+          };
+        }
       }
       return this.valueFn_;
     },
 
     setValue: function(model, newValue) {
+      if (this.simplePath) {
+        this.fullPath.setValueFrom(model, newValue);
+        return newValue;
+      }
+
       var object = this.object(model);
       var propName = this.property instanceof IdentPath ? this.property.name :
           this.property(model);
@@ -389,17 +438,13 @@
       var self = this;
 
       function valueFn() {
-        // TODO(rafaelw):
-        // https://github.com/Polymer/polymer-expressions/issues/21
-        // Now even more super-hack-tastic.
-        var updateObserver = observer.state_ == 1; //self.dynamicDeps;
-        if (updateObserver)
+        if (self.dynamicDeps)
           observer.startReset();
 
         var value = self.getValue(model,
-                                  updateObserver ? observer : undefined,
+                                  self.dynamicDeps ? observer : undefined,
                                   filterRegistry);
-        if (updateObserver)
+        if (self.dynamicDeps)
           observer.finishReset();
 
         return value;
