@@ -969,6 +969,35 @@ suite('PolymerExpressions', function() {
     });
   });
 
+  test('computed - newly reachable objects', function(done) {
+    var div = createTestHtml(
+        '<template bind>' +
+            '<div foo="{{ 1 == foo.bar.bat }}">' +
+        '</template>');
+
+    var model = {};
+
+    recursivelySetTemplateModel(div, model);
+
+    then(function() {
+      assert.equal('false', div.childNodes[1].getAttribute('foo'));
+      model.foo = {};
+
+    }).then(function() {
+      assert.equal('false', div.childNodes[1].getAttribute('foo'));
+      model.foo.bar = {};
+
+    }).then(function() {
+      assert.equal('false', div.childNodes[1].getAttribute('foo'));
+      model.foo.bar.bat = 1;
+
+    }).then(function() {
+      assert.equal('true', div.childNodes[1].getAttribute('foo'));
+
+      done();
+    });
+  });
+
 
   test('computed property with ident index', function(done) {
     var div = createTestHtml(

@@ -389,13 +389,16 @@
       var self = this;
 
       function valueFn() {
-        if (self.dynamicDeps)
+        // TODO(rafaelw):
+        // https://github.com/Polymer/polymer-expressions/issues/21
+        var updateObserver = true; //self.dynamicDeps;
+        if (updateObserver)
           observer.startReset();
 
         var value = self.getValue(model,
-                                  self.dynamicDeps ? observer : undefined,
+                                  updateObserver ? observer : undefined,
                                   filterRegistry);
-        if (self.dynamicDeps)
+        if (updateObserver)
           observer.finishReset();
 
         return value;
