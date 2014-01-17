@@ -391,7 +391,8 @@
       function valueFn() {
         // TODO(rafaelw):
         // https://github.com/Polymer/polymer-expressions/issues/21
-        var updateObserver = true; //self.dynamicDeps;
+        // Now even more super-hack-tastic.
+        var updateObserver = observer.state_ == 1; //self.dynamicDeps;
         if (updateObserver)
           observer.startReset();
 
