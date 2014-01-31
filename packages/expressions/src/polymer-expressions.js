@@ -515,10 +515,14 @@
     return function(model, node, oneTime) {
       var fn = path.getValueFrom(model);
 
-      function handler() {
+      function handler(e) {
         if (!oneTime)
           fn = path.getValueFrom(model);
-        fn.apply(model, arguments);
+
+        fn.apply(model, [e, e.detail, e.currentTarget]);
+
+        if (Platform && typeof Platform.flush == 'function')
+          Platform.flush();
       }
 
       node.addEventListener(eventType, handler);
