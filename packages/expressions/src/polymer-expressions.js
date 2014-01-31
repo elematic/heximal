@@ -496,8 +496,21 @@
            name[2] === '-';
   }
 
+  var mixedCaseEventTypes = {};
+  [
+    'webkitAnimationStart',
+    'webkitAnimationEnd',
+    'webkitTransitionEnd',
+    'DOMFocusOut',
+    'DOMFocusIn',
+    'DOMMouseScroll'
+  ].forEach(function(e) {
+    mixedCaseEventTypes[e.toLowerCase()] = e;
+  });
+
   function prepareEventBinding(path, name) {
     var eventType = name.substring(3);
+    eventType = mixedCaseEventTypes[eventType] || eventType;
 
     return function(model, node, oneTime) {
       var fn = path.getValueFrom(model);
@@ -595,5 +608,7 @@
 
   global.PolymerExpressions = PolymerExpressions;
   if (global.exposeGetExpression)
-    global.getExpression_ = getExpression
+    global.getExpression_ = getExpression;
+
+  global.PolymerExpressions.prepareEventBinding = prepareEventBinding;
 })(this);

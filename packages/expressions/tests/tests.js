@@ -1635,6 +1635,56 @@ suite('PolymerExpressions', function() {
     });
   });
 
+  function textMixedCaseEventBinding(done, mixedCase) {
+    var lowercase = mixedCase.toLowerCase();
+
+    var div = createTestHtml(
+        '<template bind>' +
+          '<div on-' + lowercase + '="{{ handleEvent }}"</div>' +
+        '</template>');
+
+    var model = {
+      callCount: 0,
+      handleEvent: function() {
+        this.callCount++;
+      }
+    };
+
+    recursivelySetTemplateModel(div, model);
+
+    then(function() {
+      var target = div.childNodes[1];
+
+      dispatchEvent(mixedCase, target);
+      assert.strictEqual(1, model.callCount);
+      done();
+    });
+  }
+
+  test('mixed-case event binding: webkitAnimationStart', function(done) {
+    textMixedCaseEventBinding(done, 'webkitAnimationStart')
+  });
+
+  test('mixed-case event binding: webkitAnimationEnd', function(done) {
+    textMixedCaseEventBinding(done, 'webkitAnimationEnd')
+  });
+
+  test('mixed-case event binding: webkitTransitionEnd', function(done) {
+    textMixedCaseEventBinding(done, 'webkitTransitionEnd')
+  });
+
+  test('mixed-case event binding: DOMFocusOut', function(done) {
+    textMixedCaseEventBinding(done, 'DOMFocusOut')
+  });
+
+  test('mixed-case event binding: DOMFocusIn', function(done) {
+    textMixedCaseEventBinding(done, 'DOMFocusIn')
+  });
+
+  test('mixed-case event binding: DOMMouseScroll', function(done) {
+    textMixedCaseEventBinding(done, 'DOMMouseScroll')
+  });
+
   // https://github.com/Polymer/polymer-expressions/issues/19
   test('issue-19', function(done) {
     var div = createTestHtml(
