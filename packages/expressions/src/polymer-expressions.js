@@ -515,7 +515,8 @@
   // I.e. Pushed values in two-bindings need to be assigned to the actual model
   // object.
   function findScope(model, prop) {
-    while (model.__parentScope && !model.hasOwnProperty(prop)) {
+    while (model.__parentScope &&
+           !Object.prototype.hasOwnProperty.call(model, prop)) {
       model = model.__parentScope;
     }
 
