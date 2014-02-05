@@ -511,13 +511,15 @@
     mixedCaseEventTypes[e.toLowerCase()] = e;
   });
 
+  var parentScopeName = '@' + Math.random().toString(36).slice(2);
+
   // Single ident paths must bind directly to the appropriate scope object.
   // I.e. Pushed values in two-bindings need to be assigned to the actual model
   // object.
   function findScope(model, prop) {
-    while (model.__parentScope &&
+    while (model[parentScopeName] &&
            !Object.prototype.hasOwnProperty.call(model, prop)) {
-      model = model.__parentScope;
+      model = model[parentScopeName];
     }
 
     return model;
@@ -651,7 +653,7 @@
         var scope = Object.create(parentScope);
         scope[scopeName] = model;
         scope[indexName] = undefined;
-        scope.__parentScope = parentScope;
+        scope[parentScopeName] = parentScope;
         return scope;
       };
     }
