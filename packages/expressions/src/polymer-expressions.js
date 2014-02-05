@@ -115,6 +115,9 @@
     },
 
     setValue: function(model, newValue) {
+      if (this.path.length == 1);
+        model = findScope(model, this.path[0]);
+
       return this.path.setValueFrom(model, newValue);
     }
   };
@@ -508,18 +511,46 @@
     mixedCaseEventTypes[e.toLowerCase()] = e;
   });
 
+  // Single ident paths must bind directly to the appropriate scope object.
+  // I.e. Pushed values in two-bindings need to be assigned to the actual model
+  // object.
+  function findScope(model, prop) {
+    while (model.__parentScope && !model.hasOwnProperty(prop)) {
+      model = model.__parentScope;
+    }
+
+    return model;
+  }
+
+  function getReceiver(model, path) {
+    if (path.length == 0)
+      return undefined;
+
+    if (path.length == 1)
+      return findScope(model, path[0]);
+
+    for (var i = 0; model != null && i < path.length - 1; i++) {
+      model = model[path[i]];
+    }
+
+    return model;
+  }
+
   function prepareEventBinding(path, name) {
     var eventType = name.substring(3);
     eventType = mixedCaseEventTypes[eventType] || eventType;
 
     return function(model, node, oneTime) {
       var fn = path.getValueFrom(model);
+      var receiver = getReceiver(model, path);
 
       function handler(e) {
-        if (!oneTime)
+        if (!oneTime) {
           fn = path.getValueFrom(model);
+          receiver = getReceiver(model, path);
+        }
 
-        fn.apply(model, [e, e.detail, e.currentTarget]);
+        fn.apply(receiver, [e, e.detail, e.currentTarget]);
 
         if (Platform && typeof Platform.flush == 'function')
           Platform.flush();
@@ -577,8 +608,8 @@
     },
 
     prepareBinding: function(pathString, name, node) {
+      var path = Path.get(pathString);
       if (isEventHandler(name)) {
-        var path = Path.get(pathString);
         if (!path.valid) {
           console.error('on-* bindings must be simple path expressions');
           return;
@@ -587,8 +618,19 @@
         return prepareEventBinding(path, name);
       }
 
-      if (Path.get(pathString).valid)
+      if (path.valid) {
+        if (path.length == 1) {
+          return function(model, node, oneTime) {
+            if (oneTime)
+              return path.getValueFrom(model);
+
+            var scope = findScope(model, path[0]);
+            return new PathObserver(scope, path);
+          }
+        }
+
         return; // bail out early if pathString is simple path.
+      }
 
       return prepareBinding(pathString, name, node, this);
     },
@@ -602,9 +644,13 @@
           template.templateInstance.model :
           template.model;
 
+      var indexName = template.polymerExpressionIndexIdent_;
+
       return function(model) {
         var scope = Object.create(parentScope);
         scope[scopeName] = model;
+        scope[indexName] = undefined;
+        scope.__parentScope = parentScope;
         return scope;
       };
     }

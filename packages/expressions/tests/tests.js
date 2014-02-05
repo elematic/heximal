@@ -1165,6 +1165,56 @@ suite('PolymerExpressions', function() {
     })
   });
 
+  test('two-way binding to root scope', function(done) {
+    var div = createTestHtml(
+        '<template bind>' +
+          '<template bind="{{ foo as foo }}">' +
+            '<input value="{{ bar }}">' +
+          '</template>' +
+        '</template>');
+
+    var model = { foo: {}, bar: 'bar' };
+
+    recursivelySetTemplateModel(div, model);
+
+    then(function() {
+      assert.equal('bar', div.childNodes[2].value);
+
+      div.childNodes[2].value = 'baz';
+      dispatchEvent('input', div.childNodes[2]);
+
+    }).then(function() {
+      assert.equal('baz', model.bar);
+
+      done();
+    })
+  });
+
+  test('two-way binding to root scope with transform', function(done) {
+    var div = createTestHtml(
+        '<template bind>' +
+          '<template bind="{{ foo as foo }}">' +
+            '<input value="{{ bar | plusN(2) }}">' +
+          '</template>' +
+        '</template>');
+
+    var model = { foo: {}, bar: 3 };
+
+    recursivelySetTemplateModel(div, model);
+
+    then(function() {
+      assert.equal('5', div.childNodes[2].value);
+
+      div.childNodes[2].value = 8;
+      dispatchEvent('input', div.childNodes[2]);
+
+    }).then(function() {
+      assert.equal(6, model.bar);
+
+      done();
+    })
+  });
+
   test('two-way filter too many paths', function(done) {
     var div = createTestHtml(
         '<template bind="{{ }}">' +
@@ -1594,6 +1644,8 @@ suite('PolymerExpressions', function() {
         this.receiverValue = 'foo';
       },
       bar: {
+        callCount: 0,
+        receiverValue: 'bar',
         handleBar: function() {
           this.callCount++;
           this.receiverValue = 'bar';
@@ -1615,11 +1667,13 @@ suite('PolymerExpressions', function() {
       assert.strictEqual('foo', model.receiverValue);
 
       dispatchEvent('bar', target);
-      assert.strictEqual(2, model.callCount);
-      assert.strictEqual('bar', model.receiverValue);
+      assert.strictEqual(1, model.callCount);
+      assert.strictEqual('foo', model.receiverValue);
+      assert.strictEqual(1, model.bar.callCount);
+      assert.strictEqual('bar', model.bar.receiverValue);
 
       dispatchEvent('baz', target);
-      assert.strictEqual(3, model.callCount);
+      assert.strictEqual(2, model.callCount);
       assert.strictEqual('baz', model.receiverValue);
 
       // should be ignored because of one-time binding
@@ -1628,13 +1682,39 @@ suite('PolymerExpressions', function() {
       };
 
       dispatchEvent('baz', target);
-      assert.strictEqual(4, model.callCount);
+      assert.strictEqual(3, model.callCount);
       assert.strictEqual('baz', model.receiverValue);
 
       done();
     });
   });
 
+  test('on-* event bindings - correct this', function(done) {
+    var div = createTestHtml(
+        '<template bind>' +
+          '<template bind="{{ foo as foo}}">' +
+            '<div on-foo="{{ handleFoo }}"</div>' +
+          '</template>' +
+        '</template>');
+
+    var receiver;
+    var model = {
+      handleFoo: function() {
+        receiver = this;
+      }
+    };
+
+    recursivelySetTemplateModel(div, model);
+
+    then(function() {
+      var target = div.childNodes[2];
+
+      dispatchEvent('foo', target);
+      assert.strictEqual(model, receiver);
+
+      done();
+    });
+  });
   function textMixedCaseEventBinding(done, mixedCase) {
     var lowercase = mixedCase.toLowerCase();
 
