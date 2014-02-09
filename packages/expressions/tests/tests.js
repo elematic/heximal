@@ -88,9 +88,9 @@ suite('PolymerExpressions', function() {
     return div;
   }
 
-  function recursivelySetTemplateModel(node, model) {
+  function recursivelySetTemplateModel(node, model, delegate) {
     HTMLTemplateElement.forAllTemplatesFrom_(node, function(template) {
-      var delegate = new PolymerExpressions;
+      delegate = delegate|| new PolymerExpressions;
 
       // testing filters
       delegate.hex = function(value) {
@@ -1715,6 +1715,42 @@ suite('PolymerExpressions', function() {
       done();
     });
   });
+
+  test('on-* event bindings - resolveEventReceiver', function(done) {
+    var div = createTestHtml(
+        '<template bind>' +
+          '<template bind="{{ foo as foo}}">' +
+            '<div on-foo="{{ handleFoo }}"</div>' +
+          '</template>' +
+        '</template>');
+
+    var delegate = new PolymerExpressions;
+    var receiver = {};
+    delegate.resolveEventReceiver = function(model, path, node) {
+      return receiver;
+    }
+
+    var callCount = 0;
+
+    var model = {
+      handleFoo: function() {
+        assert.strictEqual(this, receiver);
+        callCount++;
+      }
+    };
+
+    recursivelySetTemplateModel(div, model, delegate);
+
+    then(function() {
+      var target = div.childNodes[2];
+
+      dispatchEvent('foo', target);
+      assert.strictEqual(1, callCount);
+
+      done();
+    });
+  });
+
   function textMixedCaseEventBinding(done, mixedCase) {
     var lowercase = mixedCase.toLowerCase();
 

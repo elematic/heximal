@@ -525,7 +525,7 @@
     return model;
   }
 
-  function getReceiver(model, path) {
+  function resolveEventReceiver(model, path, node) {
     if (path.length == 0)
       return undefined;
 
@@ -539,19 +539,24 @@
     return model;
   }
 
-  function prepareEventBinding(path, name) {
+  function prepareEventBinding(path, name, polymerExpressions) {
     var eventType = name.substring(3);
     eventType = mixedCaseEventTypes[eventType] || eventType;
 
+    var resolveReceiver = resolveEventReceiver;
+
+    if (typeof polymerExpressions.resolveEventReceiver == 'function') {
+      resolveReceiver = function(model, path, node) {
+        return polymerExpressions.resolveEventReceiver(model, path, node);
+      };
+    }
+
     return function(model, node, oneTime) {
-      var fn = path.getValueFrom(model);
-      var receiver = getReceiver(model, path);
+      var fn, receiver;
 
       function handler(e) {
-        if (!oneTime) {
-          fn = path.getValueFrom(model);
-          receiver = getReceiver(model, path);
-        }
+        fn = fn || path.getValueFrom(model);
+        receiver = receiver || resolveReceiver(model, path, node);
 
         fn.apply(receiver, [e, e.detail, e.currentTarget]);
 
@@ -618,7 +623,7 @@
           return;
         }
 
-        return prepareEventBinding(path, name);
+        return prepareEventBinding(path, name, this);
       }
 
       if (path.valid) {
