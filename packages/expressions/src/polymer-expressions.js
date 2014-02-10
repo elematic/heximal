@@ -543,25 +543,26 @@
     var eventType = name.substring(3);
     eventType = mixedCaseEventTypes[eventType] || eventType;
 
-    var resolveReceiver = resolveEventReceiver;
-
-    if (typeof polymerExpressions.resolveEventReceiver == 'function') {
-      resolveReceiver = function(model, path, node) {
-        return polymerExpressions.resolveEventReceiver(model, path, node);
-      };
-    }
-
     return function(model, node, oneTime) {
-      var fn, receiver;
+      var fn, receiver, handler;
+      if (typeof polymerExpressions.resolveEventHandler == 'function') {
+        handler = function(e) {
+          fn = fn || polymerExpressions.resolveEventHandler(model, path, node);
+          fn(e, e.detail, e.currentTarget);
 
-      function handler(e) {
-        fn = fn || path.getValueFrom(model);
-        receiver = receiver || resolveReceiver(model, path, node);
+          if (Platform && typeof Platform.flush == 'function')
+            Platform.flush();
+        };
+      } else {
+        handler = function(e) {
+          fn = fn || path.getValueFrom(model);
+          receiver = receiver || resolveEventReceiver(model, path, node);
 
-        fn.apply(receiver, [e, e.detail, e.currentTarget]);
+          fn.apply(receiver, [e, e.detail, e.currentTarget]);
 
-        if (Platform && typeof Platform.flush == 'function')
-          Platform.flush();
+          if (Platform && typeof Platform.flush == 'function')
+            Platform.flush();
+        };
       }
 
       node.addEventListener(eventType, handler);

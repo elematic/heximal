@@ -1716,7 +1716,7 @@ suite('PolymerExpressions', function() {
     });
   });
 
-  test('on-* event bindings - resolveEventReceiver', function(done) {
+  test('on-* event bindings - resolveEventHandler', function(done) {
     var div = createTestHtml(
         '<template bind>' +
           '<template bind="{{ foo as foo}}">' +
@@ -1726,18 +1726,14 @@ suite('PolymerExpressions', function() {
 
     var delegate = new PolymerExpressions;
     var receiver = {};
-    delegate.resolveEventReceiver = function(model, path, node) {
-      return receiver;
+    delegate.resolveEventHandler = function(model, path, node) {
+      return function() {
+        callCount++;
+      }
     }
 
     var callCount = 0;
-
-    var model = {
-      handleFoo: function() {
-        assert.strictEqual(this, receiver);
-        callCount++;
-      }
-    };
+    var model = {};
 
     recursivelySetTemplateModel(div, model, delegate);
 
