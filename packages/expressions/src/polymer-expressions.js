@@ -437,10 +437,18 @@
         return this.getValue(model, undefined, filterRegistry);
 
       var observer = new CompoundObserver();
-      this.getValue(model, observer, filterRegistry);  // captures deps.
+      // captures deps.
+      var firstValue = this.getValue(model, observer, filterRegistry);
+      var firstTime = true;
       var self = this;
 
       function valueFn() {
+        // deps cannot have changed on first value retrieval.
+        if (firstTime) {
+          firstTime = false;
+          return firstValue;
+        }
+
         if (self.dynamicDeps)
           observer.startReset();
 

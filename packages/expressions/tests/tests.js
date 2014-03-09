@@ -106,6 +106,9 @@ suite('PolymerExpressions', function() {
       delegate.upperCase = function(value) {
         return String(value).toUpperCase();
       };
+      delegate.incrProp = function(value, obj, propName) {
+        obj[propName]++;
+      };
       // filter as full object with toDOM and toModel properties
       delegate.plusN = {
         toDOM: function(value, n) {
@@ -917,6 +920,31 @@ suite('PolymerExpressions', function() {
       done();
     });
   });
+
+  test('Expression execution count', function(done) {
+    var div = createTestHtml(
+        '<template bind>' +
+            '{{ dep | incrProp(obj, "count") }}' +
+        '</template>');
+
+    var model = {
+      dep: 1,
+      obj: { count: 0 }
+    };
+
+    recursivelySetTemplateModel(div, model);
+
+    then(function() {
+      assert.equal(1, model.obj.count);
+      model.dep++;
+
+    }).then(function() {
+      assert.equal(2, model.obj.count);
+
+      done();
+    });
+  });
+
 
   test('chained filters', function(done) {
     var div = createTestHtml(
