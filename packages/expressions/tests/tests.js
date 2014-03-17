@@ -16,10 +16,12 @@ suite('PolymerExpressions', function() {
 
   var testDiv, originalConsoleError, errors;
 
-  function unbindAll(node) {
-    node.unbindAll();
+  function clearAllTemplates(node) {
+    if (node instanceof HTMLTemplateElement)
+      node.clear();
+
     for (var child = node.firstChild; child; child = child.nextSibling)
-      unbindAll(child);
+      clearAllTemplates(child);
   }
 
   setup(function() {
@@ -37,7 +39,7 @@ suite('PolymerExpressions', function() {
     console.error = originalConsoleError;
     assert.isFalse(!!Observer._errorThrownDuringCallback);
     document.body.removeChild(testDiv);
-    unbindAll(testDiv);
+    clearAllTemplates(testDiv);
     Platform.performMicrotaskCheckpoint();
     assert.strictEqual(0, Observer._allObserversCount);
   });
