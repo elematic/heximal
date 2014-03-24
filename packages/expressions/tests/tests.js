@@ -17,7 +17,7 @@ suite('PolymerExpressions', function() {
   var testDiv, originalConsoleError, errors;
 
   function clearAllTemplates(node) {
-    if (node instanceof HTMLTemplateElement)
+    if (node instanceof HTMLTemplateElement || node.iterator_)
       node.clear();
 
     for (var child = node.firstChild; child; child = child.nextSibling)
