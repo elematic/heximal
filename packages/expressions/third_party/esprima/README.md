@@ -1,15 +1,15 @@
 This is a modified version of the esprima library. The only changes are the removal of support for the full ECMAScript syntax. What remains is a very limited subset, which is:
 
--Simple literal values (true, false, null, undefined, non-escaped Strings & decimal numbers)
--'this' keyword
--Block statements
--Expression statements
--Ascii-only Identifiers
--Labeled statements
--Logical expressions
--Member expressions (including computed)
--Object/Array initializers
--Non-side-effect unary & binary expressions
+ - Simple literal values (`true`, `false`, `null`, `undefined`, non-escaped strings & decimal numbers)
+ - `this` keyword
+ - Block statements
+ - Expression statements
+ - Ascii-only Identifiers
+ - Labeled statements
+ - Logical expressions
+ - Member expressions (including computed)
+ - Object/Array initializers
+ - Non-side-effect unary & binary expressions
 
 ORIGINAL README:
 
