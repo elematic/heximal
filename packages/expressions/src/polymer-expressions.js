@@ -585,6 +585,16 @@
     }
   }
 
+  function isLiteralExpression(name) {
+    switch (name) {
+      case 'false':
+      case 'null':
+      case 'true':
+        return true;
+    }
+    return false;
+  };
+
   function PolymerExpressions() {}
 
   PolymerExpressions.prototype = {
@@ -630,16 +640,18 @@
 
       if (path.valid) {
         if (path.length == 1) {
-          return function(model, node, oneTime) {
-            if (oneTime)
-              return path.getValueFrom(model);
+          if (!isLiteralExpression(path[0])) {
+            return function(model, node, oneTime) {
+              if (oneTime)
+                return path.getValueFrom(model);
 
-            var scope = findScope(model, path[0]);
-            return new PathObserver(scope, path);
+              var scope = findScope(model, path[0]);
+              return new PathObserver(scope, path);
+            };
           }
+        } else {
+          return; // bail out early if pathString is simple path.
         }
-
-        return; // bail out early if pathString is simple path.
       }
 
       return prepareBinding(pathString, name, node, this);
