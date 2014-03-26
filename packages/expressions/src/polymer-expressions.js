@@ -592,10 +592,6 @@
       case 'true':
         return true;
     }
-
-    if (!isNaN(Number(name)))
-      return true;
-
     return false;
   };
 
@@ -642,17 +638,20 @@
         return prepareEventBinding(path, name, this);
       }
 
-      if (!isLiteralExpression(pathString) && path.valid) {
+      if (path.valid) {
         if (path.length == 1) {
-          return function(model, node, oneTime) {
-            if (oneTime)
-              return path.getValueFrom(model);
+          if (!isLiteralExpression(path[0])) {
+            return function(model, node, oneTime) {
+              if (oneTime)
+                return path.getValueFrom(model);
 
-            var scope = findScope(model, path[0]);
-            return new PathObserver(scope, path);
-          };
+              var scope = findScope(model, path[0]);
+              return new PathObserver(scope, path);
+            };
+          }
+        } else {
+          return; // bail out early if pathString is simple path.
         }
-        return; // bail out early if pathString is simple path.
       }
 
       return prepareBinding(pathString, name, node, this);
