@@ -1854,7 +1854,7 @@ suite('PolymerExpressions', function() {
   });
 
   // https://github.com/Polymer/polymer-expressions/issues/24
-  test('issue-24 - 1', function(done) {
+  test('issue-24', function(done) {
     var div = createTestHtml(
         '<template id="t" bind if="{{ true }}">' +
           '<span>{{ b }}</span>' +
@@ -1915,25 +1915,6 @@ suite('PolymerExpressions', function() {
 
   test('issue-24 - 4', function(done) {
     var div = createTestHtml(
-        '<template id="t" bind if="{{ 0 }}">' +
-          '<span>{{ b }}</span>' +
-        '</template>');
-
-    var model = {
-      b: 'hi',
-      0: true
-    };
-
-    recursivelySetTemplateModel(div, model);
-
-    then(function() {
-      assert.equal(div.childNodes.length, 1);
-      done();
-    });
-  });
-
-  test('issue-24 - 5', function(done) {
-    var div = createTestHtml(
         '<template id="t" bind>' +
           '<span>{{ true }}</span>' +
         '</template>');
@@ -1949,45 +1930,4 @@ suite('PolymerExpressions', function() {
       done();
     });
   });
-
-  test('issue-24 - 6', function(done) {
-    var div = createTestHtml(
-        '<template id="t" bind>' +
-          '<span>{{ 111 }}</span>' +
-        '</template>');
-
-    var model = {111: 222};
-
-    recursivelySetTemplateModel(div, model);
-
-    then(function() {
-      var target = div.childNodes[1];
-      assert.equal(div.childNodes.length, 2);
-      assert.equal(target.textContent, '111');
-      done();
-    });
-  });
-
-  test('issue-24 - 7', function(done) {
-    var div = createTestHtml(
-        '<template id="t" bind>' +
-          '<span>{{ 1.2 }}</span>' +
-        '</template>');
-
-    var model = {
-      1: {
-        2: 3
-      }
-    };
-
-    recursivelySetTemplateModel(div, model);
-
-    then(function() {
-      var target = div.childNodes[1];
-      assert.equal(div.childNodes.length, 2);
-      assert.equal(target.textContent, '1.2');
-      done();
-    });
-  });
-
 });
