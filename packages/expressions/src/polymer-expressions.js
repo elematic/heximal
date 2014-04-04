@@ -549,20 +549,21 @@
       if (typeof polymerExpressions.resolveEventHandler == 'function') {
         handler = function(e) {
           fn = fn || polymerExpressions.resolveEventHandler(model, path, node);
-          fn(e, e.detail, e.currentTarget);
-
-          if (Platform && typeof Platform.flush == 'function')
-            Platform.flush();
+          if (fn) {
+            fn(e, e.detail, e.currentTarget);
+            if (Platform && typeof Platform.flush == 'function')
+              Platform.flush();
+          }
         };
       } else {
         handler = function(e) {
           fn = fn || path.getValueFrom(model);
           receiver = receiver || resolveEventReceiver(model, path, node);
-
-          fn.apply(receiver, [e, e.detail, e.currentTarget]);
-
-          if (Platform && typeof Platform.flush == 'function')
-            Platform.flush();
+          if (fn) {
+            fn.apply(receiver, [e, e.detail, e.currentTarget]);
+            if (Platform && typeof Platform.flush == 'function')
+              Platform.flush();
+          }
         };
       }
 
