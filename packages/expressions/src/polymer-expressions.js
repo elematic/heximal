@@ -494,24 +494,6 @@
     });
   }
 
-  function isEventHandler(name) {
-    return name[0] === 'o' &&
-           name[1] === 'n' &&
-           name[2] === '-';
-  }
-
-  var mixedCaseEventTypes = {};
-  [
-    'webkitAnimationStart',
-    'webkitAnimationEnd',
-    'webkitTransitionEnd',
-    'DOMFocusOut',
-    'DOMFocusIn',
-    'DOMMouseScroll'
-  ].forEach(function(e) {
-    mixedCaseEventTypes[e.toLowerCase()] = e;
-  });
-
   var parentScopeName = '@' + Math.random().toString(36).slice(2);
 
   // Single ident paths must bind directly to the appropriate scope object.
@@ -524,66 +506,6 @@
     }
 
     return model;
-  }
-
-  function resolveEventReceiver(model, path, node) {
-    if (path.length == 0)
-      return undefined;
-
-    if (path.length == 1)
-      return findScope(model, path[0]);
-
-    for (var i = 0; model != null && i < path.length - 1; i++) {
-      model = model[path[i]];
-    }
-
-    return model;
-  }
-
-  function prepareEventBinding(path, name, polymerExpressions) {
-    var eventType = name.substring(3);
-    eventType = mixedCaseEventTypes[eventType] || eventType;
-
-    return function(model, node, oneTime) {
-      var fn, receiver, handler;
-      if (typeof polymerExpressions.resolveEventHandler == 'function') {
-        handler = function(e) {
-          fn = fn || polymerExpressions.resolveEventHandler(model, path, node);
-          if (fn) {
-            fn(e, e.detail, e.currentTarget);
-            if (Platform && typeof Platform.flush == 'function')
-              Platform.flush();
-          }
-        };
-      } else {
-        handler = function(e) {
-          fn = fn || path.getValueFrom(model);
-          receiver = receiver || resolveEventReceiver(model, path, node);
-          if (fn) {
-            fn.apply(receiver, [e, e.detail, e.currentTarget]);
-            if (Platform && typeof Platform.flush == 'function')
-              Platform.flush();
-          }
-        };
-      }
-
-      node.addEventListener(eventType, handler);
-
-      if (oneTime)
-        return;
-
-      function bindingValue() {
-        return '{{ ' + path + ' }}';
-      }
-
-      return {
-        open: bindingValue,
-        discardChanges: bindingValue,
-        close: function() {
-          node.removeEventListener(eventType, handler);
-        }
-      };
-    }
   }
 
   function isLiteralExpression(pathString) {
@@ -637,14 +559,6 @@
 
     prepareBinding: function(pathString, name, node) {
       var path = Path.get(pathString);
-      if (isEventHandler(name)) {
-        if (!path.valid) {
-          console.error('on-* bindings must be simple path expressions');
-          return;
-        }
-
-        return prepareEventBinding(path, name, this);
-      }
 
       if (!isLiteralExpression(pathString) && path.valid) {
         if (path.length == 1) {
@@ -687,5 +601,4 @@
   if (global.exposeGetExpression)
     global.getExpression_ = getExpression;
 
-  global.PolymerExpressions.prepareEventBinding = prepareEventBinding;
 })(this);
