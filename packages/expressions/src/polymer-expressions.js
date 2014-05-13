@@ -8,25 +8,6 @@
 (function (global) {
   'use strict';
 
-  // JScript does not have __proto__. We wrap all object literals with
-  // createObject which uses Object.create, Object.defineProperty and
-  // Object.getOwnPropertyDescriptor to create a new object that does the exact
-  // same thing. The main downside to this solution is that we have to extract
-  // all those property descriptors for IE.
-  var createObject = ('__proto__' in {}) ?
-      function(obj) { return obj; } :
-      function(obj) {
-        var proto = obj.__proto__;
-        if (!proto)
-          return obj;
-        var newObject = Object.create(proto);
-        Object.getOwnPropertyNames(obj).forEach(function(name) {
-          Object.defineProperty(newObject, name,
-                               Object.getOwnPropertyDescriptor(obj, name));
-        });
-        return newObject;
-      };
-
   function prepareBinding(expressionText, name, node, filterRegistry) {
     var expression;
     try {
@@ -125,11 +106,12 @@
       property = new IdentPath(property.value);
     }
 
-    this.dynamicDeps = typeof object == 'function' || object.dynamic;
-
     this.dynamic = typeof property == 'function' ||
                    property.dynamic ||
                    accessor == '[';
+
+    this.dynamicDeps = this.dynamic ||
+                       typeof object == 'function' || object.dynamic;
 
     this.simplePath =
         !this.dynamic &&
