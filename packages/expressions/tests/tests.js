@@ -1671,8 +1671,8 @@ suite('PolymerExpressions', function() {
   test('Dynamic deps path expressions', function() {
     assert.isFalse(getExpression_('a + b').dynamicDeps);
     assert.isFalse(getExpression_('a + b > 3 + hello["kitty"]').dynamicDeps);
-    assert.isFalse(getExpression_('a[a.b]').dynamicDeps);
-    assert.isFalse(getExpression_('a[a.b] + d[e]').dynamicDeps);
+    assert.isTrue(getExpression_('a[a.b]').dynamicDeps);
+    assert.isTrue(getExpression_('a[a.b] + d[e]').dynamicDeps);
     assert.isFalse(getExpression_('a[0].c').dynamicDeps);
     assert.isFalse(getExpression_('a[1][0]').dynamicDeps);
 
@@ -1816,6 +1816,90 @@ suite('PolymerExpressions', function() {
       var target = div.childNodes[1];
       assert.equal(div.childNodes.length, 2);
       assert.equal(target.textContent, '1.2');
+      done();
+    });
+  });
+
+  test('issue-29 - 1', function(done) {
+    var div = createTestHtml(
+        '<template id="t" bind>' +
+          '{{ items[index] }}' +
+        '</template>');
+
+    var model = {
+      index: 0,
+      items: [1, 2]
+    };
+
+    recursivelySetTemplateModel(div, model);
+
+    then(function() {
+      var target = div.childNodes[1];
+      assert.equal(target.textContent, '1');
+      model.index = 1;
+    }).then(function() {
+      var target = div.childNodes[1];
+      assert.equal(target.textContent, '2');
+      model.items[1] = 3;
+    }).then(function() {
+      var target = div.childNodes[1];
+      assert.equal(target.textContent, '3');
+      done();
+    });
+  });
+
+  test('issue-29 - 2', function(done) {
+    var div = createTestHtml(
+        '<template id="t" bind>' +
+          '{{ index }} - {{ items[index] }}' +
+        '</template>');
+
+    var model = {
+      index: 0,
+      items: [1, 2]
+    };
+
+    recursivelySetTemplateModel(div, model);
+
+    then(function() {
+      var target = div.childNodes[1];
+      assert.equal(target.textContent, '0 - 1');
+      model.index++;
+    }).then(function() {
+      var target = div.childNodes[1];
+      assert.equal(target.textContent, '1 - 2');
+      model.items[1] = 3;
+    }).then(function() {
+      var target = div.childNodes[1];
+      assert.equal(target.textContent, '1 - 3');
+      done();
+    });
+  });
+
+  test('issue-29 - 3', function(done) {
+    var div = createTestHtml(
+        '<template id="t" bind="{{items[index] as item}}">' +
+          '{{ index }} - {{ item }}' +
+        '</template>');
+
+    var model = {
+      index: 0,
+      items: [1, 2]
+    };
+
+    recursivelySetTemplateModel(div, model);
+
+    then(function() {
+      var target = div.childNodes[1];
+      assert.equal(target.textContent, '0 - 1');
+      model.index++;
+    }).then(function() {
+      var target = div.childNodes[1];
+      assert.equal(target.textContent, '1 - 2');
+      model.items[1] = 3;
+    }).then(function() {
+      var target = div.childNodes[1];
+      assert.equal(target.textContent, '1 - 3');
       done();
     });
   });
