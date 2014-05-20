@@ -1681,6 +1681,8 @@ suite('PolymerExpressions', function() {
     assert.isTrue(getExpression_('a[a.b].c').dynamicDeps);
     assert.isTrue(getExpression_('a[a][0]').dynamicDeps);
     assert.isTrue(getExpression_('a[a.b] + d[e].f').dynamicDeps);
+    assert.isTrue(getExpression_('a[b + c]').dynamicDeps);
+    assert.isTrue(getExpression_('a[b + 2].c + d').dynamicDeps);
   });
 
   // https://github.com/Polymer/polymer-expressions/issues/24

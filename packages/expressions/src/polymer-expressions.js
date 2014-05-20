@@ -97,6 +97,10 @@
   };
 
   function MemberExpression(object, property, accessor) {
+    this.dynamicDeps = typeof object == 'function' ||
+                       object.dynamicDeps ||
+                       (accessor == '[' && !(property instanceof Literal));
+
     // convert literal computed property access where literal value is a value
     // path to ident dot-access.
     if (accessor == '[' &&
@@ -106,15 +110,7 @@
       property = new IdentPath(property.value);
     }
 
-    this.dynamic = typeof property == 'function' ||
-                   property.dynamic ||
-                   accessor == '[';
-
-    this.dynamicDeps = this.dynamic ||
-                       typeof object == 'function' || object.dynamic;
-
     this.simplePath =
-        !this.dynamic &&
         !this.dynamicDeps &&
         property instanceof IdentPath &&
         (object instanceof MemberExpression || object instanceof IdentPath);
