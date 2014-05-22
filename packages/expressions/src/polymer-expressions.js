@@ -566,14 +566,30 @@
       var indexName = template.polymerExpressionIndexIdent_;
 
       return function(model) {
-        var scope = Object.create(parentScope);
-        scope[scopeName] = model;
-        scope[indexName] = undefined;
-        scope[parentScopeName] = parentScope;
-        return scope;
+        return createScopeObject(parentScope, model, scopeName, indexName);
       };
     }
   };
+
+  var createScopeObject = ('__proto__' in {}) ?
+    function(parentScope, model, scopeName, indexName) {
+      var scope = {};
+      scope[scopeName] = model;
+      scope[indexName] = undefined;
+      scope[parentScopeName] = parentScope;
+      scope.__proto__ = parentScope;
+      return scope;
+    } :
+    function(parentScope, model, scopeName, indexName) {
+      var scope = Object.create(parentScope);
+      Object.defineProperty(scope, scopeName,
+          { value: model, configurable: true, writable: true });
+      Object.defineProperty(scope, indexName,
+          { value: undefined, configurable: true, writable: true });
+      Object.defineProperty(scope, parentScopeName,
+          { value: parentScope, configurable: true, writable: true });
+      return scope;
+    };
 
   global.PolymerExpressions = PolymerExpressions;
   if (global.exposeGetExpression)

@@ -1906,4 +1906,22 @@ suite('PolymerExpressions', function() {
     });
   });
 
+  test('issue-33', function(done) {
+    var div = createTestHtml(
+        '<template repeat="{{ id in data }}">' +
+          '{{ id }}' +
+        '</template>');
+
+    var model =  document.createElement('div');
+    model.id = 'foo';
+    model.data = ['a', 'b', 'c'];
+
+    recursivelySetTemplateModel(div, model);
+
+    then(function() {
+      assert.strictEqual(div.childNodes.length, 4);
+      assert.strictEqual(model.id, 'foo');
+      done();
+    });
+  });
 });
