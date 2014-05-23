@@ -97,34 +97,30 @@
   };
 
   function MemberExpression(object, property, accessor) {
+    this.computed = accessor == '[';
+
     this.dynamicDeps = typeof object == 'function' ||
                        object.dynamicDeps ||
-                       (accessor == '[' && !(property instanceof Literal));
-
-    // convert literal computed property access where literal value is a value
-    // path to ident dot-access.
-    if (accessor == '[' &&
-        property instanceof Literal &&
-        Path.get(property.value).valid) {
-      accessor = '.';
-      property = new IdentPath(property.value);
-    }
+                       (this.computed && !(property instanceof Literal));
 
     this.simplePath =
         !this.dynamicDeps &&
-        property instanceof IdentPath &&
+        (property instanceof IdentPath || property instanceof Literal) &&
         (object instanceof MemberExpression || object instanceof IdentPath);
 
     this.object = this.simplePath ? object : getFn(object);
-    this.property = accessor == '.' ? property : getFn(property);
+    this.property = !this.computed ? property : getFn(property);
   }
 
   MemberExpression.prototype = {
     get fullPath() {
       if (!this.fullPath_) {
-        var last = this.object instanceof IdentPath ?
-            this.object.name : this.object.fullPath;
-        this.fullPath_ = Path.get(last + '.' + this.property.name);
+
+        var parts = this.object instanceof MemberExpression ?
+            this.object.fullPath.slice() : [ this.object.name ];
+        parts.push(this.property instanceof IdentPath ?
+            this.property.name : this.property.value);
+        this.fullPath_ = Path.get(parts);
       }
 
       return this.fullPath_;
@@ -143,7 +139,7 @@
 
             return path.getValueFrom(model);
           };
-        } else if (this.property instanceof IdentPath) {
+        } else if (!this.computed) {
           var path = Path.get(this.property.name);
 
           this.valueFn_ = function(model, observer) {
@@ -162,7 +158,7 @@
             var context = object(model, observer);
             var propName = property(model, observer);
             if (observer)
-              observer.addPath(context, propName);
+              observer.addPath(context, [propName]);
 
             return context ? context[propName] : undefined;
           };
