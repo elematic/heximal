@@ -1924,4 +1924,27 @@ suite('PolymerExpressions', function() {
       done();
     });
   });
+
+  test('issue-34', function(done) {
+    var div = createTestHtml(
+        '<template bind>' +
+          '{{ comments[\'f-irst\'] }}' +
+        '</template>');
+
+    var model = {
+      comments: {
+        'f-irst': 'foo'
+      }
+    };
+
+    recursivelySetTemplateModel(div, model);
+
+    then(function() {
+      model.comments['f-irst'] = 'bar'
+    }).then(function() {
+      assert.strictEqual(div.childNodes[1].textContent, 'bar');
+      done();
+    });
+  });
+
 });
