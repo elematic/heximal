@@ -117,7 +117,7 @@
       if (!this.fullPath_) {
 
         var parts = this.object instanceof MemberExpression ?
-            this.object.fullPath.slice() : [ this.object.name ];
+            this.object.fullPath.slice() : [this.object.name];
         parts.push(this.property instanceof IdentPath ?
             this.property.name : this.property.value);
         this.fullPath_ = Path.get(parts);
