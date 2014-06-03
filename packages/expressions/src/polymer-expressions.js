@@ -142,8 +142,8 @@
         } else if (!this.computed) {
           var path = Path.get(this.property.name);
 
-          this.valueFn_ = function(model, observer) {
-            var context = object(model, observer);
+          this.valueFn_ = function(model, observer, filterRegistry) {
+            var context = object(model, observer, filterRegistry);
 
             if (observer)
               observer.addPath(context, path);
@@ -154,9 +154,9 @@
           // Computed property.
           var property = this.property;
 
-          this.valueFn_ = function(model, observer) {
-            var context = object(model, observer);
-            var propName = property(model, observer);
+          this.valueFn_ = function(model, observer, filterRegistry) {
+            var context = object(model, observer, filterRegistry);
+            var propName = property(model, observer, filterRegistry);
             if (observer)
               observer.addPath(context, [propName]);
 
@@ -189,8 +189,8 @@
   }
 
   Filter.prototype = {
-    transform: function(value, toModelDirection, filterRegistry, model,
-                        observer) {
+    transform: function(model, observer, filterRegistry, toModelDirection,
+                        initialArgs) {
       var fn = filterRegistry[this.name];
       var context = model;
       if (fn) {
@@ -198,7 +198,7 @@
       } else {
         fn = context[this.name];
         if (!fn) {
-          console.error('Cannot find filter: ' + this.name);
+          console.error('Cannot find function or filter: ' + this.name);
           return;
         }
       }
@@ -213,14 +213,13 @@
       }
 
       if (typeof fn != 'function') {
-        console.error('No ' + (toModelDirection ? 'toModel' : 'toDOM') +
-                      ' found on' + this.name);
+        console.error('Cannot find function or filter: ' + this.name);
         return;
       }
 
-      var args = [value];
+      var args = initialArgs || [];
       for (var i = 0; i < this.args.length; i++) {
-        args[i + 1] = getFn(this.args[i])(model, observer);
+        args.push(getFn(this.args[i])(model, observer, filterRegistry));
       }
 
       return fn.apply(context, args);
@@ -274,8 +273,8 @@
 
       argument = getFn(argument);
 
-      return function(model, observer) {
-        return unaryOperators[op](argument(model, observer));
+      return function(model, observer, filterRegistry) {
+        return unaryOperators[op](argument(model, observer, filterRegistry));
       };
     },
 
@@ -286,9 +285,9 @@
       left = getFn(left);
       right = getFn(right);
 
-      return function(model, observer) {
-        return binaryOperators[op](left(model, observer),
-                                   right(model, observer));
+      return function(model, observer, filterRegistry) {
+        return binaryOperators[op](left(model, observer, filterRegistry),
+                                   right(model, observer, filterRegistry));
       };
     },
 
@@ -297,9 +296,10 @@
       consequent = getFn(consequent);
       alternate = getFn(alternate);
 
-      return function(model, observer) {
-        return test(model, observer) ?
-            consequent(model, observer) : alternate(model, observer);
+      return function(model, observer, filterRegistry) {
+        return test(model, observer, filterRegistry) ?
+            consequent(model, observer, filterRegistry) :
+            alternate(model, observer, filterRegistry);
       }
     },
 
@@ -316,6 +316,17 @@
       return ex;
     },
 
+    createCallExpression: function(expression, args) {
+      if (!(expression instanceof IdentPath))
+        throw Error('Only identifier function invocations are allowed');
+
+      var filter = new Filter(expression.name, args);
+
+      return function(model, observer, filterRegistry) {
+        return filter.transform(model, observer, filterRegistry, false);
+      };
+    },
+
     createLiteral: function(token) {
       return new Literal(token.value);
     },
@@ -324,10 +335,10 @@
       for (var i = 0; i < elements.length; i++)
         elements[i] = getFn(elements[i]);
 
-      return function(model, observer) {
+      return function(model, observer, filterRegistry) {
         var arr = []
         for (var i = 0; i < elements.length; i++)
-          arr.push(elements[i](model, observer));
+          arr.push(elements[i](model, observer, filterRegistry));
         return arr;
       }
     },
@@ -343,10 +354,11 @@
       for (var i = 0; i < properties.length; i++)
         properties[i].value = getFn(properties[i].value);
 
-      return function(model, observer) {
+      return function(model, observer, filterRegistry) {
         var obj = {};
         for (var i = 0; i < properties.length; i++)
-          obj[properties[i].key] = properties[i].value(model, observer);
+          obj[properties[i].key] =
+              properties[i].value(model, observer, filterRegistry);
         return obj;
       }
     },
@@ -437,10 +449,10 @@
     },
 
     getValue: function(model, observer, filterRegistry) {
-      var value = getFn(this.expression)(model, observer);
+      var value = getFn(this.expression)(model, observer, filterRegistry);
       for (var i = 0; i < this.filters.length; i++) {
-        value = this.filters[i].transform(value, false, filterRegistry, model,
-                                          observer);
+        value = this.filters[i].transform(model, observer, filterRegistry,
+            false, [value]);
       }
 
       return value;
@@ -449,8 +461,8 @@
     setValue: function(model, newValue, filterRegistry) {
       var count = this.filters ? this.filters.length : 0;
       while (count-- > 0) {
-        newValue = this.filters[count].transform(newValue, true, filterRegistry,
-                                                 model);
+        newValue = this.filters[count].transform(model, undefined,
+            filterRegistry, true, [newValue]);
       }
 
       if (this.expression.setValue)

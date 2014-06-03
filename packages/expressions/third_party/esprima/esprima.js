@@ -752,17 +752,22 @@
     }
 
     function parseLeftHandSideExpression() {
-        var expr, property;
+        var expr, args, property;
 
         expr = parsePrimaryExpression();
 
-        while (match('.') || match('[')) {
+        while (true) {
             if (match('[')) {
                 property = parseComputedMember();
                 expr = delegate.createMemberExpression('[', expr, property);
-            } else {
+            } else if (match('.')) {
                 property = parseNonComputedMember();
                 expr = delegate.createMemberExpression('.', expr, property);
+            } else if (match('(')) {
+                args = parseArguments();
+                expr = delegate.createCallExpression(expr, args);
+            } else {
+                break;
             }
         }
 

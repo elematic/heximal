@@ -916,6 +916,45 @@ suite('PolymerExpressions', function() {
     });
   });
 
+  test('Inline functions', function(done) {
+    var div = createTestHtml(
+        '<template bind="{{ }}">' +
+            '{{ addTwo(2, 3) + addTwo(a, b) }}:{{ minus(addTwo(a, b), c) }}' +
+        '</template>');
+
+    var model = {
+      a: 4,
+      b: 5,
+      c: 3,
+      addTwo: function(a, b) {
+        assert.strictEqual(this, model);
+        return a + b;
+      },
+      minus: function(a, amount) {
+        assert.strictEqual(this, model);
+        return a - amount;
+      }
+    };
+
+    recursivelySetTemplateModel(div, model);
+
+    then(function() {
+      assert.equal('14:6', div.childNodes[1].textContent);
+
+      model.a = 10;
+    }).then(function() {
+      assert.equal('20:12', div.childNodes[1].textContent);
+
+      model.c = 10;
+
+    }).then(function() {
+      assert.equal('20:5', div.childNodes[1].textContent);
+
+      done();
+    });
+  });
+
+
   test('Expression execution count', function(done) {
     var div = createTestHtml(
         '<template bind>' +
@@ -1665,6 +1704,21 @@ suite('PolymerExpressions', function() {
       var target = div.childNodes[1];
 
       done();
+    });
+  });
+
+  test('Inline function parsing', function() {
+    assert.isDefined(getExpression_('a(1, 2)'));
+    assert.isDefined(getExpression_('a(b + c, d + e)'));
+    assert.isDefined(getExpression_('a(true) + b(false)'));
+    assert.throws(function() {
+      getExpression_('a.b()');
+    });
+    assert.throws(function() {
+      getExpression_('a[1]()');
+    });
+    assert.throws(function() {
+      getExpression_('(a + b)()');
     });
   });
 
