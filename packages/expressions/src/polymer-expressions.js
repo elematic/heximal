@@ -600,7 +600,5 @@
     };
 
   global.PolymerExpressions = PolymerExpressions;
-  if (global.exposeGetExpression)
-    global.getExpression_ = getExpression;
-
+  PolymerExpressions.getExpression = getExpression;
 })(this);

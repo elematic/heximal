@@ -9,6 +9,9 @@ suite('PolymerExpressions', function() {
 
   var testDiv, originalConsoleError, errors;
 
+
+  getExpression = PolymerExpressions.getExpression;
+
   function clearAllTemplates(node) {
     if (node instanceof HTMLTemplateElement || node.iterator_)
       node.clear();
@@ -1708,35 +1711,35 @@ suite('PolymerExpressions', function() {
   });
 
   test('Inline function parsing', function() {
-    assert.isDefined(getExpression_('a(1, 2)'));
-    assert.isDefined(getExpression_('a(b + c, d + e)'));
-    assert.isDefined(getExpression_('a(true) + b(false)'));
+    assert.isDefined(getExpression('a(1, 2)'));
+    assert.isDefined(getExpression('a(b + c, d + e)'));
+    assert.isDefined(getExpression('a(true) + b(false)'));
     assert.throws(function() {
-      getExpression_('a.b()');
+      getExpression('a.b()');
     });
     assert.throws(function() {
-      getExpression_('a[1]()');
+      getExpression('a[1]()');
     });
     assert.throws(function() {
-      getExpression_('(a + b)()');
+      getExpression('(a + b)()');
     });
   });
 
   test('Dynamic deps path expressions', function() {
-    assert.isFalse(getExpression_('a + b').dynamicDeps);
-    assert.isFalse(getExpression_('a + b > 3 + hello["kitty"]').dynamicDeps);
-    assert.isTrue(getExpression_('a[a.b]').dynamicDeps);
-    assert.isTrue(getExpression_('a[a.b] + d[e]').dynamicDeps);
-    assert.isFalse(getExpression_('a[0].c').dynamicDeps);
-    assert.isFalse(getExpression_('a[1][0]').dynamicDeps);
+    assert.isFalse(getExpression('a + b').dynamicDeps);
+    assert.isFalse(getExpression('a + b > 3 + hello["kitty"]').dynamicDeps);
+    assert.isTrue(getExpression('a[a.b]').dynamicDeps);
+    assert.isTrue(getExpression('a[a.b] + d[e]').dynamicDeps);
+    assert.isFalse(getExpression('a[0].c').dynamicDeps);
+    assert.isFalse(getExpression('a[1][0]').dynamicDeps);
 
-    assert.isTrue(getExpression_('a[b].c').dynamicDeps);
-    assert.isTrue(getExpression_('(a + 1).c').dynamicDeps);
-    assert.isTrue(getExpression_('a[a.b].c').dynamicDeps);
-    assert.isTrue(getExpression_('a[a][0]').dynamicDeps);
-    assert.isTrue(getExpression_('a[a.b] + d[e].f').dynamicDeps);
-    assert.isTrue(getExpression_('a[b + c]').dynamicDeps);
-    assert.isTrue(getExpression_('a[b + 2].c + d').dynamicDeps);
+    assert.isTrue(getExpression('a[b].c').dynamicDeps);
+    assert.isTrue(getExpression('(a + 1).c').dynamicDeps);
+    assert.isTrue(getExpression('a[a.b].c').dynamicDeps);
+    assert.isTrue(getExpression('a[a][0]').dynamicDeps);
+    assert.isTrue(getExpression('a[a.b] + d[e].f').dynamicDeps);
+    assert.isTrue(getExpression('a[b + c]').dynamicDeps);
+    assert.isTrue(getExpression('a[b + 2].c + d').dynamicDeps);
   });
 
   // https://github.com/Polymer/polymer-expressions/issues/24
