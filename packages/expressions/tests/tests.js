@@ -10,7 +10,7 @@ suite('PolymerExpressions', function() {
   var testDiv, originalConsoleError, errors;
 
 
-  getExpression = PolymerExpressions.getExpression;
+  var getExpression = PolymerExpressions.getExpression;
 
   function clearAllTemplates(node) {
     if (node instanceof HTMLTemplateElement || node.iterator_)
