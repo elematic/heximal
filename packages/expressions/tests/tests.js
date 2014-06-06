@@ -2004,4 +2004,22 @@ suite('PolymerExpressions', function() {
     });
   });
 
+  test('issue-35', function(done) {
+    var div = createTestHtml(
+        '<template bind="{{ data[0] as foo }}">' +
+          '{{ foo.value }}' +
+        '</template>');
+
+    var model = {
+      data: [{ value: 'bar' }]
+    };
+
+    recursivelySetTemplateModel(div, model);
+
+    then(function() {
+      assert.strictEqual(div.childNodes[1].textContent, 'bar');
+      done();
+    });
+  });
+
 });

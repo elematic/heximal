@@ -109,7 +109,8 @@
         (object instanceof MemberExpression || object instanceof IdentPath);
 
     this.object = this.simplePath ? object : getFn(object);
-    this.property = !this.computed ? property : getFn(property);
+    this.property = !this.computed || this.simplePath ?
+        property : getFn(property);
   }
 
   MemberExpression.prototype = {
