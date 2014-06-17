@@ -11,6 +11,7 @@ module.exports = function(karma) {
       'TemplateBinding/load.js',
       'polymer-expressions/third_party/esprima/esprima.js',
       'polymer-expressions/src/polymer-expressions.js',
+      'polymer-expressions/tests/tests.js',
       {pattern: 'NodeBind/src/*.js', included: false},
       {pattern: 'TemplateBinding/src/*.css', included: false},
       {pattern: 'TemplateBinding/src/*.js', included: false},
