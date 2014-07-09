@@ -1092,6 +1092,60 @@ suite('PolymerExpressions', function() {
     });
   });
 
+  test('computed property with object index', function(done) {
+    var div = createTestHtml(
+        '<template bind="{{ }}">' +
+            '<div foo="{{ myObj[dateObj] }}">' +
+        '</template>');
+
+    var model = {
+      myObj: {
+        'Tue Jul 08 2014 12:00:00 GMT-0700 (PDT)': 'bar',
+        'Wed Jul 09 2014 12:00:00 GMT-0700 (PDT)': 'baz'
+      },
+      dateObj: new Date('Tue Jul 08 2014 12:00:00 GMT-0700 (PDT)')
+    };
+
+    recursivelySetTemplateModel(div, model);
+
+    then(function() {
+      assert.equal('bar', div.childNodes[1].getAttribute('foo'));
+      model.dateObj = new Date('Wed Jul 09 2014 12:00:00 GMT-0700 (PDT)');
+
+    }).then(function() {
+      assert.equal('baz', div.childNodes[1].getAttribute('foo'));
+
+      done();
+    });
+  });
+
+  test('computed property with object index - assignment', function(done) {
+    var div = createTestHtml(
+        '<template bind="{{ }}">' +
+            '<input value="{{ myObj[dateObj] }}">' +
+        '</template>');
+
+    var model = {
+      myObj: {
+        'Tue Jul 08 2014 12:00:00 GMT-0700 (PDT)': 'bar',
+      },
+      dateObj: new Date('Tue Jul 08 2014 12:00:00 GMT-0700 (PDT)')
+    };
+
+    recursivelySetTemplateModel(div, model);
+
+    then(function() {
+      assert.equal('bar', div.childNodes[1].value);
+      div.childNodes[1].value = 'baz';
+      dispatchEvent('input', div.childNodes[1]);
+
+    }).then(function() {
+      assert.equal('baz',
+                   model.myObj['Tue Jul 08 2014 12:00:00 GMT-0700 (PDT)']);
+      done();
+    });
+  });
+
   test('two-way computed property', function(done) {
     var div = createTestHtml(
         '<template bind="{{ }}">' +
