@@ -286,6 +286,21 @@
       left = getFn(left);
       right = getFn(right);
 
+      switch (op) {
+        case '||':
+          this.dynamicDeps = true;
+          return function(model, observer, filterRegistry) {
+            return left(model, observer, filterRegistry) ||
+                right(model, observer, filterRegistry);
+          };
+        case '&&':
+          this.dynamicDeps = true;
+          return function(model, observer, filterRegistry) {
+            return left(model, observer, filterRegistry) &&
+                right(model, observer, filterRegistry);
+          };
+      }
+
       return function(model, observer, filterRegistry) {
         return binaryOperators[op](left(model, observer, filterRegistry),
                                    right(model, observer, filterRegistry));
@@ -296,6 +311,8 @@
       test = getFn(test);
       consequent = getFn(consequent);
       alternate = getFn(alternate);
+
+      this.dynamicDeps = true;
 
       return function(model, observer, filterRegistry) {
         return test(model, observer, filterRegistry) ?
