@@ -749,6 +749,44 @@ suite('PolymerExpressions', function() {
     });
   });
 
+  test('Expressions Conditional 2', function(done) {
+    var div = createTestHtml(
+        '<template bind>' +
+            '{{ checked ? a : b }}' +
+        '</template>');
+    var model = {
+      checked: false,
+      a: 'A',
+      b: 'B'
+    };
+
+    recursivelySetTemplateModel(div, model);
+
+    then(function() {
+      assert.strictEqual('B', div.childNodes[1].textContent);
+
+      model.checked = true;
+
+    }).then(function() {
+      assert.strictEqual('A', div.childNodes[1].textContent);
+
+      model.a = 'AAA';
+    }).then(function() {
+      assert.strictEqual('AAA', div.childNodes[1].textContent);
+
+      model.checked = false;
+
+    }).then(function() {
+      assert.strictEqual('B', div.childNodes[1].textContent);
+
+      model.b = 'BBB';
+    }).then(function() {
+      assert.strictEqual('BBB', div.childNodes[1].textContent);
+
+      done();
+    });
+  });
+
   test('Expressions Literals', function(done) {
     var div = createTestHtml(
         '<template bind>' +
@@ -2072,6 +2110,124 @@ suite('PolymerExpressions', function() {
 
     then(function() {
       assert.strictEqual(div.childNodes[1].textContent, 'bar');
+      done();
+    });
+  });
+
+  test('lazy conditional', function(done) {
+    var div = createTestHtml(
+        '<template bind=>' +
+          '{{ a ? b : c }}' +
+        '</template>');
+    var count = 0;
+    var model = {
+      a: true,
+      b: 'B',
+      get c() {
+        count++;
+      }
+    };
+
+    recursivelySetTemplateModel(div, model);
+
+    then(function() {
+      assert.equal('B', div.childNodes[1].textContent);
+      assert.equal(0, count);
+
+      model.b = 'BB';
+
+    }).then(function() {
+      assert.equal('BB', div.childNodes[1].textContent);
+      assert.equal(0, count);
+
+      done();
+    });
+  });
+
+  test('lazy conditional 2', function(done) {
+    var div = createTestHtml(
+        '<template bind=>' +
+          '{{ a ? b : c }}' +
+        '</template>');
+    var count = 0;
+    var model = {
+      a: false,
+      get b() {
+        count++;
+      },
+      c: 'C'
+    };
+
+    recursivelySetTemplateModel(div, model);
+
+    then(function() {
+      assert.equal('C', div.childNodes[1].textContent);
+      assert.equal(0, count);
+
+      model.c = 'CC';
+
+    }).then(function() {
+      assert.equal('CC', div.childNodes[1].textContent);
+      assert.equal(0, count);
+
+      done();
+    });
+  });
+
+  test('lazy or', function(done) {
+    var div = createTestHtml(
+        '<template bind=>' +
+          '{{ a || b }}' +
+        '</template>');
+    var count = 0;
+    var model = {
+      a: 'A',
+      get b() {
+        count++;
+      },
+    };
+
+    recursivelySetTemplateModel(div, model);
+
+    then(function() {
+      assert.equal('A', div.childNodes[1].textContent);
+      assert.equal(0, count);
+
+      model.a = 'AA';
+
+    }).then(function() {
+      assert.equal('AA', div.childNodes[1].textContent);
+      assert.equal(0, count);
+
+      done();
+    });
+  });
+
+  test('lazy and', function(done) {
+    var div = createTestHtml(
+        '<template bind=>' +
+          '{{ a && b }}' +
+        '</template>');
+    var count = 0;
+    var model = {
+      a: false,
+      get b() {
+        count++;
+      },
+    };
+
+    recursivelySetTemplateModel(div, model);
+
+    then(function() {
+      assert.equal('false', div.childNodes[1].textContent);
+      assert.equal(0, count);
+
+      model.a = 0;
+
+    }).then(function() {
+      assert.equal('0', div.childNodes[1].textContent);
+      assert.equal(0, count);
+
       done();
     });
   });
