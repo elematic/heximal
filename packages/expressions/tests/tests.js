@@ -7,7 +7,7 @@
 
 suite('PolymerExpressions', function() {
 
-  var testDiv, originalConsoleError, errors;
+  var testDiv, originalConsoleError, errors, ieDummyObserver;
 
 
   var getExpression = PolymerExpressions.getExpression;
@@ -27,6 +27,17 @@ suite('PolymerExpressions', function() {
       errors.push(Array.prototype.slice.call(arguments));
     };
     testDiv = document.body.appendChild(document.createElement('div'));
+
+    // This is a workaround for a rare IE bug affecting identity of JS wrappers
+    // of Text nodes in the DOM. A dummy MutationObserver prevents the problem.
+    // https://github.com/Polymer/polymer-expressions/issues/44
+    if (/Trident/.test(navigator.userAgent) &&
+        typeof MutationObserver == 'function') {
+      
+      ieDummyObserver = new MutationObserver(function() {});
+      ieDummyObserver.observe(testDiv, { childList: true, subtree: true });
+    }
+
     Observer._errorThrownDuringCallback = false;
   });
 
@@ -34,6 +45,7 @@ suite('PolymerExpressions', function() {
     errors = [];
     console.error = originalConsoleError;
     assert.isFalse(!!Observer._errorThrownDuringCallback);
+    if (ieDummyObserver) ieDummyObserver.disconnect();
     document.body.removeChild(testDiv);
     clearAllTemplates(testDiv);
     Platform.performMicrotaskCheckpoint();
