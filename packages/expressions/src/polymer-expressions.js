@@ -89,7 +89,7 @@
     },
 
     setValue: function(model, newValue) {
-      if (this.path.length == 1);
+      if (this.path.length == 1)
         model = findScope(model, this.path[0]);
 
       return this.path.setValueFrom(model, newValue);
