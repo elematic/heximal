@@ -1804,6 +1804,79 @@ suite('PolymerExpressions', function() {
     });
   });
 
+  test('filter on global', function(done) {
+    var div = createTestHtml(
+      '<template bind="{{ }}">' +
+      '<input value="{{ value | multiple(factor) }}">' +
+      '</template>');
+
+    PolymerExpressions.prototype.multiple = function(value, factor) {
+      return Number(value) * factor;
+    };
+
+    var model = {
+      factor: 2,
+      value: 8
+    };
+
+    PolymerExpressions.prototype.multiple.toModel = function(value, factor) {
+      return Number(value) / factor;
+    };
+
+    recursivelySetTemplateModel(div, model);
+
+    then(function() {
+      assert.equal('16', div.childNodes[1].value);
+
+      div.childNodes[1].value = 20;
+      dispatchEvent('input', div.childNodes[1]);
+
+    }).then(function() {
+      assert.equal('10', model.value);
+
+      delete PolymerExpressions.prototype.multiple;
+      done();
+    });
+  });
+
+  test('filter on model overrides filter on global', function(done) {
+    var div = createTestHtml(
+      '<template bind="{{ }}">' +
+      '<input value="{{ value | multiple(factor) }}">' +
+      '</template>');
+
+    PolymerExpressions.prototype.multiple = function(value, factor) {
+      return Number(value) * 1000;
+    };
+
+    var model = {
+      factor: 2,
+      value: 8,
+      multiple: function(value, factor) {
+        return Number(value) * factor;
+      }
+    };
+
+    model.multiple.toModel = function(value, factor) {
+      return Number(value) / factor;
+    };
+
+    recursivelySetTemplateModel(div, model);
+
+    then(function() {
+      assert.equal('16', div.childNodes[1].value);
+
+      div.childNodes[1].value = 20;
+      dispatchEvent('input', div.childNodes[1]);
+
+    }).then(function() {
+      assert.equal('10', model.value);
+
+      delete PolymerExpressions.prototype.multiple;
+      done();
+    });
+  });
+
   // https://github.com/Polymer/polymer-expressions/issues/19
   test('issue-19', function(done) {
     var div = createTestHtml(
