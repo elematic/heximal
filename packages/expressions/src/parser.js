@@ -131,13 +131,6 @@ class AstFactory {
     };
   }
 
-  //
-  // UnaryOperator unary(String op, Expression e) => new UnaryOperator(op, e);
-  //
-  //
-  // InExpression inExpr(Expression l, Expression r) => new InExpression(l, r);
-  //
-  // AsExpression asExpr(Expression l, Expression r) => new AsExpression(l, r);
 }
 
 class ArrayIterator {
