@@ -122,7 +122,7 @@ class EvalAstFactory {
       type: 'Parenthesized',
       child: e,
       evaluate: function(scope) {
-        return this.child.evaluate(e);
+        return this.child.evaluate(scope);
       }
     };
   }
@@ -165,7 +165,6 @@ class EvalAstFactory {
           let entry = this.entries[i];
           let key = entry.key.value;
           let value = entry.value.evaluate(scope);
-          // console.log('map entry: ', key, value);
           map[key] = value;
         }
         return map;
@@ -182,6 +181,7 @@ class EvalAstFactory {
     };
   }
 
+  // TODO(justinfagnani): if the list is deeply literal
   listLiteral(l) {
     return {
       type: 'ListLiteral',
