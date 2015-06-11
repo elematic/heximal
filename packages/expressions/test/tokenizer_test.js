@@ -1,7 +1,10 @@
 'use strict';
 
-var assert = require("assert");
-var tokenizer = require('../src/tokenizer');
+// var assert = require("assert");
+// var tokenizer = require('../src/tokenizer');
+
+import * as assert from 'assert';
+import * as tokenizer from '../src/tokenizer';
 
 var Tokenizer = tokenizer.Tokenizer;
 var Token = tokenizer.Token;
@@ -37,6 +40,10 @@ suite('tokenizer', function() {
     expectTokens('abc', [t(IDENTIFIER_TOKEN, 'abc')]);
   });
 
+  test('should tokenize two identifiers', function() {
+    expectTokens('abc def', [t(IDENTIFIER_TOKEN, 'abc'), t(IDENTIFIER_TOKEN, 'def')]);
+  });
+
   test('should tokenize a double quoted String', function() {
     expectTokens('"abc"', [t(STRING_TOKEN, 'abc')]);
   });
@@ -46,7 +53,7 @@ suite('tokenizer', function() {
   });
 
   test('should tokenize a String with escaping', function() {
-    expectTokens('"a\\b\\\\c\\\'\\""', [t(STRING_TOKEN, 'ab\\c\'"')]);
+    expectTokens('"a\\c\\\\d\\\'\\""', [t(STRING_TOKEN, 'ac\\d\'"')]);
   });
 
   test('should tokenize a dot operator', function() {
@@ -54,6 +61,23 @@ suite('tokenizer', function() {
         t(IDENTIFIER_TOKEN, 'a'),
         t(DOT_TOKEN, '.', POSTFIX_PRECEDENCE),
         t(IDENTIFIER_TOKEN, 'b')]);
+    expectTokens('ab.cd', [
+        t(IDENTIFIER_TOKEN, 'ab'),
+        t(DOT_TOKEN, '.', POSTFIX_PRECEDENCE),
+        t(IDENTIFIER_TOKEN, 'cd')]);
+    expectTokens('ab.cd()', [
+        t(IDENTIFIER_TOKEN, 'ab'),
+        t(DOT_TOKEN, '.', POSTFIX_PRECEDENCE),
+        t(IDENTIFIER_TOKEN, 'cd'),
+        t(GROUPER_TOKEN, '(', PRECEDENCE['(']),
+        t(GROUPER_TOKEN, ')', PRECEDENCE[')'])]);
+    expectTokens('ab.cd(e)', [
+        t(IDENTIFIER_TOKEN, 'ab'),
+        t(DOT_TOKEN, '.', POSTFIX_PRECEDENCE),
+        t(IDENTIFIER_TOKEN, 'cd'),
+        t(GROUPER_TOKEN, '(', PRECEDENCE['(']),
+        t(IDENTIFIER_TOKEN, 'e'),
+        t(GROUPER_TOKEN, ')', PRECEDENCE[')'])]);
   });
 
   test('should tokenize a unary plus operator', function() {
@@ -62,19 +86,27 @@ suite('tokenizer', function() {
         t(IDENTIFIER_TOKEN, 'a')]);
   });
 
-  test('should tokenize a binary plus operator', function() {
+  test('should tokenize a one-character operator', function() {
     expectTokens('a + b', [
         t(IDENTIFIER_TOKEN, 'a'),
         t(OPERATOR_TOKEN, '+', PRECEDENCE['+']),
         t(IDENTIFIER_TOKEN, 'b')]);
   });
 
-  test('should tokenize a logical and operator', function() {
+  test('should tokenize a two-character operator', function() {
     expectTokens('a && b', [
         t(IDENTIFIER_TOKEN, 'a'),
         t(OPERATOR_TOKEN, '&&', PRECEDENCE['&&']),
         t(IDENTIFIER_TOKEN, 'b')]);
   });
+
+  test('should tokenize a three-character operator', function() {
+    expectTokens('a !== b', [
+        t(IDENTIFIER_TOKEN, 'a'),
+        t(OPERATOR_TOKEN, '!==', PRECEDENCE['!==']),
+        t(IDENTIFIER_TOKEN, 'b')]);
+  });
+
 
   test('should tokenize a ternary operator', function() {
     expectTokens('a ? b : c', [
@@ -85,23 +117,7 @@ suite('tokenizer', function() {
         t(IDENTIFIER_TOKEN, 'c')]);
   });
 
-  // test('should tokenize "in" expressions', function() {
-  //   expectTokens('item in items', [
-  //       t(IDENTIFIER_TOKEN, 'item'),
-  //       t(KEYWORD_TOKEN, 'in'),
-  //       t(IDENTIFIER_TOKEN, 'items')]);
-  // });
-  //
-  // test('should takenize an "as" expression', function() {
-  //   expectTokens('a as b', [
-  //       t(IDENTIFIER_TOKEN, 'a'),
-  //       t(KEYWORD_TOKEN, 'as'),
-  //       t(IDENTIFIER_TOKEN, 'b')]);
-  // });
-
   test('should tokenize keywords', function() {
-    // expectTokens('in', [t(KEYWORD_TOKEN, 'in')]);
-    // expectTokens('as', [t(KEYWORD_TOKEN, 'as')]);
     expectTokens('this', [t(KEYWORD_TOKEN, 'this')]);
   });
 
@@ -163,4 +179,14 @@ suite('tokenizer', function() {
     expectTokens('false', [t(IDENTIFIER_TOKEN, 'false')]);
   });
 
+  test('should tokenize name.substring(2)', function() {
+    expectTokens('name.substring(2)', [
+        t(IDENTIFIER_TOKEN, 'name'),
+        t(DOT_TOKEN, '.', POSTFIX_PRECEDENCE),
+        t(IDENTIFIER_TOKEN, 'substring'),
+        t(GROUPER_TOKEN, '(', PRECEDENCE['(']),
+        t(INTEGER_TOKEN, '2'),
+        t(GROUPER_TOKEN, ')', PRECEDENCE[')']),
+    ]);
+  });
 });

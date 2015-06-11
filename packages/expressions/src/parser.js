@@ -1,8 +1,6 @@
 'use strict';
 
-// var tokenizer = require('./tokenizer');
-
-import * as tokenizer from 'polymer-expressions/tokenizer';
+import * as tokenizer from './tokenizer';
 
 var Tokenizer = tokenizer.Tokenizer;
 var Token = tokenizer.Token;
@@ -368,30 +366,7 @@ export class Parser {
     return this._astFactory.mapLiteralEntry(key, value);
   }
 
-  // _parseInExpression(left) {
-  //   console.assert(this._token.value == 'in');
-  //   if (!(left instanceof Identifier)) {
-  //     throw new ParseException(
-  //         "in... statements must start with an identifier");
-  //   }
-  //   this._advance();
-  //   let right = this._parseExpression();
-  //   return this._astFactory.inExpr(left, right);
-  // }
-  //
-  // _parseAsExpression(left) {
-  //   console.assert(this._token.value == 'as');
-  //   this._advance();
-  //   let right = _parseExpression();
-  //   if (!(right instanceof Identifier)) {
-  //     throw new ParseException(
-  //         "'as' statements must end with an identifier");
-  //   }
-  //   return _astFactory.asExpr(left, right);
-  // }
-
   _parseInvokeOrIdentifier() {
-    // console.log('_parseInvokeOrIdentifier');
     if (this._token.value === 'true') {
       this._advance();
       return this._astFactory.literal(true);
@@ -414,9 +389,8 @@ export class Parser {
   }
 
   _parseIdentifier() {
-    // console.log('_parseIdentifier');
     if (this._token.kind !== IDENTIFIER_TOKEN) {
-      throw new ParseException("expected identifier: $_token.value");
+      throw new ParseException(`expected identifier: ${_token.value}`);
     }
     let value = this._token.value;
     this._advance();
