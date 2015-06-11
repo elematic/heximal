@@ -1,0 +1,74 @@
+<link rel="import" href="../../imd/imd.html">
+
+<link rel="import" href="../../polymer/polymer.html">
+<link rel="import" href="../polymer-expressions.html">
+
+<dom-module id="demo-element">
+  <style>
+    :host {
+      display: block;
+      box-sizing: border-box;
+    }
+  </style>
+  <template>
+    <h1>polymer-expressions Demo</h1>
+    <input type="number" value-as-number="{{foo::change}}"></input>
+    <div id="A">{{foo + 1}}</div>
+    <div id="B">{{1}}</div>
+  </template>
+</dom-module>
+
+<script type="text/javascript">
+  define(['polymer-expressions/eval', 'polymer-expressions/parser'],
+      function(evaluate, parser) {
+    'use strict';
+
+    let Parser = parser.Parser;
+    let astFactory = new evaluate.EvalAstFactory();
+
+    Polymer.Bind._annotatedExpressionEffect = function (source, value, effect) {
+      this._applyEffectValue(effect.ast.evaluate(this), effect);
+    };
+
+    Polymer({
+      is: 'demo-element',
+
+      properties: {
+        foo: {
+          type: Number,
+          value: 41,
+        },
+      },
+
+      _addAnnotationEffect(note, index) {
+        if (Polymer.Bind._shouldAddListener(note)) {
+          // <node>.on.<dash-case-property>-changed: <path> = e.detail.value
+          Polymer.Bind._addAnnotatedListener(this, index,
+            note.name, note.value, note.event);
+        }
+
+        let ast = new Parser(note.value, astFactory).parse();
+        var args = ast.getIdentifiers([]);
+
+        if (args.length > 0) {
+          args.forEach(function(arg) {
+            this.__addExpressionEffect(note, arg, index, arg, ast);
+          }, this);
+        } else {
+          this.__addExpressionEffect(note, '__static__', index, null, ast);
+        }
+      },
+
+      __addExpressionEffect: function(note, property, index, arg, ast) {
+        this._addPropertyEffect(property, 'annotatedExpression', {
+          index: index,
+          property: note.name,
+          kind: note.kind,
+          ast: ast,
+          trigger: arg,
+        });
+      },
+
+    });
+  });
+</script>

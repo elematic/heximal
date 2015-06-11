@@ -5,6 +5,10 @@
   "authors": [
     "The Polymer Authors"
   ],
+  "dependencies": {
+    "polymer": "Polymer/polymer#^1.0.0",
+    "imd": "PolymerLabs/imd"
+  },
   "license": "BSD",
   "private": true,
   "ignore": [
