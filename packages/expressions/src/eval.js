@@ -27,16 +27,13 @@ const _UNARY_OPERATORS = {
 
 const _BOOLEAN_OPERATORS = ['!', '||', '&&'];
 
-// function evaluate(expression, scope) {
-//   expression.evaluate(scope);
-// }
-
-class EvalAstFactory {
+export class EvalAstFactory {
 
   empty() {
     // TODO(justinfagnani): return null instead?
     return {
       evaluate: function(scope) { return scope; },
+      getIdentifiers(idents) { return idents; },
     };
 
   }
@@ -47,6 +44,7 @@ class EvalAstFactory {
       type: 'Literal',
       value: v,
       evaluate: function(scope) { return this.value; },
+      getIdentifiers(idents) { return idents; },
     };
   }
 
@@ -57,6 +55,10 @@ class EvalAstFactory {
       evaluate: function(scope) {
         if (this.value === 'this') return scope;
         return scope[this.value];
+      },
+      getIdentifiers(idents) {
+        idents.push(this.value);
+        return idents;
       },
     };
   }
@@ -70,6 +72,7 @@ class EvalAstFactory {
         let op = _UNARY_OPERATORS[this.operator];
         return op(this.child.evaluate(scope));
       },
+      getIdentifiers(idents) { return this.child.getIdentifiers(idents); },
     };
   }
 
@@ -83,6 +86,11 @@ class EvalAstFactory {
         let op = _BINARY_OPERATORS[this.operator];
         return op(this.left.evaluate(scope), this.right.evaluate(scope));
       },
+      getIdentifiers(idents) {
+        this.left.getIdentifiers(idents);
+        this.right.getIdentifiers(idents);
+        return idents;
+      },
     };
   }
 
@@ -94,13 +102,14 @@ class EvalAstFactory {
       evaluate: function(scope) {
         return this.receiver.evaluate(scope)[this.name];
       },
+      getIdentifiers(idents) {
+        this.receiver.getIdentifiers(idents);
+        return idents;
+      },
     };
   }
 
   invoke(receiver, method, args) {
-    if (args == null) {
-      throw new Error('args');
-    }
     return {
       type: 'Invoke',
       receiver: receiver,
@@ -114,6 +123,13 @@ class EvalAstFactory {
         let f = this.method == null ? o : o[this.method];
         return f.apply(o, argValues);
       },
+      getIdentifiers(idents) {
+        this.receiver.getIdentifiers(idents);
+        this.arguments.forEach(function(a) {
+          return a.getIdentifiers(idents);
+        });
+        return idents;
+      },
     };
   }
 
@@ -123,7 +139,8 @@ class EvalAstFactory {
       child: e,
       evaluate: function(scope) {
         return this.child.evaluate(scope);
-      }
+      },
+      getIdentifiers(idents) { return this.child.getIdentifiers(idents); },
     };
   }
 
@@ -134,6 +151,10 @@ class EvalAstFactory {
       argument: a,
       evaluate: function(scope) {
         return this.receiver.evaluate(scope)[this.argument.evaluate(scope)];
+      },
+      getIdentifiers(idents) {
+        this.receiver.getIdentifiers(idents);
+        return idents;
       },
     };
   }
@@ -152,6 +173,12 @@ class EvalAstFactory {
           return this.falseExpr.evaluate(scope);
         }
       },
+      getIdentifiers(idents) {
+        this.condition.getIdentifiers(idents);
+        this.trueExpr.getIdentifiers(idents);
+        this.falseExpr.getIdentifiers(idents);
+        return idents;
+      },
     };
   }
 
@@ -168,7 +195,13 @@ class EvalAstFactory {
           map[key] = value;
         }
         return map;
-      }
+      },
+      getIdentifiers(idents) {
+        this.entries.forEach(function(e) {
+          e.value.getIdentifiers(idents);
+        });
+        return idents;
+      },
     };
   }
 
@@ -191,11 +224,13 @@ class EvalAstFactory {
           return a.evaluate(scope);
         });
       },
+      getIdentifiers(idents) {
+        this.items.forEach(function(i) {
+          i.getIdentifiers(idents);
+        });
+        return idents;
+      },
     };
   }
 
 }
-
-module.exports = {
-  EvalAstFactory: EvalAstFactory,
-};

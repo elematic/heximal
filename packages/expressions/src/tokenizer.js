@@ -98,18 +98,18 @@ const _PRECEDENCE = {
   '{': 11, //not sure this is correct
 };
 
-const POSTFIX_PRECEDENCE = 11;
+export const POSTFIX_PRECEDENCE = 11;
 
-const STRING_TOKEN = 1;
-const IDENTIFIER_TOKEN = 2;
-const DOT_TOKEN = 3;
-const COMMA_TOKEN = 4;
-const COLON_TOKEN = 5;
-const INTEGER_TOKEN = 6;
-const DECIMAL_TOKEN = 7;
-const OPERATOR_TOKEN = 8;
-const GROUPER_TOKEN = 9;
-const KEYWORD_TOKEN = 10;
+export const STRING_TOKEN = 1;
+export const IDENTIFIER_TOKEN = 2;
+export const DOT_TOKEN = 3;
+export const COMMA_TOKEN = 4;
+export const COLON_TOKEN = 5;
+export const INTEGER_TOKEN = 6;
+export const DECIMAL_TOKEN = 7;
+export const OPERATOR_TOKEN = 8;
+export const GROUPER_TOKEN = 9;
+export const KEYWORD_TOKEN = 10;
 
 function isWhitespace(next) {
   return next === _SPACE || next === _TAB || next === _NBSP;
@@ -204,7 +204,7 @@ class RuneIterator {
 
 // TODO(justinfagnani): Pre-initialize and reuse the most common tokens: dot,
 // comma, colon, etc.
-class Token {
+export class Token {
   constructor(kind, value, precedence) {
     this.kind = kind;
     this.value = value;
@@ -216,7 +216,7 @@ class Token {
   }
 }
 
-class Tokenizer {
+export class Tokenizer {
 
   constructor(input) {
     this._tokens = [];
@@ -374,19 +374,19 @@ class ParseException /* implements Exception */ {
   }
 }
 
-module.exports = {
-  Tokenizer: Tokenizer,
-  Token: Token,
-  STRING_TOKEN: STRING_TOKEN,
-  IDENTIFIER_TOKEN: IDENTIFIER_TOKEN,
-  DOT_TOKEN: DOT_TOKEN,
-  COMMA_TOKEN: COMMA_TOKEN,
-  COLON_TOKEN: COLON_TOKEN,
-  INTEGER_TOKEN: INTEGER_TOKEN,
-  DECIMAL_TOKEN: DECIMAL_TOKEN,
-  OPERATOR_TOKEN: OPERATOR_TOKEN,
-  GROUPER_TOKEN: GROUPER_TOKEN,
-  KEYWORD_TOKEN: KEYWORD_TOKEN,
-  POSTFIX_PRECEDENCE: POSTFIX_PRECEDENCE,
-  PRECEDENCE: _PRECEDENCE,
-};
+// module.exports = {
+//   Tokenizer: Tokenizer,
+//   Token: Token,
+//   STRING_TOKEN: STRING_TOKEN,
+//   IDENTIFIER_TOKEN: IDENTIFIER_TOKEN,
+//   DOT_TOKEN: DOT_TOKEN,
+//   COMMA_TOKEN: COMMA_TOKEN,
+//   COLON_TOKEN: COLON_TOKEN,
+//   INTEGER_TOKEN: INTEGER_TOKEN,
+//   DECIMAL_TOKEN: DECIMAL_TOKEN,
+//   OPERATOR_TOKEN: OPERATOR_TOKEN,
+//   GROUPER_TOKEN: GROUPER_TOKEN,
+//   KEYWORD_TOKEN: KEYWORD_TOKEN,
+//   POSTFIX_PRECEDENCE: POSTFIX_PRECEDENCE,
+//   PRECEDENCE: _PRECEDENCE,
+// };

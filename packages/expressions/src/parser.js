@@ -1,6 +1,8 @@
 'use strict';
 
-var tokenizer = require('./tokenizer');
+// var tokenizer = require('./tokenizer');
+
+import * as tokenizer from 'polymer-expressions/tokenizer';
 
 var Tokenizer = tokenizer.Tokenizer;
 var Token = tokenizer.Token;
@@ -21,11 +23,11 @@ const _UNARY_OPERATORS = ['+', '-', '!'];
 const _BINARY_OPERATORS = ['+', '-', '*', '/', '%', '^', '==',
     '!=', '>', '<', '>=', '<=', '||', '&&', '&', '===', '!==', '|'];
 
-function parse(expr) {
+export function parse(expr) {
   return new Parser(expr).parse();
 }
 
-class AstFactory {
+export class AstFactory {
 
   empty() {
     // TODO(justinfagnani): return null instead?
@@ -153,7 +155,7 @@ class ArrayIterator {
   }
 }
 
-class Parser {
+export class Parser {
   // final AstFactory _astFactory;
   // final Tokenizer _tokenizer;
   // List<Token> _tokens;
@@ -477,7 +479,7 @@ class Parser {
 
 }
 
-module.exports = {
-  Parser: Parser,
-  AstFactory: AstFactory,
-};
+// module.exports = {
+//   Parser: Parser,
+//   AstFactory: AstFactory,
+// };
