@@ -31,7 +31,7 @@ export class EvalAstFactory {
     // TODO(justinfagnani): return null instead?
     return {
       evaluate: function(scope) { return scope; },
-      getIdentifiers(idents) { return idents; },
+      getIds(idents) { return idents; },
     };
 
   }
@@ -42,7 +42,7 @@ export class EvalAstFactory {
       type: 'Literal',
       value: v,
       evaluate: function(scope) { return this.value; },
-      getIdentifiers(idents) { return idents; },
+      getIds(idents) { return idents; },
     };
   }
 
@@ -54,7 +54,7 @@ export class EvalAstFactory {
         if (this.value === 'this') return scope;
         return scope[this.value];
       },
-      getIdentifiers(idents) {
+      getIds(idents) {
         idents.push(this.value);
         return idents;
       },
@@ -70,7 +70,7 @@ export class EvalAstFactory {
       evaluate: function(scope) {
         return f(this.child.evaluate(scope));
       },
-      getIdentifiers(idents) { return this.child.getIdentifiers(idents); },
+      getIds(idents) { return this.child.getIds(idents); },
     };
   }
 
@@ -84,9 +84,9 @@ export class EvalAstFactory {
       evaluate: function(scope) {
         return f(this.left.evaluate(scope), this.right.evaluate(scope));
       },
-      getIdentifiers(idents) {
-        this.left.getIdentifiers(idents);
-        this.right.getIdentifiers(idents);
+      getIds(idents) {
+        this.left.getIds(idents);
+        this.right.getIds(idents);
         return idents;
       },
     };
@@ -100,8 +100,8 @@ export class EvalAstFactory {
       evaluate: function(scope) {
         return this.receiver.evaluate(scope)[this.name];
       },
-      getIdentifiers(idents) {
-        this.receiver.getIdentifiers(idents);
+      getIds(idents) {
+        this.receiver.getIds(idents);
         return idents;
       },
     };
@@ -121,10 +121,10 @@ export class EvalAstFactory {
         let f = this.method == null ? o : o[this.method];
         return f.apply(o, argValues);
       },
-      getIdentifiers(idents) {
-        this.receiver.getIdentifiers(idents);
+      getIds(idents) {
+        this.receiver.getIds(idents);
         this.arguments.forEach(function(a) {
-          return a.getIdentifiers(idents);
+          return a.getIds(idents);
         });
         return idents;
       },
@@ -143,8 +143,8 @@ export class EvalAstFactory {
       evaluate: function(scope) {
         return this.receiver.evaluate(scope)[this.argument.evaluate(scope)];
       },
-      getIdentifiers(idents) {
-        this.receiver.getIdentifiers(idents);
+      getIds(idents) {
+        this.receiver.getIds(idents);
         return idents;
       },
     };
@@ -164,10 +164,10 @@ export class EvalAstFactory {
           return this.falseExpr.evaluate(scope);
         }
       },
-      getIdentifiers(idents) {
-        this.condition.getIdentifiers(idents);
-        this.trueExpr.getIdentifiers(idents);
-        this.falseExpr.getIdentifiers(idents);
+      getIds(idents) {
+        this.condition.getIds(idents);
+        this.trueExpr.getIds(idents);
+        this.falseExpr.getIds(idents);
         return idents;
       },
     };
@@ -184,9 +184,9 @@ export class EvalAstFactory {
         }
         return map;
       },
-      getIdentifiers(idents) {
+      getIds(idents) {
         for (let key in entries) {
-          this.entries[key].getIdentifiers(idents);
+          this.entries[key].getIds(idents);
         }
         return idents;
       },
@@ -203,9 +203,9 @@ export class EvalAstFactory {
           return a.evaluate(scope);
         });
       },
-      getIdentifiers(idents) {
+      getIds(idents) {
         this.items.forEach(function(i) {
-          i.getIdentifiers(idents);
+          i.getIds(idents);
         });
         return idents;
       },

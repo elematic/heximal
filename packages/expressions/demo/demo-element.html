@@ -48,7 +48,7 @@
         }
 
         let ast = new Parser(note.value, astFactory).parse();
-        var args = ast.getIdentifiers([]);
+        var args = ast.getIds([]);
 
         if (args.length > 0) {
           args.forEach(function(arg) {
