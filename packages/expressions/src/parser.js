@@ -155,7 +155,7 @@ export const Tokenizer = (function() {
 
     nextToken() {
       if (this._index === -1) this._advance();
-      while(this._next !== null && _isWhitespace(this._next)) {
+      while(_isWhitespace(this._next)) {
         this._advance(true);
       }
       if (_isQuote(this._next)) return this._tokenizeString();
@@ -166,9 +166,9 @@ export const Tokenizer = (function() {
       if (this._next === ':') return this._tokenizeColon();
       if (_isOperator(this._next)) return this._tokenizeOperator();
       if (_isGrouper(this._next)) return this._tokenizeGrouper();
-      // no match
-      this._advance(true);
-      console.assert(this._next == null);
+      // no match, should be end of input
+      this._advance();
+      console.assert(!this._next);
       return null;
     }
 
@@ -177,10 +177,10 @@ export const Tokenizer = (function() {
       let quoteChar = this._next;
       this._advance(true);
       while (this._next !== quoteChar) {
-        if (this._next === null) throw new Error(_us);
+        if (!this._next) throw new Error(_us);
         if (this._next === '\\') {
           this._advance();
-          if (this._next === null) throw new Error(_us);
+          if (!this._next) throw new Error(_us);
         }
         this._advance();
       }
@@ -190,7 +190,7 @@ export const Tokenizer = (function() {
     }
 
     _tokenizeIdentOrKeyword() {
-      while (this._next !== null && _isIdentifier(this._next)) {
+      while (_isIdentifier(this._next)) {
         this._advance();
       }
       let value = this._getValue();
@@ -199,7 +199,7 @@ export const Tokenizer = (function() {
     }
 
     _tokenizeNumber() {
-      while (this._next !== null && _isNumber(this._next)) {
+      while (_isNumber(this._next)) {
         this._advance();
       }
       if (this._next === '.') return this._tokenizeDot();
@@ -224,7 +224,7 @@ export const Tokenizer = (function() {
     }
 
     _tokenizeFraction() {
-      while (this._next !== null && _isNumber(this._next)) {
+      while (_isNumber(this._next)) {
         this._advance();
       }
       return token(DECIMAL, this._getValue());
@@ -288,9 +288,9 @@ export class Parser {
   }
 
   _parseExpression() {
-    if (this._token == null) return this._ast.empty();
+    if (!this._token) return this._ast.empty();
     let expr = this._parseUnary();
-    return (expr == null) ? null : this._parsePrecedence(expr, 0);
+    return (!expr) ? null : this._parsePrecedence(expr, 0);
   }
 
   // _parsePrecedence and _parseBinary implement the precedence climbing
@@ -457,7 +457,7 @@ export class Parser {
     }
     let identifier = this._parseIdentifier();
     let args = this._parseArguments();
-    return (args == null) ? identifier : this._ast.invoke(identifier, null, args);
+    return (!args) ? identifier : this._ast.invoke(identifier, null, args);
   }
 
   _parseIdentifier() {
