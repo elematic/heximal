@@ -47,10 +47,8 @@ export class Parser {
   }
 
   _parseExpression() {
-    // console.log('_parseExpression', this._token);
     if (this._token == null) return this._ast.empty();
     let expr = this._parseUnary();
-    // console.log('unary = ', expr);
     return (expr == null) ? null : this._parsePrecedence(expr, 0);
   }
 
@@ -116,26 +114,21 @@ export class Parser {
   }
 
   _parseUnary() {
-    // console.log('_parseUnary', this._token);
     if (this._token.kind === OPERATOR) {
       let value = this._token.value;
+      this._advance();
+      // handle unary + and - on numbers as part of the literal, not as a
+      // unary operator
       if (value === '+' || value === '-') {
-        this._advance();
         if (this._token.kind === INTEGER) {
           return this._parseInteger(value);
         } else if (this._token.kind === DECIMAL) {
           return this._parseDecimal(value);
-        } else {
-          let expr = this._parsePrecedence(this._parsePrimary(), POSTFIX_PRECEDENCE);
-          return this._ast.unary(value, expr);
         }
-      } else if (value === '!') {
-        this._advance();
-        let expr = this._parsePrecedence(this._parsePrimary(), POSTFIX_PRECEDENCE);
-        return this._ast.unary(value, expr);
-      } else {
-        throw new ParseException("unexpected token: $value");
       }
+      // if (value !== '!') throw new ParseException("unexpected token: $value");
+      let expr = this._parsePrecedence(this._parsePrimary(), POSTFIX_PRECEDENCE);
+      return this._ast.unary(value, expr);
     }
     return this._parsePrimary();
   }
@@ -149,7 +142,6 @@ export class Parser {
   }
 
   _parsePrimary() {
-    // console.log('_parsePrimary', this._token);
     let kind = this._token.kind;
     switch (kind) {
       case KEYWORD:
