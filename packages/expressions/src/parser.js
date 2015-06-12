@@ -25,163 +25,32 @@ export function parse(expr) {
   return new Parser(expr).parse();
 }
 
-export class AstFactory {
-
-  empty() {
-    // TODO(justinfagnani): return null instead?
-    return {};
-  }
-
-  // TODO(justinfagnani): just use a JS literal?
-  literal(v) {
-    return {
-      type: 'Literal',
-      value: v,
-    };
-  }
-
-  identifier(v) {
-    return {
-      type: 'Identifier',
-      value: v,
-    };
-  }
-
-  unary(op, expr) {
-    return {
-      type: 'Unary',
-      operator: op,
-      child: expr,
-    };
-  }
-
-  binary(l, op, r) {
-    return {
-      type: 'Binary',
-      operator: op,
-      left: l,
-      right: r,
-    };
-  }
-
-  getter(g, n) {
-    return {
-      type: 'Getter',
-      receiver: g,
-      name: n,
-    };
-  }
-
-  invoke(receiver, method, args) {
-    if (args == null) {
-      throw new Error('args');
-    }
-    return {
-      type: 'Invoke',
-      receiver: receiver,
-      method: method,
-      arguments: args,
-    };
-  }
-
-  parenthesized(e) {
-    return {
-      type: 'Parenthesized',
-      child: e,
-    };
-  }
-
-  index(e, a) {
-    return {
-      type: 'Index',
-      receiver: e,
-      argument: a,
-    };
-  }
-
-  ternary(c, t, f) {
-    return {
-      type: 'Ternary',
-      condition: c,
-      trueExpr: t,
-      falseExpr: f,
-    };
-  }
-
-  mapLiteral(entries) {
-    return {
-      type: 'MapLiteral',
-      entries: entries,
-    };
-  }
-
-  // TODO(justinfagnani): replace with a 2-element Array?
-  mapLiteralEntry(key, value) {
-    return {
-      type: 'MapLiteralEntry',
-      key: key,
-      value: value,
-    };
-  }
-
-  listLiteral(l) {
-    return {
-      type: 'ListLiteral',
-      items: l,
-    };
-  }
-
-}
-
-class ArrayIterator {
-
-  constructor(arr) {
-    this._arr = arr;
-    this._index = -1;
-    this._length = arr.length;
-  }
-
-  moveNext() {
-    if (this._index < this._length) this._index++;
-    return this._index < this._length;
-  }
-
-  get current() {
-    return (this._index === -1) || (this._index === this._length)
-        ? null
-        : this._arr[this._index];
-  }
-}
-
 export class Parser {
-  // final AstFactory _astFactory;
-  // final Tokenizer _tokenizer;
-  // List<Token> _tokens;
-  // Iterator _iterator;
 
   constructor(input, astFactory) {
     this._tokenizer = new Tokenizer(input);
-    this._astFactory = (astFactory == null) ? new AstFactory() : astFactory;
+    this._astFactory = astFactory;
   }
 
   parse() {
     this._tokens = this._tokenizer.tokenize();
-    this._iterator = new ArrayIterator(this._tokens);
+    this._index = -1;
     this._advance();
     return this._parseExpression();
   }
 
   _advance(kind, value) {
-    if ((kind != null && (this._token == null || this._token.kind !== kind))
+    if ((kind && (this._token == null || this._token.kind !== kind))
         || (value != null && (this._token == null || this._token.value !== value))) {
       throw new ParseException("Expected kind $kind ($value): $this._token");
     }
-    this._iterator.moveNext();
-    // this._token = this._iterator.current;
-  }
 
-  get _token() {
-    return this._iterator.current;
+    if (this._index < this._tokens.length) {
+      this._index++;
+      this._token = this._tokens[this._index];
+    } else {
+      this._next = null;
+    }
   }
 
   _parseExpression() {

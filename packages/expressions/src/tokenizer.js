@@ -4,9 +4,9 @@ const _GROUPERS = '()[]{}';
 const _OPERATORS = '+-*/!&%<=>?^|';
 const _TWO_CHAR_OPS = ['==', '!=', '<=', '>=', '||', '&&'];
 const _THREE_CHAR_OPS = ['===', '!=='];
-const KEYWORDS = ['this'];
+const _KEYWORDS = ['this'];
 
-const _PRECEDENCE = {
+export const PRECEDENCE = {
   '!':  0,
   ':':  0,
   ',':  0,
@@ -47,7 +47,6 @@ const _PRECEDENCE = {
   '.':  11,
   '{': 11, //not sure this is correct
 };
-export const PRECEDENCE = _PRECEDENCE;
 
 export const POSTFIX_PRECEDENCE = 11;
 
@@ -80,7 +79,7 @@ function isIdentifier(next) {
 }
 
 function isKeyword(str) {
-  return KEYWORDS.indexOf(str) !== -1;
+  return _KEYWORDS.indexOf(str) !== -1;
 }
 
 const _QUOTE = new RegExp('^[\\\"\\\']$');
@@ -102,7 +101,7 @@ function isGrouper(next) {
 }
 
 const _ESCAPE = new RegExp('\\\\(.)', 'g');
-function escapeString(str) {
+function _escapeString(str) {
   return str.replace(_ESCAPE, function(match, group) {
     switch(group) {
       case 'n': return '\n';
@@ -115,14 +114,12 @@ function escapeString(str) {
   });
 }
 
-// TODO(justinfagnani): Pre-initialize and reuse the most common tokens: dot,
-// comma, colon, etc.
-export class Token {
-  constructor(kind, value, precedence) {
-    this.kind = kind;
-    this.value = value;
-    this.precedence = precedence || 0;
-  }
+export function token(kind, value, precedence) {
+  return {
+    kind: kind,
+    value: value,
+    precedence: precedence || 0,
+  };
 }
 
 export class Tokenizer {
@@ -147,16 +144,13 @@ export class Tokenizer {
     }
   }
 
-  _getTokenValue(lookahead, escape) {
-    let end = lookahead ? this._index + lookahead : this._index;
-    let subValue = this._input.substring(this._tokenStart, end);
-    if (escape) {
-      return escapeString(subValue);
-    }
-    return subValue;
+  _getValue(lookahead) {
+    let v = this._input.substring(this._tokenStart, this._index + (lookahead || 0));
+    if (!lookahead) this._clearValue();
+    return v;
   }
 
-  _clearTokenValue() {
+  _clearValue() {
     this._tokenStart = this._index;
   }
 
@@ -166,21 +160,21 @@ export class Tokenizer {
       if (isWhitespace(this._next)) {
         this._advance(true);
       } else if (isQuote(this._next)) {
-        this.tokenizeString();
+        this._tokenizeString();
       } else if (isIdentifierOrKeywordStart(this._next)) {
-        this.tokenizeIdentifierOrKeyword();
+        this._tokenizeIdentifierOrKeyword();
       } else if (isNumber(this._next)) {
-        this.tokenizeNumber();
+        this._tokenizeNumber();
       } else if (this._next === '.') {
-        this.tokenizeDot();
+        this._tokenizeDot();
       } else if (this._next === ',') {
-        this.tokenizeComma();
+        this._tokenizeComma();
       } else if (this._next === ':') {
-        this.tokenizeColon();
+        this._tokenizeColon();
       } else if (isOperator(this._next)) {
-        this.tokenizeOperator();
+        this._tokenizeOperator();
       } else if (isGrouper(this._next)) {
-        this.tokenizeGrouper();
+        this._tokenizeGrouper();
       } else {
         this._advance(true);
         console.assert(this._next == null);
@@ -189,7 +183,7 @@ export class Tokenizer {
     return this._tokens;
   }
 
-  tokenizeString() {
+  _tokenizeString() {
     let quoteChar = this._next;
     this._advance(true);
     while (this._next !== quoteChar) {
@@ -200,84 +194,77 @@ export class Tokenizer {
       }
       this._advance();
     }
-    this._tokens.push(new Token(STRING_TOKEN, this._getTokenValue(0, true)));
-    this._clearTokenValue();
+    this._tokens.push(token(STRING_TOKEN, _escapeString(this._getValue())));
     this._advance();
   }
 
-  tokenizeIdentifierOrKeyword() {
+  _tokenizeIdentifierOrKeyword() {
     while (this._next !== null && isIdentifier(this._next)) {
       this._advance();
     }
-    let value = this._getTokenValue();
+    let value = this._getValue();
     let kind = isKeyword(value) ? KEYWORD_TOKEN : IDENTIFIER_TOKEN;
-    this._tokens.push(new Token(kind, value));
-    this._clearTokenValue();
+    this._tokens.push(token(kind, value));
   }
 
-  tokenizeNumber() {
+  _tokenizeNumber() {
     while (this._next !== null && isNumber(this._next)) {
       this._advance();
     }
     if (this._next === '.') {
-      this.tokenizeDot();
+      this._tokenizeDot();
     } else {
-      this._tokens.push(new Token(INTEGER_TOKEN, this._getTokenValue()));
-      this._clearTokenValue();
+      this._tokens.push(token(INTEGER_TOKEN, this._getValue()));
     }
   }
 
-  tokenizeDot() {
+  _tokenizeDot() {
     this._advance();
     if (isNumber(this._next)) {
-      this.tokenizeFraction();
+      this._tokenizeFraction();
     } else {
-      this._clearTokenValue();
-      this._tokens.push(new Token(DOT_TOKEN, '.', POSTFIX_PRECEDENCE));
+      this._clearValue();
+      this._tokens.push(token(DOT_TOKEN, '.', POSTFIX_PRECEDENCE));
     }
   }
 
-  tokenizeComma() {
+  _tokenizeComma() {
     this._advance(true);
-    this._tokens.push(new Token(COMMA_TOKEN, ','));
+    this._tokens.push(token(COMMA_TOKEN, ','));
   }
 
-  tokenizeColon() {
+  _tokenizeColon() {
     this._advance(true);
-    this._tokens.push(new Token(COLON_TOKEN, ':'));
+    this._tokens.push(token(COLON_TOKEN, ':'));
   }
 
-  tokenizeFraction() {
+  _tokenizeFraction() {
     while (this._next !== null && isNumber(this._next)) {
       this._advance();
     }
-    this._tokens.push(new Token(DECIMAL_TOKEN, this._getTokenValue()));
-    this._clearTokenValue();
+    this._tokens.push(token(DECIMAL_TOKEN, this._getValue()));
   }
 
-  tokenizeOperator() {
-    let startChar = this._next;
+  _tokenizeOperator() {
     this._advance();
-    let op = this._getTokenValue(2);
+    let op = this._getValue(2);
 
     if (_THREE_CHAR_OPS.indexOf(op) !== -1) {
       this._advance();
       this._advance();
     } else {
-      op = this._getTokenValue(1);
+      op = this._getValue(1);
       if (_TWO_CHAR_OPS.indexOf(op) !== -1) {
         this._advance();
-      } else {
-        op = this._getTokenValue();
       }
     }
-    this._clearTokenValue();
-    this._tokens.push(new Token(OPERATOR_TOKEN, op, _PRECEDENCE[op]));
+    op = this._getValue();
+    this._tokens.push(token(OPERATOR_TOKEN, op, PRECEDENCE[op]));
   }
 
-  tokenizeGrouper() {
+  _tokenizeGrouper() {
     let value = this._next;
-    this._tokens.push(new Token(GROUPER_TOKEN, value, _PRECEDENCE[value]));
+    this._tokens.push(token(GROUPER_TOKEN, value, PRECEDENCE[value]));
     this._advance(true);
   }
 }

@@ -7,7 +7,7 @@ import * as assert from 'assert';
 import * as tokenizer from '../src/tokenizer';
 
 var Tokenizer = tokenizer.Tokenizer;
-var Token = tokenizer.Token;
+// var Token = tokenizer.Token;
 var STRING_TOKEN = tokenizer.STRING_TOKEN;
 var IDENTIFIER_TOKEN = tokenizer.IDENTIFIER_TOKEN;
 var DOT_TOKEN = tokenizer.DOT_TOKEN;
@@ -27,7 +27,7 @@ function expectTokens(s, expected) {
 }
 
 function t(kind, value, precedence) {
-  return new Token(kind, value, precedence);
+  return tokenizer.token(kind, value, precedence);
 }
 
 suite('tokenizer', function() {

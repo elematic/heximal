@@ -64,27 +64,27 @@ export class EvalAstFactory {
   }
 
   unary(op, expr) {
+    let f = _UNARY_OPERATORS[op];
     return {
       type: 'Unary',
       operator: op,
       child: expr,
       evaluate: function(scope) {
-        let op = _UNARY_OPERATORS[this.operator];
-        return op(this.child.evaluate(scope));
+        return f(this.child.evaluate(scope));
       },
       getIdentifiers(idents) { return this.child.getIdentifiers(idents); },
     };
   }
 
   binary(l, op, r) {
+    let f = _BINARY_OPERATORS[op];
     return {
       type: 'Binary',
       operator: op,
       left: l,
       right: r,
       evaluate: function(scope) {
-        let op = _BINARY_OPERATORS[this.operator];
-        return op(this.left.evaluate(scope), this.right.evaluate(scope));
+        return f(this.left.evaluate(scope), this.right.evaluate(scope));
       },
       getIdentifiers(idents) {
         this.left.getIdentifiers(idents);
