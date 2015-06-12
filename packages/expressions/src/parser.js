@@ -279,12 +279,16 @@ export class Parser {
   }
 
   _advance(kind, value) {
-    let t = this._token;
-    if ((kind && (!t || t.kind !== kind)) ||
-        (value && (!t || t.value !== value))) {
-      throw new ParseException("Expected kind $kind ($value): $this._token");
+    if (!this._matches(kind, value)) {
+      throw new ParseException(`Expected kind ${kind} (${value}), was ${this._token}`);
     }
     this._token = this._tokenizer.nextToken();
+  }
+
+  _matches(kind, value) {
+    let t = this._token;
+    return (!kind || (t && t.kind === kind))
+        && (!value || (t && t.value === value));
   }
 
   _parseExpression() {
@@ -427,7 +431,7 @@ export class Parser {
         break;
       }
       items.push(this._parseExpression());
-    } while(this._token != null && this._token.value == ',');
+    } while(this._matches(COMMA));
     this._advance(GROUPER, ']');
     return this._ast.listLiteral(items);
   }
@@ -443,7 +447,7 @@ export class Parser {
       this._advance(STRING);
       this._advance(COLON, ':');
       entries[key] = this._parseExpression();
-    } while(this._token != null && this._token.value == ',');
+    } while(this._matches(COMMA));
     this._advance(GROUPER, '}');
     return this._ast.mapLiteral(entries);
   }
@@ -477,16 +481,16 @@ export class Parser {
   }
 
   _parseArguments() {
-    if (this._token != null && this._token.kind == GROUPER && this._token.value == '(') {
+    if (this._matches(GROUPER, '(')) {
       let args = [];
       do {
         this._advance();
-        if (this._token.kind == GROUPER && this._token.value == ')') {
+        if (this._matches(GROUPER, ')')) {
           break;
         }
         let expr = this._parseExpression();
         args.push(expr);
-      } while(this._token != null && this._token.value == ',');
+      } while(this._matches(COMMA));
       this._advance(GROUPER, ')');
       return args;
     }
@@ -494,7 +498,7 @@ export class Parser {
   }
 
   _parseIndex() {
-    if (this._token != null && this._token.kind == GROUPER && this._token.value == '[') {
+    if (this._matches(GROUPER, '[')) {
       this._advance();
       let expr = this._parseExpression();
       this._advance(GROUPER, ']');
