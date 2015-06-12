@@ -279,8 +279,9 @@ export class Parser {
   }
 
   _advance(kind, value) {
-    if ((kind && (this._token == null || this._token.kind !== kind))
-        || (value != null && (this._token == null || this._token.value !== value))) {
+    let t = this._token;
+    if ((kind && (!t || t.kind !== kind)) ||
+        (value && (!t || t.value !== value))) {
       throw new ParseException("Expected kind $kind ($value): $this._token");
     }
     this._token = this._tokenizer.nextToken();
@@ -296,12 +297,12 @@ export class Parser {
   // algorithm as described in:
   // http://en.wikipedia.org/wiki/Operator-precedence_parser#Precedence_climbing_method
   _parsePrecedence(left, precedence) {
-    console.assert(left != null);
-    while (this._token != null) {
+    console.assert(left);
+    while (this._token) {
       if (this._token.kind == GROUPER) {
         if (this._token.value == '(') {
           let args = this._parseArguments();
-          console.assert(args != null);
+          console.assert(args);
           left = this._ast.invoke(left, null, args);
         } else if (this._token.value == '[') {
           let indexExpr = this._parseIndex();
@@ -343,10 +344,10 @@ export class Parser {
     }
     this._advance();
     let right = this._parseUnary();
-    while (this._token != null
+    while (this._token
         && (this._token.kind == OPERATOR
-        || this._token.kind == DOT
-        || this._token.kind == GROUPER)
+            || this._token.kind == DOT
+            || this._token.kind == GROUPER)
         && this._token.precedence > op.precedence) {
       right = this._parsePrecedence(right, this._token.precedence);
     }
@@ -448,25 +449,22 @@ export class Parser {
   }
 
   _parseInvokeOrIdentifier() {
-    if (this._token.value === 'true') {
+    let value = this._token.value;
+    if (value === 'true') {
       this._advance();
       return this._ast.literal(true);
     }
-    if (this._token.value === 'false') {
+    if (value === 'false') {
       this._advance();
       return this._ast.literal(false);
     }
-    if (this._token.value == 'null') {
+    if (value == 'null') {
       this._advance();
       return this._ast.literal(null);
     }
     let identifier = this._parseIdentifier();
     let args = this._parseArguments();
-    if (args == null) {
-      return identifier;
-    } else {
-      return this._ast.invoke(identifier, null, args);
-    }
+    return (args == null) ? identifier : this._ast.invoke(identifier, null, args);
   }
 
   _parseIdentifier() {
