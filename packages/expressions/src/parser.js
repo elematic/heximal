@@ -298,26 +298,23 @@ export class Parser {
   _parsePrecedence(left, precedence) {
     console.assert(left);
     while (this._token) {
-      if (this._token.kind == GROUPER) {
-        if (this._token.value == '(') {
-          let args = this._parseArguments();
-          console.assert(args);
-          left = this._ast.invoke(left, null, args);
-        } else if (this._token.value == '[') {
-          let indexExpr = this._parseIndex();
-          left = this._ast.index(left, indexExpr);
-        } else {
-          break;
-        }
-      } else if (this._token.kind == DOT) {
+      if (this._matches(GROUPER, '(')) {
+        let args = this._parseArguments();
+        left = this._ast.invoke(left, null, args);
+      } else if (this._matches(GROUPER, '[')) {
+        let indexExpr = this._parseIndex();
+        left = this._ast.index(left, indexExpr);
+      } else if (this._matches(DOT)) {
         this._advance();
         let right = this._parseUnary();
         left = this._makeInvokeOrGetter(left, right);
-      } else if (this._token.kind == KEYWORD) {
+      } else if (this._matches(KEYWORD)) {
         break;
-      } else if (this._token.kind == OPERATOR
+      } else if (this._matches(OPERATOR)
           && this._token.precedence >= precedence) {
-        left = this._token.value == '?' ? this._parseTernary(left) : this._parseBinary(left);
+        left = this._token.value == '?'
+            ? this._parseTernary(left)
+            : this._parseBinary(left);
       } else {
         break;
       }
@@ -354,15 +351,15 @@ export class Parser {
   }
 
   _parseUnary() {
-    if (this._token.kind === OPERATOR) {
+    if (this._matches(OPERATOR)) {
       let value = this._token.value;
       this._advance();
       // handle unary + and - on numbers as part of the literal, not as a
       // unary operator
       if (value === '+' || value === '-') {
-        if (this._token.kind === INTEGER) {
+        if (this._matches(INTEGER)) {
           return this._parseInteger(value);
-        } else if (this._token.kind === DECIMAL) {
+        } else if (this._matches(DECIMAL)) {
           return this._parseDecimal(value);
         }
       }
@@ -422,9 +419,7 @@ export class Parser {
     let items = [];
     do {
       this._advance();
-      if (this._token.kind == GROUPER && this._token.value == ']') {
-        break;
-      }
+      if (this._matches(GROUPER, ']')) break;
       items.push(this._parseExpression());
     } while(this._matches(COMMA));
     this._advance(GROUPER, ']');
@@ -435,7 +430,7 @@ export class Parser {
     let entries = {};
     do {
       this._advance();
-      if (this._token.kind == GROUPER && this._token.value == '}') {
+      if (this._matches(GROUPER, '}')) {
         break;
       }
       let key = this._token.value;
