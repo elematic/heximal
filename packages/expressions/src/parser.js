@@ -4,16 +4,16 @@ import * as tokenizer from './tokenizer';
 
 var Tokenizer = tokenizer.Tokenizer;
 var Token = tokenizer.Token;
-var STRING_TOKEN = tokenizer.STRING_TOKEN;
-var IDENTIFIER_TOKEN = tokenizer.IDENTIFIER_TOKEN;
-var DOT_TOKEN = tokenizer.DOT_TOKEN;
-var COMMA_TOKEN = tokenizer.COMMA_TOKEN;
-var COLON_TOKEN = tokenizer.COLON_TOKEN;
-var INTEGER_TOKEN = tokenizer.INTEGER_TOKEN;
-var DECIMAL_TOKEN = tokenizer.DECIMAL_TOKEN;
-var OPERATOR_TOKEN = tokenizer.OPERATOR_TOKEN;
-var GROUPER_TOKEN = tokenizer.GROUPER_TOKEN;
-var KEYWORD_TOKEN = tokenizer.KEYWORD_TOKEN;
+var STRING = tokenizer.STRING;
+var IDENTIFIER = tokenizer.IDENTIFIER;
+var DOT = tokenizer.DOT;
+var COMMA = tokenizer.COMMA;
+var COLON = tokenizer.COLON;
+var INTEGER = tokenizer.INTEGER;
+var DECIMAL = tokenizer.DECIMAL;
+var OPERATOR = tokenizer.OPERATOR;
+var GROUPER = tokenizer.GROUPER;
+var KEYWORD = tokenizer.KEYWORD;
 var POSTFIX_PRECEDENCE = tokenizer.POSTFIX_PRECEDENCE;
 var PRECEDENCE = tokenizer.PRECEDENCE;
 
@@ -29,7 +29,7 @@ export class Parser {
 
   constructor(input, astFactory) {
     this._tokenizer = new Tokenizer(input);
-    this._astFactory = astFactory;
+    this._ast = astFactory;
   }
 
   parse() {
@@ -55,7 +55,7 @@ export class Parser {
 
   _parseExpression() {
     // console.log('_parseExpression', this._token);
-    if (this._token == null) return this._astFactory.empty();
+    if (this._token == null) return this._ast.empty();
     let expr = this._parseUnary();
     // console.log('unary = ', expr);
     return (expr == null) ? null : this._parsePrecedence(expr, 0);
@@ -69,30 +69,24 @@ export class Parser {
     // console.log('  token', this._token);
     console.assert(left != null);
     while (this._token != null) {
-      if (this._token.kind == GROUPER_TOKEN) {
+      if (this._token.kind == GROUPER) {
         if (this._token.value == '(') {
           let args = this._parseArguments();
           console.assert(args != null);
-          left = this._astFactory.invoke(left, null, args);
+          left = this._ast.invoke(left, null, args);
         } else if (this._token.value == '[') {
           let indexExpr = this._parseIndex();
-          left = this._astFactory.index(left, indexExpr);
+          left = this._ast.index(left, indexExpr);
         } else {
           break;
         }
-      } else if (this._token.kind == DOT_TOKEN) {
+      } else if (this._token.kind == DOT) {
         this._advance();
         let right = this._parseUnary();
         left = this._makeInvokeOrGetter(left, right);
-      } else if (this._token.kind == KEYWORD_TOKEN) {
-        if (this._token.value == 'in') {
-          left = this._parseInExpression(left);
-        } else if (this._token.value == 'as') {
-          left = this._parseAsExpression(left);
-        } else {
-          break;
-        }
-      } else if (this._token.kind == OPERATOR_TOKEN
+      } else if (this._token.kind == KEYWORD) {
+        break;
+      } else if (this._token.kind == OPERATOR
           && this._token.precedence >= precedence) {
         left = this._token.value == '?' ? this._parseTernary(left) : this._parseBinary(left);
       } else {
@@ -102,13 +96,12 @@ export class Parser {
     return left;
   }
 
-  // invoke or getter
   _makeInvokeOrGetter(left, right) {
     if (right.type === 'Identifier') {
-      return this._astFactory.getter(left, right.value);
+      return this._ast.getter(left, right.value);
     } else if (right.type === 'Invoke' && right.receiver.type === 'Identifier') {
       let method = right.receiver;
-      return this._astFactory.invoke(left, method.value, right.arguments);
+      return this._ast.invoke(left, method.value, right.arguments);
     } else {
       throw new ParseException("expected identifier: $right");
     }
@@ -122,33 +115,33 @@ export class Parser {
     this._advance();
     let right = this._parseUnary();
     while (this._token != null
-        && (this._token.kind == OPERATOR_TOKEN
-        || this._token.kind == DOT_TOKEN
-        || this._token.kind == GROUPER_TOKEN)
+        && (this._token.kind == OPERATOR
+        || this._token.kind == DOT
+        || this._token.kind == GROUPER)
         && this._token.precedence > op.precedence) {
       right = this._parsePrecedence(right, this._token.precedence);
     }
-    return this._astFactory.binary(left, op.value, right);
+    return this._ast.binary(left, op.value, right);
   }
 
   _parseUnary() {
     // console.log('_parseUnary', this._token);
-    if (this._token.kind === OPERATOR_TOKEN) {
+    if (this._token.kind === OPERATOR) {
       let value = this._token.value;
       if (value === '+' || value === '-') {
         this._advance();
-        if (this._token.kind === INTEGER_TOKEN) {
+        if (this._token.kind === INTEGER) {
           return this._parseInteger(value);
-        } else if (this._token.kind === DECIMAL_TOKEN) {
+        } else if (this._token.kind === DECIMAL) {
           return this._parseDecimal(value);
         } else {
           let expr = this._parsePrecedence(this._parsePrimary(), POSTFIX_PRECEDENCE);
-          return this._astFactory.unary(value, expr);
+          return this._ast.unary(value, expr);
         }
       } else if (value === '!') {
         this._advance();
         let expr = this._parsePrecedence(this._parsePrimary(), POSTFIX_PRECEDENCE);
-        return this._astFactory.unary(value, expr);
+        return this._ast.unary(value, expr);
       } else {
         throw new ParseException("unexpected token: $value");
       }
@@ -157,165 +150,165 @@ export class Parser {
   }
 
   _parseTernary(condition) {
-    this._advance(OPERATOR_TOKEN, '?');
+    this._advance(OPERATOR, '?');
     let trueExpr = this._parseExpression();
-    this._advance(COLON_TOKEN);
+    this._advance(COLON);
     let falseExpr = this._parseExpression();
-    return this._astFactory.ternary(condition, trueExpr, falseExpr);
+    return this._ast.ternary(condition, trueExpr, falseExpr);
   }
 
   _parsePrimary() {
     // console.log('_parsePrimary', this._token);
     let kind = this._token.kind;
     switch (kind) {
-      case KEYWORD_TOKEN:
+      case KEYWORD:
         var keyword = this._token.value;
         if (keyword === 'this') {
           this._advance();
           // TODO(justin): return keyword node
-          return this._astFactory.identifier('this');
+          return this._ast.identifier('this');
         } else if (KEYWORDS.indexOf(keyword) !== -1) {
           throw new ParseException('unexpected keyword: $keyword');
         }
         throw new ParseException('unrecognized keyword: $keyword');
-      case IDENTIFIER_TOKEN:
+      case IDENTIFIER:
         return this._parseInvokeOrIdentifier();
-      case STRING_TOKEN:
+      case STRING:
         return this._parseString();
-      case INTEGER_TOKEN:
+      case INTEGER:
         return this._parseInteger();
-      case DECIMAL_TOKEN:
+      case DECIMAL:
         return this._parseDecimal();
-      case GROUPER_TOKEN:
+      case GROUPER:
         if (this._token.value == '(') {
-          return this._parseParenthesized();
+          return this._parseParen();
         } else if (this._token.value == '{') {
-          return this._parseMapLiteral();
+          return this._parseMap();
         } else if (this._token.value == '[') {
-          return this._parseListLiteral();
+          return this._parseList();
         }
         return null;
-      case COLON_TOKEN:
+      case COLON:
         throw new ParseException('unexpected token ":"');
       default:
         return null;
     }
   }
 
-  _parseListLiteral() {
+  _parseList() {
     let items = [];
     do {
       this._advance();
-      if (this._token.kind == GROUPER_TOKEN && this._token.value == ']') {
+      if (this._token.kind == GROUPER && this._token.value == ']') {
         break;
       }
       items.push(this._parseExpression());
     } while(this._token != null && this._token.value == ',');
-    this._advance(GROUPER_TOKEN, ']');
-    return this._astFactory.listLiteral(items);
+    this._advance(GROUPER, ']');
+    return this._ast.listLiteral(items);
   }
 
-  _parseMapLiteral() {
+  _parseMap() {
     let entries = [];
     do {
       this._advance();
-      if (this._token.kind == GROUPER_TOKEN && this._token.value == '}') {
+      if (this._token.kind == GROUPER && this._token.value == '}') {
         break;
       }
-      entries.push(this._parseMapLiteralEntry());
+      entries.push(this._parseMapEntry());
     } while(this._token != null && this._token.value == ',');
-    this._advance(GROUPER_TOKEN, '}');
-    return this._astFactory.mapLiteral(entries);
+    this._advance(GROUPER, '}');
+    return this._ast.mapLiteral(entries);
   }
 
-  _parseMapLiteralEntry() {
+  _parseMapEntry() {
     let key = this._parseString();
-    this._advance(COLON_TOKEN, ':');
+    this._advance(COLON, ':');
     let value = this._parseExpression();
-    return this._astFactory.mapLiteralEntry(key, value);
+    return this._ast.mapLiteralEntry(key, value);
   }
 
   _parseInvokeOrIdentifier() {
     if (this._token.value === 'true') {
       this._advance();
-      return this._astFactory.literal(true);
+      return this._ast.literal(true);
     }
     if (this._token.value === 'false') {
       this._advance();
-      return this._astFactory.literal(false);
+      return this._ast.literal(false);
     }
     if (this._token.value == 'null') {
       this._advance();
-      return this._astFactory.literal(null);
+      return this._ast.literal(null);
     }
     let identifier = this._parseIdentifier();
     let args = this._parseArguments();
     if (args == null) {
       return identifier;
     } else {
-      return this._astFactory.invoke(identifier, null, args);
+      return this._ast.invoke(identifier, null, args);
     }
   }
 
   _parseIdentifier() {
-    if (this._token.kind !== IDENTIFIER_TOKEN) {
+    if (this._token.kind !== IDENTIFIER) {
       throw new ParseException(`expected identifier: ${_token.value}`);
     }
     let value = this._token.value;
     this._advance();
-    return this._astFactory.identifier(value);
+    return this._ast.identifier(value);
   }
 
   _parseArguments() {
-    if (this._token != null && this._token.kind == GROUPER_TOKEN && this._token.value == '(') {
+    if (this._token != null && this._token.kind == GROUPER && this._token.value == '(') {
       let args = [];
       do {
         this._advance();
-        if (this._token.kind == GROUPER_TOKEN && this._token.value == ')') {
+        if (this._token.kind == GROUPER && this._token.value == ')') {
           break;
         }
         let expr = this._parseExpression();
         args.push(expr);
       } while(this._token != null && this._token.value == ',');
-      this._advance(GROUPER_TOKEN, ')');
+      this._advance(GROUPER, ')');
       return args;
     }
     return null;
   }
 
   _parseIndex() {
-    if (this._token != null && this._token.kind == GROUPER_TOKEN && this._token.value == '[') {
+    if (this._token != null && this._token.kind == GROUPER && this._token.value == '[') {
       this._advance();
       let expr = this._parseExpression();
-      this._advance(GROUPER_TOKEN, ']');
+      this._advance(GROUPER, ']');
       return expr;
     }
     return null;
   }
 
-  _parseParenthesized() {
+  _parseParen() {
     this._advance();
     let expr = this._parseExpression();
-    this._advance(GROUPER_TOKEN, ')');
-    return this._astFactory.parenthesized(expr);
+    this._advance(GROUPER, ')');
+    return this._ast.parenthesized(expr);
   }
 
   _parseString() {
-    let value = this._astFactory.literal(this._token.value);
+    let value = this._ast.literal(this._token.value);
     this._advance();
     return value;
   }
 
   _parseInteger(prefix) {
     prefix = prefix || '';
-    let value = this._astFactory.literal(parseInt(`${prefix}${this._token.value}`, 10));
+    let value = this._ast.literal(parseInt(`${prefix}${this._token.value}`, 10));
     this._advance();
     return value;
   }
 
   _parseDecimal(prefix) {
     prefix = prefix || '';
-    let value = this._astFactory.literal(parseFloat(`${prefix}${this._token.value}`));
+    let value = this._ast.literal(parseFloat(`${prefix}${this._token.value}`));
     this._advance();
     return value;
   }

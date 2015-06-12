@@ -50,16 +50,16 @@ export const PRECEDENCE = {
 
 export const POSTFIX_PRECEDENCE = 11;
 
-export const STRING_TOKEN = 1;
-export const IDENTIFIER_TOKEN = 2;
-export const DOT_TOKEN = 3;
-export const COMMA_TOKEN = 4;
-export const COLON_TOKEN = 5;
-export const INTEGER_TOKEN = 6;
-export const DECIMAL_TOKEN = 7;
-export const OPERATOR_TOKEN = 8;
-export const GROUPER_TOKEN = 9;
-export const KEYWORD_TOKEN = 10;
+export const STRING = 1;
+export const IDENTIFIER = 2;
+export const DOT = 3;
+export const COMMA = 4;
+export const COLON = 5;
+export const INTEGER = 6;
+export const DECIMAL = 7;
+export const OPERATOR = 8;
+export const GROUPER = 9;
+export const KEYWORD = 10;
 
 const _WHITESPACE = new RegExp('^\\s$');
 function isWhitespace(next) {
@@ -194,7 +194,7 @@ export class Tokenizer {
       }
       this._advance();
     }
-    this._tokens.push(token(STRING_TOKEN, _escapeString(this._getValue())));
+    this._tokens.push(token(STRING, _escapeString(this._getValue())));
     this._advance();
   }
 
@@ -203,7 +203,7 @@ export class Tokenizer {
       this._advance();
     }
     let value = this._getValue();
-    let kind = isKeyword(value) ? KEYWORD_TOKEN : IDENTIFIER_TOKEN;
+    let kind = isKeyword(value) ? KEYWORD : IDENTIFIER;
     this._tokens.push(token(kind, value));
   }
 
@@ -214,7 +214,7 @@ export class Tokenizer {
     if (this._next === '.') {
       this._tokenizeDot();
     } else {
-      this._tokens.push(token(INTEGER_TOKEN, this._getValue()));
+      this._tokens.push(token(INTEGER, this._getValue()));
     }
   }
 
@@ -224,25 +224,25 @@ export class Tokenizer {
       this._tokenizeFraction();
     } else {
       this._clearValue();
-      this._tokens.push(token(DOT_TOKEN, '.', POSTFIX_PRECEDENCE));
+      this._tokens.push(token(DOT, '.', POSTFIX_PRECEDENCE));
     }
   }
 
   _tokenizeComma() {
     this._advance(true);
-    this._tokens.push(token(COMMA_TOKEN, ','));
+    this._tokens.push(token(COMMA, ','));
   }
 
   _tokenizeColon() {
     this._advance(true);
-    this._tokens.push(token(COLON_TOKEN, ':'));
+    this._tokens.push(token(COLON, ':'));
   }
 
   _tokenizeFraction() {
     while (this._next !== null && isNumber(this._next)) {
       this._advance();
     }
-    this._tokens.push(token(DECIMAL_TOKEN, this._getValue()));
+    this._tokens.push(token(DECIMAL, this._getValue()));
   }
 
   _tokenizeOperator() {
@@ -259,12 +259,12 @@ export class Tokenizer {
       }
     }
     op = this._getValue();
-    this._tokens.push(token(OPERATOR_TOKEN, op, PRECEDENCE[op]));
+    this._tokens.push(token(OPERATOR, op, PRECEDENCE[op]));
   }
 
   _tokenizeGrouper() {
     let value = this._next;
-    this._tokens.push(token(GROUPER_TOKEN, value, PRECEDENCE[value]));
+    this._tokens.push(token(GROUPER, value, PRECEDENCE[value]));
     this._advance(true);
   }
 }
