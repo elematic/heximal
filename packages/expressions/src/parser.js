@@ -75,54 +75,54 @@ export function token(kind, value, precedence) {
 
 export const Tokenizer = (function() {
 
-    function _isWhitespace(next) {
-      return /^\s$/.test(next);
-    }
+  function _isWhitespace(next) {
+    return /^\s$/.test(next);
+  }
 
-    // TODO(justinfagnani): allow code points > 127
-    function _isIdentOrKeywordStart(next) {
-      return /^[a-zA-Z_$]$/.test(next);
-    }
+  // TODO(justinfagnani): allow code points > 127
+  function _isIdentOrKeywordStart(next) {
+    return /^[a-zA-Z_$]$/.test(next);
+  }
 
-    // TODO(justinfagnani): allow code points > 127
-    function _isIdentifier(next) {
-      return /^[a-zA-Z0-9_$]$/.test(next);
-    }
+  // TODO(justinfagnani): allow code points > 127
+  function _isIdentifier(next) {
+    return /^[a-zA-Z0-9_$]$/.test(next);
+  }
 
-    function _isKeyword(str) {
-      return _KEYWORDS.indexOf(str) !== -1;
-    }
+  function _isKeyword(str) {
+    return _KEYWORDS.indexOf(str) !== -1;
+  }
 
-    function _isQuote(next) {
-      return /^[\"\']$/.test(next);
-    }
+  function _isQuote(next) {
+    return /^[\"\']$/.test(next);
+  }
 
-    function _isNumber(next) {
-      return /^[0-9]$/.test(next);
-    }
+  function _isNumber(next) {
+    return /^[0-9]$/.test(next);
+  }
 
-    function _isOperator(next) {
-      return _OPERATORS.indexOf(next) !== -1;
-    }
+  function _isOperator(next) {
+    return _OPERATORS.indexOf(next) !== -1;
+  }
 
-    function _isGrouper(next) {
-      return _GROUPERS.indexOf(next) !== -1;
-    }
+  function _isGrouper(next) {
+    return _GROUPERS.indexOf(next) !== -1;
+  }
 
-    function _escapeString(str) {
-      return str.replace(/\\(.)/g, function(match, group) {
-        switch(group) {
-          case 'n': return '\n';
-          case 'r': return '\r';
-          case 't': return '\t';
-          case 'b': return '\b';
-          case 'f': return '\f';
-          default: return group;
-        }
-      });
-    }
+  function _escapeString(str) {
+    return str.replace(/\\(.)/g, function(match, group) {
+      switch(group) {
+        case 'n': return '\n';
+        case 'r': return '\r';
+        case 't': return '\t';
+        case 'b': return '\b';
+        case 'f': return '\f';
+        default: return group;
+      }
+    });
+  }
 
-    class Tokenizer {
+  class Tokenizer {
 
     constructor(input) {
       this._input = input;
