@@ -332,14 +332,14 @@ export class Parser {
       let method = right.receiver;
       return this._ast.invoke(left, method.value, right.arguments);
     } else {
-      throw new Error("expected identifier: $right");
+      throw new Error(`expected identifier: ${right}`);
     }
   }
 
   _parseBinary(left) {
     let op = this._token;
     if (_BINARY_OPERATORS.indexOf(op.value) === -1) {
-      throw new Error("unknown operator: ${op.value}");
+      throw new Error(`unknown operator: ${op.value}`);
     }
     this._advance();
     let right = this._parseUnary();
@@ -366,7 +366,7 @@ export class Parser {
           return this._parseDecimal(value);
         }
       }
-      // if (value !== '!') throw new Error("unexpected token: $value");
+      if (_UNARY_OPERATORS.indexOf(value) === -1) throw new Error(`unexpected token: ${value}`);
       let expr = this._parsePrecedence(this._parsePrimary(), POSTFIX_PRECEDENCE);
       return this._ast.unary(value, expr);
     }
@@ -391,9 +391,9 @@ export class Parser {
           // TODO(justin): return keyword node
           return this._ast.identifier('this');
         } else if (KEYWORDS.indexOf(keyword) !== -1) {
-          throw new Error('unexpected keyword: $keyword');
+          throw new Error(`unexpected keyword: ${keyword}`);
         }
-        throw new Error('unrecognized keyword: $keyword');
+        throw new Error(`unrecognized keyword: ${keyword}`);
       case IDENTIFIER:
         return this._parseInvokeOrIdentifier();
       case STRING:
