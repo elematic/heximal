@@ -134,14 +134,7 @@ export class EvalAstFactory {
   }
 
   parenthesized(e) {
-    return {
-      type: 'Parenthesized',
-      child: e,
-      evaluate: function(scope) {
-        return this.child.evaluate(scope);
-      },
-      getIdentifiers(idents) { return this.child.getIdentifiers(idents); },
-    };
+    return e;
   }
 
   index(e, a) {
