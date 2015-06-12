@@ -64,48 +64,42 @@ export const OPERATOR = 8;
 export const GROUPER = 9;
 export const KEYWORD = 10;
 
-const _WHITESPACE = new RegExp('^\\s$');
-function isWhitespace(next) {
-  return _WHITESPACE.test(next);
+function _isWhitespace(next) {
+  return /^\s$/.test(next);
 }
 
 // TODO(justinfagnani): allow code points > 127
-const _IDENT_START = new RegExp('^[a-zA-Z_$]$');
-function isIdentifierOrKeywordStart(next) {
-  return _IDENT_START.test(next);
+function _isIdentOrKeywordStart(next) {
+  return /^[a-zA-Z_$]$/.test(next);
 }
 
 // TODO(justinfagnani): allow code points > 127
-const _IDENT = new RegExp('^[a-zA-Z0-9_$]$');
-function isIdentifier(next) {
-  return _IDENT.test(next);
+function _isIdentifier(next) {
+  return /^[a-zA-Z0-9_$]$/.test(next);
 }
 
-function isKeyword(str) {
+function _isKeyword(str) {
   return _KEYWORDS.indexOf(str) !== -1;
 }
 
-const _QUOTE = new RegExp('^[\\\"\\\']$');
-function isQuote(next) {
-  return _QUOTE.test(next);
+function _isQuote(next) {
+  return /^[\"\']$/.test(next);
 }
 
-const _NUMBER = new RegExp('^[0-9]$');
-function isNumber(next) {
-  return _NUMBER.test(next);
+function _isNumber(next) {
+  return /^[0-9]$/.test(next);
 }
 
-function isOperator(next) {
+function _isOperator(next) {
   return _OPERATORS.indexOf(next) !== -1;
 }
 
-function isGrouper(next) {
+function _isGrouper(next) {
   return _GROUPERS.indexOf(next) !== -1;
 }
 
-const _ESCAPE = new RegExp('\\\\(.)', 'g');
 function _escapeString(str) {
-  return str.replace(_ESCAPE, function(match, group) {
+  return str.replace(/\\(.)/g, function(match, group) {
     switch(group) {
       case 'n': return '\n';
       case 'r': return '\r';
@@ -158,17 +152,17 @@ export class Tokenizer {
 
   nextToken() {
     if (this._index === -1) this._advance();
-    while(this._next !== null && isWhitespace(this._next)) {
+    while(this._next !== null && _isWhitespace(this._next)) {
       this._advance(true);
     }
-    if (isQuote(this._next)) return this._tokenizeString();
-    if (isIdentifierOrKeywordStart(this._next)) return this._tokenizeIdentifierOrKeyword();
-    if (isNumber(this._next)) return this._tokenizeNumber();
+    if (_isQuote(this._next)) return this._tokenizeString();
+    if (_isIdentOrKeywordStart(this._next)) return this._tokenizeIdentOrKeyword();
+    if (_isNumber(this._next)) return this._tokenizeNumber();
     if (this._next === '.') return this._tokenizeDot();
     if (this._next === ',') return this._tokenizeComma();
     if (this._next === ':') return this._tokenizeColon();
-    if (isOperator(this._next)) return this._tokenizeOperator();
-    if (isGrouper(this._next)) return this._tokenizeGrouper();
+    if (_isOperator(this._next)) return this._tokenizeOperator();
+    if (_isGrouper(this._next)) return this._tokenizeGrouper();
     // no match
     this._advance(true);
     console.assert(this._next == null);
@@ -191,17 +185,17 @@ export class Tokenizer {
     return t;
   }
 
-  _tokenizeIdentifierOrKeyword() {
-    while (this._next !== null && isIdentifier(this._next)) {
+  _tokenizeIdentOrKeyword() {
+    while (this._next !== null && _isIdentifier(this._next)) {
       this._advance();
     }
     let value = this._getValue();
-    let kind = isKeyword(value) ? KEYWORD : IDENTIFIER;
+    let kind = _isKeyword(value) ? KEYWORD : IDENTIFIER;
     return token(kind, value);
   }
 
   _tokenizeNumber() {
-    while (this._next !== null && isNumber(this._next)) {
+    while (this._next !== null && _isNumber(this._next)) {
       this._advance();
     }
     if (this._next === '.') return this._tokenizeDot();
@@ -210,7 +204,7 @@ export class Tokenizer {
 
   _tokenizeDot() {
     this._advance();
-    if (isNumber(this._next)) return this._tokenizeFraction();
+    if (_isNumber(this._next)) return this._tokenizeFraction();
     this._clearValue();
     return token(DOT, '.', POSTFIX_PRECEDENCE);
   }
@@ -226,7 +220,7 @@ export class Tokenizer {
   }
 
   _tokenizeFraction() {
-    while (this._next !== null && isNumber(this._next)) {
+    while (this._next !== null && _isNumber(this._next)) {
       this._advance();
     }
     return token(DECIMAL, this._getValue());
