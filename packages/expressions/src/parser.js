@@ -173,13 +173,14 @@ export const Tokenizer = (function() {
     }
 
     _tokenizeString() {
+      const _us = "unterminated string";
       let quoteChar = this._next;
       this._advance(true);
       while (this._next !== quoteChar) {
-        if (this._next === null) throw new Error("unterminated string");
+        if (this._next === null) throw new Error(_us);
         if (this._next === '\\') {
           this._advance();
-          if (this._next === null) throw new Error("unterminated string");
+          if (this._next === null) throw new Error(_us);
         }
         this._advance();
       }
@@ -409,7 +410,7 @@ export class Parser {
         }
         return null;
       case COLON:
-      throw new Error('unexpected token ":"');
+        throw new Error('unexpected token ":"');
       default:
         return null;
     }
@@ -430,12 +431,10 @@ export class Parser {
     let entries = {};
     do {
       this._advance();
-      if (this._matches(GROUPER, '}')) {
-        break;
-      }
+      if (this._matches(GROUPER, '}')) break;
       let key = this._token.value;
       this._advance(STRING);
-      this._advance(COLON, ':');
+      this._advance(COLON);
       entries[key] = this._parseExpression();
     } while(this._matches(COMMA));
     this._advance(GROUPER, '}');
