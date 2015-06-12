@@ -128,7 +128,7 @@ export class Tokenizer {
     this._input = input;
     this._index = -1;
     this._tokenStart = 0;
-    this._tokens = [];
+    // this._tokens = [];
     this._next = null;
   }
 
@@ -154,33 +154,23 @@ export class Tokenizer {
     this._tokenStart = this._index;
   }
 
-  tokenize() {
-    this._advance();
-    while(this._next !== null) {
-      if (isWhitespace(this._next)) {
-        this._advance(true);
-      } else if (isQuote(this._next)) {
-        this._tokenizeString();
-      } else if (isIdentifierOrKeywordStart(this._next)) {
-        this._tokenizeIdentifierOrKeyword();
-      } else if (isNumber(this._next)) {
-        this._tokenizeNumber();
-      } else if (this._next === '.') {
-        this._tokenizeDot();
-      } else if (this._next === ',') {
-        this._tokenizeComma();
-      } else if (this._next === ':') {
-        this._tokenizeColon();
-      } else if (isOperator(this._next)) {
-        this._tokenizeOperator();
-      } else if (isGrouper(this._next)) {
-        this._tokenizeGrouper();
-      } else {
-        this._advance(true);
-        console.assert(this._next == null);
-      }
+  nextToken() {
+    if (this._index === -1) this._advance();
+    while(this._next !== null && isWhitespace(this._next)) {
+      this._advance(true);
     }
-    return this._tokens;
+    if (isQuote(this._next)) return this._tokenizeString();
+    if (isIdentifierOrKeywordStart(this._next)) return this._tokenizeIdentifierOrKeyword();
+    if (isNumber(this._next)) return this._tokenizeNumber();
+    if (this._next === '.') return this._tokenizeDot();
+    if (this._next === ',') return this._tokenizeComma();
+    if (this._next === ':') return this._tokenizeColon();
+    if (isOperator(this._next)) return this._tokenizeOperator();
+    if (isGrouper(this._next)) return this._tokenizeGrouper();
+    // no match
+    this._advance(true);
+    console.assert(this._next == null);
+    return null;
   }
 
   _tokenizeString() {
@@ -194,8 +184,9 @@ export class Tokenizer {
       }
       this._advance();
     }
-    this._tokens.push(token(STRING, _escapeString(this._getValue())));
+    let t = token(STRING, _escapeString(this._getValue()));
     this._advance();
+    return t;
   }
 
   _tokenizeIdentifierOrKeyword() {
@@ -204,45 +195,39 @@ export class Tokenizer {
     }
     let value = this._getValue();
     let kind = isKeyword(value) ? KEYWORD : IDENTIFIER;
-    this._tokens.push(token(kind, value));
+    return token(kind, value);
   }
 
   _tokenizeNumber() {
     while (this._next !== null && isNumber(this._next)) {
       this._advance();
     }
-    if (this._next === '.') {
-      this._tokenizeDot();
-    } else {
-      this._tokens.push(token(INTEGER, this._getValue()));
-    }
+    if (this._next === '.') return this._tokenizeDot();
+    return token(INTEGER, this._getValue());
   }
 
   _tokenizeDot() {
     this._advance();
-    if (isNumber(this._next)) {
-      this._tokenizeFraction();
-    } else {
-      this._clearValue();
-      this._tokens.push(token(DOT, '.', POSTFIX_PRECEDENCE));
-    }
+    if (isNumber(this._next)) return this._tokenizeFraction();
+    this._clearValue();
+    return token(DOT, '.', POSTFIX_PRECEDENCE);
   }
 
   _tokenizeComma() {
     this._advance(true);
-    this._tokens.push(token(COMMA, ','));
+    return token(COMMA, ',');
   }
 
   _tokenizeColon() {
     this._advance(true);
-    this._tokens.push(token(COLON, ':'));
+    return token(COLON, ':');
   }
 
   _tokenizeFraction() {
     while (this._next !== null && isNumber(this._next)) {
       this._advance();
     }
-    this._tokens.push(token(DECIMAL, this._getValue()));
+    return token(DECIMAL, this._getValue());
   }
 
   _tokenizeOperator() {
@@ -259,13 +244,14 @@ export class Tokenizer {
       }
     }
     op = this._getValue();
-    this._tokens.push(token(OPERATOR, op, PRECEDENCE[op]));
+    return token(OPERATOR, op, PRECEDENCE[op]);
   }
 
   _tokenizeGrouper() {
     let value = this._next;
-    this._tokens.push(token(GROUPER, value, PRECEDENCE[value]));
+    let t = token(GROUPER, value, PRECEDENCE[value]);
     this._advance(true);
+    return t;
   }
 }
 

@@ -21,8 +21,8 @@ const _UNARY_OPERATORS = ['+', '-', '!'];
 const _BINARY_OPERATORS = ['+', '-', '*', '/', '%', '^', '==',
     '!=', '>', '<', '>=', '<=', '||', '&&', '&', '===', '!==', '|'];
 
-export function parse(expr) {
-  return new Parser(expr).parse();
+export function parse(expr, astFactory) {
+  return new Parser(expr, astFactory).parse();
 }
 
 export class Parser {
@@ -30,11 +30,10 @@ export class Parser {
   constructor(input, astFactory) {
     this._tokenizer = new Tokenizer(input);
     this._ast = astFactory;
+    this._token = null;
   }
 
   parse() {
-    this._tokens = this._tokenizer.tokenize();
-    this._index = -1;
     this._advance();
     return this._parseExpression();
   }
@@ -44,13 +43,7 @@ export class Parser {
         || (value != null && (this._token == null || this._token.value !== value))) {
       throw new ParseException("Expected kind $kind ($value): $this._token");
     }
-
-    if (this._index < this._tokens.length) {
-      this._index++;
-      this._token = this._tokens[this._index];
-    } else {
-      this._next = null;
-    }
+    this._token = this._tokenizer.nextToken();
   }
 
   _parseExpression() {
@@ -65,8 +58,6 @@ export class Parser {
   // algorithm as described in:
   // http://en.wikipedia.org/wiki/Operator-precedence_parser#Precedence_climbing_method
   _parsePrecedence(left, precedence) {
-    // console.log('_parsePrecedence', left, precedence);
-    // console.log('  token', this._token);
     console.assert(left != null);
     while (this._token != null) {
       if (this._token.kind == GROUPER) {
@@ -314,8 +305,3 @@ export class Parser {
   }
 
 }
-
-// module.exports = {
-//   Parser: Parser,
-//   AstFactory: AstFactory,
-// };

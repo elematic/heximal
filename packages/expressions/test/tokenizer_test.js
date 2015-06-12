@@ -21,8 +21,18 @@ var KEYWORD = tokenizer.KEYWORD;
 var POSTFIX_PRECEDENCE = tokenizer.POSTFIX_PRECEDENCE;
 var PRECEDENCE = tokenizer.PRECEDENCE;
 
+function tokenize(s) {
+  let tokenizer = new Tokenizer(s);
+  let tokens = [];
+  let token;
+  while ((token = tokenizer.nextToken()) != null) {
+    tokens.push(token);
+  }
+  return tokens;
+}
+
 function expectTokens(s, expected) {
-  var tokens = new Tokenizer(s).tokenize();
+  var tokens = tokenize(s);
   assert.deepEqual(tokens, expected);
 }
 
