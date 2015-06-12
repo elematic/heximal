@@ -267,6 +267,8 @@ export class Parser {
     this._tokenizer = new Tokenizer(input);
     this._ast = astFactory;
     this._token = null;
+    this._kind = null;
+    this._value = null;
   }
 
   parse() {
@@ -278,13 +280,14 @@ export class Parser {
     if (!this._matches(kind, value)) {
       throw new Error(`Expected kind ${kind} (${value}), was ${this._token}`);
     }
-    this._token = this._tokenizer.nextToken();
+    let t = this._tokenizer.nextToken();
+    this._token = t
+    this._kind = t && t.kind;
+    this._value = t && t.value;
   }
 
   _matches(kind, value) {
-    let t = this._token;
-    return (!kind || (t && t.kind === kind))
-        && (!value || (t && t.value === value));
+    return !(kind && (this._kind != kind) || value && (this._value !== value));
   }
 
   _parseExpression() {
@@ -313,7 +316,7 @@ export class Parser {
         break;
       } else if (this._matches(OPERATOR)
           && this._token.precedence >= precedence) {
-        left = this._token.value == '?'
+        left = this._value == '?'
             ? this._parseTernary(left)
             : this._parseBinary(left);
       } else {
@@ -341,10 +344,9 @@ export class Parser {
     }
     this._advance();
     let right = this._parseUnary();
-    while (this._token
-        && (this._token.kind == OPERATOR
-            || this._token.kind == DOT
-            || this._token.kind == GROUPER)
+    while ((this._kind == OPERATOR
+            || this._kind == DOT
+            || this._kind == GROUPER)
         && this._token.precedence > op.precedence) {
       right = this._parsePrecedence(right, this._token.precedence);
     }
@@ -353,7 +355,7 @@ export class Parser {
 
   _parseUnary() {
     if (this._matches(OPERATOR)) {
-      let value = this._token.value;
+      let value = this._value;
       this._advance();
       // handle unary + and - on numbers as part of the literal, not as a
       // unary operator
@@ -380,10 +382,9 @@ export class Parser {
   }
 
   _parsePrimary() {
-    let kind = this._token.kind;
-    switch (kind) {
+    switch (this._kind) {
       case KEYWORD:
-        var keyword = this._token.value;
+        var keyword = this._value;
         if (keyword === 'this') {
           this._advance();
           // TODO(justin): return keyword node
@@ -401,11 +402,11 @@ export class Parser {
       case DECIMAL:
         return this._parseDecimal();
       case GROUPER:
-        if (this._token.value == '(') {
+        if (this._value == '(') {
           return this._parseParen();
-        } else if (this._token.value == '{') {
+        } else if (this._value == '{') {
           return this._parseMap();
-        } else if (this._token.value == '[') {
+        } else if (this._value == '[') {
           return this._parseList();
         }
         return null;
@@ -432,7 +433,7 @@ export class Parser {
     do {
       this._advance();
       if (this._matches(GROUPER, '}')) break;
-      let key = this._token.value;
+      let key = this._value;
       this._advance(STRING);
       this._advance(COLON);
       entries[key] = this._parseExpression();
@@ -442,7 +443,7 @@ export class Parser {
   }
 
   _parseInvokeOrIdentifier() {
-    let value = this._token.value;
+    let value = this._value;
     if (value === 'true') {
       this._advance();
       return this._ast.literal(true);
@@ -461,10 +462,10 @@ export class Parser {
   }
 
   _parseIdentifier() {
-    if (this._token.kind !== IDENTIFIER) {
-      throw new Error(`expected identifier: ${_token.value}`);
+    if (!this._matches(IDENTIFIER)) {
+      throw new Error(`expected identifier: ${this._value}`);
     }
-    let value = this._token.value;
+    let value = this._value;
     this._advance();
     return this._ast.identifier(value);
   }
@@ -504,21 +505,21 @@ export class Parser {
   }
 
   _parseString() {
-    let value = this._ast.literal(this._token.value);
+    let value = this._ast.literal(this._value);
     this._advance();
     return value;
   }
 
   _parseInteger(prefix) {
     prefix = prefix || '';
-    let value = this._ast.literal(parseInt(`${prefix}${this._token.value}`, 10));
+    let value = this._ast.literal(parseInt(`${prefix}${this._value}`, 10));
     this._advance();
     return value;
   }
 
   _parseDecimal(prefix) {
     prefix = prefix || '';
-    let value = this._ast.literal(parseFloat(`${prefix}${this._token.value}`));
+    let value = this._ast.literal(parseFloat(`${prefix}${this._value}`));
     this._advance();
     return value;
   }
