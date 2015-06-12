@@ -64,52 +64,6 @@ export const OPERATOR = 8;
 export const GROUPER = 9;
 export const KEYWORD = 10;
 
-function _isWhitespace(next) {
-  return /^\s$/.test(next);
-}
-
-// TODO(justinfagnani): allow code points > 127
-function _isIdentOrKeywordStart(next) {
-  return /^[a-zA-Z_$]$/.test(next);
-}
-
-// TODO(justinfagnani): allow code points > 127
-function _isIdentifier(next) {
-  return /^[a-zA-Z0-9_$]$/.test(next);
-}
-
-function _isKeyword(str) {
-  return _KEYWORDS.indexOf(str) !== -1;
-}
-
-function _isQuote(next) {
-  return /^[\"\']$/.test(next);
-}
-
-function _isNumber(next) {
-  return /^[0-9]$/.test(next);
-}
-
-function _isOperator(next) {
-  return _OPERATORS.indexOf(next) !== -1;
-}
-
-function _isGrouper(next) {
-  return _GROUPERS.indexOf(next) !== -1;
-}
-
-function _escapeString(str) {
-  return str.replace(/\\(.)/g, function(match, group) {
-    switch(group) {
-      case 'n': return '\n';
-      case 'r': return '\r';
-      case 't': return '\t';
-      case 'b': return '\b';
-      case 'f': return '\f';
-      default: return group;
-    }
-  });
-}
 
 export function token(kind, value, precedence) {
   return {
@@ -119,137 +73,188 @@ export function token(kind, value, precedence) {
   };
 }
 
-export class Tokenizer {
+export const Tokenizer = (function() {
 
-  constructor(input) {
-    this._input = input;
-    this._index = -1;
-    this._tokenStart = 0;
-    this._next = null;
-  }
+    function _isWhitespace(next) {
+      return /^\s$/.test(next);
+    }
 
-  _advance(resetTokenStart) {
-    if (this._index < this._input.length) {
-      this._index++;
-      this._next = this._input[this._index];
-      if (resetTokenStart) {
-        this._tokenStart = this._index;
-      }
-    } else {
+    // TODO(justinfagnani): allow code points > 127
+    function _isIdentOrKeywordStart(next) {
+      return /^[a-zA-Z_$]$/.test(next);
+    }
+
+    // TODO(justinfagnani): allow code points > 127
+    function _isIdentifier(next) {
+      return /^[a-zA-Z0-9_$]$/.test(next);
+    }
+
+    function _isKeyword(str) {
+      return _KEYWORDS.indexOf(str) !== -1;
+    }
+
+    function _isQuote(next) {
+      return /^[\"\']$/.test(next);
+    }
+
+    function _isNumber(next) {
+      return /^[0-9]$/.test(next);
+    }
+
+    function _isOperator(next) {
+      return _OPERATORS.indexOf(next) !== -1;
+    }
+
+    function _isGrouper(next) {
+      return _GROUPERS.indexOf(next) !== -1;
+    }
+
+    function _escapeString(str) {
+      return str.replace(/\\(.)/g, function(match, group) {
+        switch(group) {
+          case 'n': return '\n';
+          case 'r': return '\r';
+          case 't': return '\t';
+          case 'b': return '\b';
+          case 'f': return '\f';
+          default: return group;
+        }
+      });
+    }
+
+    class Tokenizer {
+
+    constructor(input) {
+      this._input = input;
+      this._index = -1;
+      this._tokenStart = 0;
       this._next = null;
     }
-  }
 
-  _getValue(lookahead) {
-    let v = this._input.substring(this._tokenStart, this._index + (lookahead || 0));
-    if (!lookahead) this._clearValue();
-    return v;
-  }
+    _advance(resetTokenStart) {
+      if (this._index < this._input.length) {
+        this._index++;
+        this._next = this._input[this._index];
+        if (resetTokenStart) {
+          this._tokenStart = this._index;
+        }
+      } else {
+        this._next = null;
+      }
+    }
 
-  _clearValue() {
-    this._tokenStart = this._index;
-  }
+    _getValue(lookahead) {
+      let v = this._input.substring(this._tokenStart, this._index + (lookahead || 0));
+      if (!lookahead) this._clearValue();
+      return v;
+    }
 
-  nextToken() {
-    if (this._index === -1) this._advance();
-    while(this._next !== null && _isWhitespace(this._next)) {
+    _clearValue() {
+      this._tokenStart = this._index;
+    }
+
+    nextToken() {
+      if (this._index === -1) this._advance();
+      while(this._next !== null && _isWhitespace(this._next)) {
+        this._advance(true);
+      }
+      if (_isQuote(this._next)) return this._tokenizeString();
+      if (_isIdentOrKeywordStart(this._next)) return this._tokenizeIdentOrKeyword();
+      if (_isNumber(this._next)) return this._tokenizeNumber();
+      if (this._next === '.') return this._tokenizeDot();
+      if (this._next === ',') return this._tokenizeComma();
+      if (this._next === ':') return this._tokenizeColon();
+      if (_isOperator(this._next)) return this._tokenizeOperator();
+      if (_isGrouper(this._next)) return this._tokenizeGrouper();
+      // no match
       this._advance(true);
+      console.assert(this._next == null);
+      return null;
     }
-    if (_isQuote(this._next)) return this._tokenizeString();
-    if (_isIdentOrKeywordStart(this._next)) return this._tokenizeIdentOrKeyword();
-    if (_isNumber(this._next)) return this._tokenizeNumber();
-    if (this._next === '.') return this._tokenizeDot();
-    if (this._next === ',') return this._tokenizeComma();
-    if (this._next === ':') return this._tokenizeColon();
-    if (_isOperator(this._next)) return this._tokenizeOperator();
-    if (_isGrouper(this._next)) return this._tokenizeGrouper();
-    // no match
-    this._advance(true);
-    console.assert(this._next == null);
-    return null;
-  }
 
-  _tokenizeString() {
-    let quoteChar = this._next;
-    this._advance(true);
-    while (this._next !== quoteChar) {
-      if (this._next === null) throw new ParseException("unterminated string");
-      if (this._next === '\\') {
-        this._advance();
+    _tokenizeString() {
+      let quoteChar = this._next;
+      this._advance(true);
+      while (this._next !== quoteChar) {
         if (this._next === null) throw new ParseException("unterminated string");
-      }
-      this._advance();
-    }
-    let t = token(STRING, _escapeString(this._getValue()));
-    this._advance();
-    return t;
-  }
-
-  _tokenizeIdentOrKeyword() {
-    while (this._next !== null && _isIdentifier(this._next)) {
-      this._advance();
-    }
-    let value = this._getValue();
-    let kind = _isKeyword(value) ? KEYWORD : IDENTIFIER;
-    return token(kind, value);
-  }
-
-  _tokenizeNumber() {
-    while (this._next !== null && _isNumber(this._next)) {
-      this._advance();
-    }
-    if (this._next === '.') return this._tokenizeDot();
-    return token(INTEGER, this._getValue());
-  }
-
-  _tokenizeDot() {
-    this._advance();
-    if (_isNumber(this._next)) return this._tokenizeFraction();
-    this._clearValue();
-    return token(DOT, '.', POSTFIX_PRECEDENCE);
-  }
-
-  _tokenizeComma() {
-    this._advance(true);
-    return token(COMMA, ',');
-  }
-
-  _tokenizeColon() {
-    this._advance(true);
-    return token(COLON, ':');
-  }
-
-  _tokenizeFraction() {
-    while (this._next !== null && _isNumber(this._next)) {
-      this._advance();
-    }
-    return token(DECIMAL, this._getValue());
-  }
-
-  _tokenizeOperator() {
-    this._advance();
-    let op = this._getValue(2);
-
-    if (_THREE_CHAR_OPS.indexOf(op) !== -1) {
-      this._advance();
-      this._advance();
-    } else {
-      op = this._getValue(1);
-      if (_TWO_CHAR_OPS.indexOf(op) !== -1) {
+        if (this._next === '\\') {
+          this._advance();
+          if (this._next === null) throw new ParseException("unterminated string");
+        }
         this._advance();
       }
+      let t = token(STRING, _escapeString(this._getValue()));
+      this._advance();
+      return t;
     }
-    op = this._getValue();
-    return token(OPERATOR, op, PRECEDENCE[op]);
-  }
 
-  _tokenizeGrouper() {
-    let value = this._next;
-    let t = token(GROUPER, value, PRECEDENCE[value]);
-    this._advance(true);
-    return t;
+    _tokenizeIdentOrKeyword() {
+      while (this._next !== null && _isIdentifier(this._next)) {
+        this._advance();
+      }
+      let value = this._getValue();
+      let kind = _isKeyword(value) ? KEYWORD : IDENTIFIER;
+      return token(kind, value);
+    }
+
+    _tokenizeNumber() {
+      while (this._next !== null && _isNumber(this._next)) {
+        this._advance();
+      }
+      if (this._next === '.') return this._tokenizeDot();
+      return token(INTEGER, this._getValue());
+    }
+
+    _tokenizeDot() {
+      this._advance();
+      if (_isNumber(this._next)) return this._tokenizeFraction();
+      this._clearValue();
+      return token(DOT, '.', POSTFIX_PRECEDENCE);
+    }
+
+    _tokenizeComma() {
+      this._advance(true);
+      return token(COMMA, ',');
+    }
+
+    _tokenizeColon() {
+      this._advance(true);
+      return token(COLON, ':');
+    }
+
+    _tokenizeFraction() {
+      while (this._next !== null && _isNumber(this._next)) {
+        this._advance();
+      }
+      return token(DECIMAL, this._getValue());
+    }
+
+    _tokenizeOperator() {
+      this._advance();
+      let op = this._getValue(2);
+
+      if (_THREE_CHAR_OPS.indexOf(op) !== -1) {
+        this._advance();
+        this._advance();
+      } else {
+        op = this._getValue(1);
+        if (_TWO_CHAR_OPS.indexOf(op) !== -1) {
+          this._advance();
+        }
+      }
+      op = this._getValue();
+      return token(OPERATOR, op, PRECEDENCE[op]);
+    }
+
+    _tokenizeGrouper() {
+      let value = this._next;
+      let t = token(GROUPER, value, PRECEDENCE[value]);
+      this._advance(true);
+      return t;
+    }
   }
-}
+  return Tokenizer;
+})();
 
 class ParseException /* implements Exception */ {
   constructor(message) {
