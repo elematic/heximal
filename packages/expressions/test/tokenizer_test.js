@@ -1,13 +1,9 @@
 'use strict';
 
-// var assert = require("assert");
-// var tokenizer = require('../src/tokenizer');
-
 import * as assert from 'assert';
-import * as tokenizer from '../src/tokenizer';
+import * as tokenizer from '../src/parser';
 
 var Tokenizer = tokenizer.Tokenizer;
-// var Token = tokenizer.Token;
 var STRING = tokenizer.STRING;
 var IDENTIFIER = tokenizer.IDENTIFIER;
 var DOT = tokenizer.DOT;

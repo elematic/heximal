@@ -1,7 +1,6 @@
 'use strict';
 
 let assert = require('assert');
-let tokenizer = require('../src/tokenizer');
 let parser = require('../src/parser');
 let ast_factory = require('../src/ast_factory');
 
@@ -10,8 +9,6 @@ let astFactory = new ast_factory.AstFactory();
 
 function expectParse(s, e) {
   let p = new Parser(s, astFactory).parse();
-  // console.log('expected', e);
-  // console.log('actual', p);
   assert.deepEqual(p, e);
 }
 

@@ -1,7 +1,6 @@
 'use strict';
 
 let assert = require('assert');
-let tokenizer = require('../src/tokenizer');
 let parser = require('../src/parser');
 let evaluate = require('../src/eval');
 
