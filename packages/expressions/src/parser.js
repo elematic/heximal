@@ -176,10 +176,10 @@ export const Tokenizer = (function() {
       let quoteChar = this._next;
       this._advance(true);
       while (this._next !== quoteChar) {
-        if (this._next === null) throw new ParseException("unterminated string");
+        if (this._next === null) throw new Error("unterminated string");
         if (this._next === '\\') {
           this._advance();
-          if (this._next === null) throw new ParseException("unterminated string");
+          if (this._next === null) throw new Error("unterminated string");
         }
         this._advance();
       }
@@ -256,16 +256,6 @@ export const Tokenizer = (function() {
   return Tokenizer;
 })();
 
-class ParseException /* implements Exception */ {
-  constructor(message) {
-    this.message = message;
-  }
-
-  toString() {
-    return `ParseException: ${this.message}`;
-  }
-}
-
 export function parse(expr, astFactory) {
   return new Parser(expr, astFactory).parse();
 }
@@ -285,7 +275,7 @@ export class Parser {
 
   _advance(kind, value) {
     if (!this._matches(kind, value)) {
-      throw new ParseException(`Expected kind ${kind} (${value}), was ${this._token}`);
+      throw new Error(`Expected kind ${kind} (${value}), was ${this._token}`);
     }
     this._token = this._tokenizer.nextToken();
   }
@@ -342,14 +332,14 @@ export class Parser {
       let method = right.receiver;
       return this._ast.invoke(left, method.value, right.arguments);
     } else {
-      throw new ParseException("expected identifier: $right");
+      throw new Error("expected identifier: $right");
     }
   }
 
   _parseBinary(left) {
     let op = this._token;
     if (_BINARY_OPERATORS.indexOf(op.value) === -1) {
-      throw new ParseException("unknown operator: ${op.value}");
+      throw new Error("unknown operator: ${op.value}");
     }
     this._advance();
     let right = this._parseUnary();
@@ -376,7 +366,7 @@ export class Parser {
           return this._parseDecimal(value);
         }
       }
-      // if (value !== '!') throw new ParseException("unexpected token: $value");
+      // if (value !== '!') throw new Error("unexpected token: $value");
       let expr = this._parsePrecedence(this._parsePrimary(), POSTFIX_PRECEDENCE);
       return this._ast.unary(value, expr);
     }
@@ -401,9 +391,9 @@ export class Parser {
           // TODO(justin): return keyword node
           return this._ast.identifier('this');
         } else if (KEYWORDS.indexOf(keyword) !== -1) {
-          throw new ParseException('unexpected keyword: $keyword');
+          throw new Error('unexpected keyword: $keyword');
         }
-        throw new ParseException('unrecognized keyword: $keyword');
+        throw new Error('unrecognized keyword: $keyword');
       case IDENTIFIER:
         return this._parseInvokeOrIdentifier();
       case STRING:
@@ -422,7 +412,7 @@ export class Parser {
         }
         return null;
       case COLON:
-        throw new ParseException('unexpected token ":"');
+      throw new Error('unexpected token ":"');
       default:
         return null;
     }
@@ -478,7 +468,7 @@ export class Parser {
 
   _parseIdentifier() {
     if (this._token.kind !== IDENTIFIER) {
-      throw new ParseException(`expected identifier: ${_token.value}`);
+      throw new Error(`expected identifier: ${_token.value}`);
     }
     let value = this._token.value;
     this._advance();
