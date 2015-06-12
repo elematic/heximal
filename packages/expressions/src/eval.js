@@ -188,29 +188,17 @@ export class EvalAstFactory {
       entries: entries,
       evaluate: function(scope) {
         let map = {};
-        for (let i = 0; i < this.entries.length; i++) {
-          let entry = this.entries[i];
-          let key = entry.key.value;
-          let value = entry.value.evaluate(scope);
-          map[key] = value;
+        for (let key in entries) {
+          map[key] = this.entries[key].evaluate(scope);
         }
         return map;
       },
       getIdentifiers(idents) {
-        this.entries.forEach(function(e) {
-          e.value.getIdentifiers(idents);
-        });
+        for (let key in entries) {
+          this.entries[key].getIdentifiers(idents);
+        }
         return idents;
       },
-    };
-  }
-
-  // TODO(justinfagnani): replace with a 2-element Array?
-  mapLiteralEntry(key, value) {
-    return {
-      type: 'MapLiteralEntry',
-      key: key,
-      value: value,
     };
   }
 

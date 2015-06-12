@@ -205,47 +205,31 @@ suite('Parser', function() {
         '|', astFactory.identifier('c')));
   });
 
-  // test('should parse "in" expression', () {
-  //   expectParse('a in b', inExpr(astFactory.identifier('a'), astFactory.identifier('b')));
-  //   expectParse('a in b.c',
-  //       inExpr(astFactory.identifier('a'), getter(astFactory.identifier('b'), 'c')));
-  //   expectParse('a in b + c',
-  //       inExpr(astFactory.identifier('a'), binary(astFactory.identifier('b'), '+', astFactory.identifier('c'))));
-  // });
-  //
-  // test('should reject comprehension with non-assignable left expression', () {
-  //   expect(() => parse('a + 1 in b'), throwsParseException);
-  // });
-  //
-  // test('should parse "as" expressions', () {
-  //   expectParse('a as b', asExpr(astFactory.identifier('a'), astFactory.identifier('b')));
-  // });
-  //
-  // skip_test('should reject keywords as identifiers', () {
-  //   expect(() => parse('a.in'), throwsParseException);
-  //   expect(() => parse('a.as'), throwsParseException);
-  //   expect(() => parse('a.this'), throwsParseException);
-  // });
-
   test('should parse map literals', function() {
     expectParse("{'a': 1}",
-        astFactory.mapLiteral([astFactory.mapLiteralEntry(astFactory.literal('a'), astFactory.literal(1))]));
+        astFactory.mapLiteral({'a': astFactory.literal(1)}));
     expectParse("{'a': 1, 'b': 2 + 3}",
-        astFactory.mapLiteral([
-            astFactory.mapLiteralEntry(astFactory.literal('a'), astFactory.literal(1)),
-            astFactory.mapLiteralEntry(astFactory.literal('b'),
-                astFactory.binary(astFactory.literal(2), '+', astFactory.literal(3)))]));
+        astFactory.mapLiteral({
+          'a': astFactory.literal(1),
+          'b': astFactory.binary(
+              astFactory.literal(2),
+              '+',
+              astFactory.literal(3)),
+        }));
     expectParse("{'a': foo()}",
-        astFactory.mapLiteral([astFactory.mapLiteralEntry(
-            astFactory.literal('a'), astFactory.invoke(astFactory.identifier('foo'), null, []))]));
+        astFactory.mapLiteral({
+          'a': astFactory.invoke(astFactory.identifier('foo'), null, []),
+        }));
     expectParse("{'a': foo('a')}",
-        astFactory.mapLiteral([astFactory.mapLiteralEntry(
-            astFactory.literal('a'), astFactory.invoke(astFactory.identifier('foo'), null, [astFactory.literal('a')]))]));
+        astFactory.mapLiteral({
+          'a': astFactory.invoke(astFactory.identifier('foo'), null, [astFactory.literal('a')]),
+        }));
   });
 
   test('should parse map literals with method calls', function() {
     expectParse("{'a': 1}.length",
-        astFactory.getter(astFactory.mapLiteral([astFactory.mapLiteralEntry(astFactory.literal('a'), astFactory.literal(1))]),
+        astFactory.getter(
+            astFactory.mapLiteral({'a': astFactory.literal(1)}),
             'length'));
   });
 

@@ -432,23 +432,19 @@ export class Parser {
   }
 
   _parseMap() {
-    let entries = [];
+    let entries = {};
     do {
       this._advance();
       if (this._token.kind == GROUPER && this._token.value == '}') {
         break;
       }
-      entries.push(this._parseMapEntry());
+      let key = this._token.value;
+      this._advance(STRING);
+      this._advance(COLON, ':');
+      entries[key] = this._parseExpression();
     } while(this._token != null && this._token.value == ',');
     this._advance(GROUPER, '}');
     return this._ast.mapLiteral(entries);
-  }
-
-  _parseMapEntry() {
-    let key = this._parseString();
-    this._advance(COLON, ':');
-    let value = this._parseExpression();
-    return this._ast.mapLiteralEntry(key, value);
   }
 
   _parseInvokeOrIdentifier() {

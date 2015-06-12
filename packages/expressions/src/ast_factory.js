@@ -90,15 +90,6 @@ export class AstFactory {
     };
   }
 
-  // TODO(justinfagnani): replace with a 2-element Array?
-  mapLiteralEntry(key, value) {
-    return {
-      type: 'MapLiteralEntry',
-      key: key,
-      value: value,
-    };
-  }
-
   listLiteral(l) {
     return {
       type: 'ListLiteral',
