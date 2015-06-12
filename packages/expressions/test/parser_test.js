@@ -23,7 +23,7 @@ suite('Parser', function() {
   });
 
   test('should parse an identifier', function() {
-    expectParse('abc', astFactory.identifier('abc'));
+    expectParse('abc', astFactory.id('abc'));
   });
 
   test('should parse a string literal', function() {
@@ -56,8 +56,8 @@ suite('Parser', function() {
   });
 
   test('should parse unary operators', function() {
-    expectParse(`!a`, astFactory.unary('!', astFactory.identifier('a')));
-    expectParse(`-a`, astFactory.unary('-', astFactory.identifier('a')));
+    expectParse(`!a`, astFactory.unary('!', astFactory.id('a')));
+    expectParse(`-a`, astFactory.unary('-', astFactory.id('a')));
   });
 
   test('should parse binary operators', function() {
@@ -66,11 +66,11 @@ suite('Parser', function() {
     for (let i in operators) {
       let op = operators[i];
       expectParse(`a ${op} b`, astFactory.binary(
-          astFactory.identifier('a'), op, astFactory.identifier('b')));
+          astFactory.id('a'), op, astFactory.id('b')));
       expectParse(`1 ${op} 2`,
           astFactory.binary(astFactory.literal(1), op, astFactory.literal(2)));
       expectParse(`this ${op} null`,
-          astFactory.binary(astFactory.identifier('this'), op, astFactory.literal(null)));
+          astFactory.binary(astFactory.id('this'), op, astFactory.literal(null)));
     }
   });
 
@@ -82,134 +82,134 @@ suite('Parser', function() {
 
   test('should give multiply higher associativity than plus', function() {
     expectParse('a + b * c',
-        astFactory.binary(astFactory.identifier('a'),
+        astFactory.binary(astFactory.id('a'),
         '+',
         astFactory.binary(
-            astFactory.identifier('b'),
+            astFactory.id('b'),
             '*',
-            astFactory.identifier('c'))));
+            astFactory.id('c'))));
     expectParse('a * b + c',
         astFactory.binary(
             astFactory.binary(
-                astFactory.identifier('a'),
+                astFactory.id('a'),
                 '*',
-                astFactory.identifier('b')),
+                astFactory.id('b')),
             '+',
-            astFactory.identifier('c')));
+            astFactory.id('c')));
   });
 
   test('should parse a dot operator', function() {
-    expectParse('a.b', astFactory.getter(astFactory.identifier('a'), 'b'));
+    expectParse('a.b', astFactory.getter(astFactory.id('a'), 'b'));
   });
 
   test('should parse chained dot operators', function() {
-    expectParse('a.b.c', astFactory.getter(astFactory.getter(astFactory.identifier('a'), 'b'), 'c'));
+    expectParse('a.b.c', astFactory.getter(astFactory.getter(astFactory.id('a'), 'b'), 'c'));
   });
 
   test('should give dot high associativity', function() {
-    expectParse('a * b.c', astFactory.binary(astFactory.identifier('a'), '*', astFactory.getter(astFactory.identifier('b'), 'c')));
+    expectParse('a * b.c', astFactory.binary(astFactory.id('a'), '*', astFactory.getter(astFactory.id('b'), 'c')));
   });
 
   test('should parse a function with no arguments', function() {
-    expectParse('a()', astFactory.invoke(astFactory.identifier('a'), null, []));
+    expectParse('a()', astFactory.invoke(astFactory.id('a'), null, []));
   });
 
   test('should parse a single function argument', function() {
-    expectParse('a(b)', astFactory.invoke(astFactory.identifier('a'), null, [astFactory.identifier('b')]));
+    expectParse('a(b)', astFactory.invoke(astFactory.id('a'), null, [astFactory.id('b')]));
   });
 
   test('should parse a function call as a subexpression', function() {
     expectParse('a() + 1',
         astFactory.binary(
-            astFactory.invoke(astFactory.identifier('a'), null, []),
+            astFactory.invoke(astFactory.id('a'), null, []),
             '+',
             astFactory.literal(1)));
   });
 
   test('should parse multiple function arguments', function() {
     expectParse('a(b, c)',
-        astFactory.invoke(astFactory.identifier('a'), null,
-            [astFactory.identifier('b'), astFactory.identifier('c')]));
+        astFactory.invoke(astFactory.id('a'), null,
+            [astFactory.id('b'), astFactory.id('c')]));
   });
 
   test('should parse nested function calls', function() {
-    expectParse('a(b(c))', astFactory.invoke(astFactory.identifier('a'), null, [
-        astFactory.invoke(astFactory.identifier('b'), null, [astFactory.identifier('c')])]));
+    expectParse('a(b(c))', astFactory.invoke(astFactory.id('a'), null, [
+        astFactory.invoke(astFactory.id('b'), null, [astFactory.id('c')])]));
   });
 
   test('should parse an empty method call', function() {
-    expectParse('a.b()', astFactory.invoke(astFactory.identifier('a'), 'b', []));
+    expectParse('a.b()', astFactory.invoke(astFactory.id('a'), 'b', []));
   });
 
   test('should parse a method call with a single argument', function() {
-    expectParse('a.b(c)', astFactory.invoke(astFactory.identifier('a'), 'b', [astFactory.identifier('c')]));
+    expectParse('a.b(c)', astFactory.invoke(astFactory.id('a'), 'b', [astFactory.id('c')]));
   });
 
   test('should parse a method call with multiple arguments', function() {
     expectParse('a.b(c, d)',
-        astFactory.invoke(astFactory.identifier('a'), 'b', [astFactory.identifier('c'), astFactory.identifier('d')]));
+        astFactory.invoke(astFactory.id('a'), 'b', [astFactory.id('c'), astFactory.id('d')]));
   });
 
   test('should parse chained method calls', function() {
-    expectParse('a.b().c()', astFactory.invoke(astFactory.invoke(astFactory.identifier('a'), 'b', []), 'c', []));
+    expectParse('a.b().c()', astFactory.invoke(astFactory.invoke(astFactory.id('a'), 'b', []), 'c', []));
   });
 
   test('should parse chained function calls', function() {
-    expectParse('a()()', astFactory.invoke(astFactory.invoke(astFactory.identifier('a'), null, []), null, []));
+    expectParse('a()()', astFactory.invoke(astFactory.invoke(astFactory.id('a'), null, []), null, []));
   });
 
   test('should parse parenthesized expression', function() {
-    expectParse('(a)', astFactory.parenthesized(astFactory.identifier('a')));
-    expectParse('(( 3 * ((1 + 2)) ))', astFactory.parenthesized(astFactory.parenthesized(
-        astFactory.binary(astFactory.literal(3), '*', astFactory.parenthesized(astFactory.parenthesized(
+    expectParse('(a)', astFactory.paren(astFactory.id('a')));
+    expectParse('(( 3 * ((1 + 2)) ))', astFactory.paren(astFactory.paren(
+        astFactory.binary(astFactory.literal(3), '*', astFactory.paren(astFactory.paren(
             astFactory.binary(astFactory.literal(1), '+', astFactory.literal(2))))))));
   });
 
   test('should parse an index operator', function() {
-    expectParse('a[b]', astFactory.index(astFactory.identifier('a'), astFactory.identifier('b')));
-    expectParse('a.b[c]', astFactory.index(astFactory.getter(astFactory.identifier('a'), 'b'), astFactory.identifier('c')));
+    expectParse('a[b]', astFactory.index(astFactory.id('a'), astFactory.id('b')));
+    expectParse('a.b[c]', astFactory.index(astFactory.getter(astFactory.id('a'), 'b'), astFactory.id('c')));
   });
 
   test('should parse chained index operators', function() {
-    expectParse('a[][]', astFactory.index(astFactory.index(astFactory.identifier('a'), null), null));
+    expectParse('a[][]', astFactory.index(astFactory.index(astFactory.id('a'), null), null));
   });
 
   test('should parse multiple index operators', function() {
     expectParse('a[b] + c[d]', astFactory.binary(
-        astFactory.index(astFactory.identifier('a'), astFactory.identifier('b')),
+        astFactory.index(astFactory.id('a'), astFactory.id('b')),
         '+',
-        astFactory.index(astFactory.identifier('c'), astFactory.identifier('d'))));
+        astFactory.index(astFactory.id('c'), astFactory.id('d'))));
   });
 
   test('should parse ternary operators', function() {
-    expectParse('a ? b : c', astFactory.ternary(astFactory.identifier('a'), astFactory.identifier('b'), astFactory.identifier('c')));
-    expectParse('a.a ? b.a : c.a', astFactory.ternary(astFactory.getter(astFactory.identifier('a'), 'a'),
-        astFactory.getter(astFactory.identifier('b'), 'a'), astFactory.getter(astFactory.identifier('c'), 'a')));
+    expectParse('a ? b : c', astFactory.ternary(astFactory.id('a'), astFactory.id('b'), astFactory.id('c')));
+    expectParse('a.a ? b.a : c.a', astFactory.ternary(astFactory.getter(astFactory.id('a'), 'a'),
+        astFactory.getter(astFactory.id('b'), 'a'), astFactory.getter(astFactory.id('c'), 'a')));
     // expect(() => parse('a + 1 ? b + 1 :: c.d + 3'), throwsParseException);
   });
 
   test('ternary operators have lowest associativity', function() {
     expectParse('a == b ? c + d : e - f', astFactory.ternary(
-          astFactory.binary(astFactory.identifier('a'), '==', astFactory.identifier('b')),
-          astFactory.binary(astFactory.identifier('c'), '+', astFactory.identifier('d')),
-          astFactory.binary(astFactory.identifier('e'), '-', astFactory.identifier('f'))));
+          astFactory.binary(astFactory.id('a'), '==', astFactory.id('b')),
+          astFactory.binary(astFactory.id('c'), '+', astFactory.id('d')),
+          astFactory.binary(astFactory.id('e'), '-', astFactory.id('f'))));
 
     expectParse('a.x == b.y ? c + d : e - f', astFactory.ternary(
-          astFactory.binary(astFactory.getter(astFactory.identifier('a'), 'x'), '==', astFactory.getter(astFactory.identifier('b'), 'y')),
-          astFactory.binary(astFactory.identifier('c'), '+', astFactory.identifier('d')),
-          astFactory.binary(astFactory.identifier('e'), '-', astFactory.identifier('f'))));
+          astFactory.binary(astFactory.getter(astFactory.id('a'), 'x'), '==', astFactory.getter(astFactory.id('b'), 'y')),
+          astFactory.binary(astFactory.id('c'), '+', astFactory.id('d')),
+          astFactory.binary(astFactory.id('e'), '-', astFactory.id('f'))));
   });
 
   test('should parse a filter chain', function() {
-    expectParse('a | b | c', astFactory.binary(astFactory.binary(astFactory.identifier('a'), '|', astFactory.identifier('b')),
-        '|', astFactory.identifier('c')));
+    expectParse('a | b | c', astFactory.binary(astFactory.binary(astFactory.id('a'), '|', astFactory.id('b')),
+        '|', astFactory.id('c')));
   });
 
   test('should parse map literals', function() {
     expectParse("{'a': 1}",
-        astFactory.mapLiteral({'a': astFactory.literal(1)}));
+        astFactory.map({'a': astFactory.literal(1)}));
     expectParse("{'a': 1, 'b': 2 + 3}",
-        astFactory.mapLiteral({
+        astFactory.map({
           'a': astFactory.literal(1),
           'b': astFactory.binary(
               astFactory.literal(2),
@@ -217,28 +217,28 @@ suite('Parser', function() {
               astFactory.literal(3)),
         }));
     expectParse("{'a': foo()}",
-        astFactory.mapLiteral({
-          'a': astFactory.invoke(astFactory.identifier('foo'), null, []),
+        astFactory.map({
+          'a': astFactory.invoke(astFactory.id('foo'), null, []),
         }));
     expectParse("{'a': foo('a')}",
-        astFactory.mapLiteral({
-          'a': astFactory.invoke(astFactory.identifier('foo'), null, [astFactory.literal('a')]),
+        astFactory.map({
+          'a': astFactory.invoke(astFactory.id('foo'), null, [astFactory.literal('a')]),
         }));
   });
 
   test('should parse map literals with method calls', function() {
     expectParse("{'a': 1}.length",
         astFactory.getter(
-            astFactory.mapLiteral({'a': astFactory.literal(1)}),
+            astFactory.map({'a': astFactory.literal(1)}),
             'length'));
   });
 
   test('should parse list literals', function() {
     expectParse('[1, "a", b]',
-        astFactory.listLiteral([astFactory.literal(1), astFactory.literal('a'), astFactory.identifier('b')]));
+        astFactory.list([astFactory.literal(1), astFactory.literal('a'), astFactory.id('b')]));
     expectParse('[[1, 2], [3, 4]]',
-        astFactory.listLiteral([astFactory.listLiteral([astFactory.literal(1), astFactory.literal(2)]),
-            astFactory.listLiteral([astFactory.literal(3), astFactory.literal(4)])]));
+        astFactory.list([astFactory.list([astFactory.literal(1), astFactory.literal(2)]),
+            astFactory.list([astFactory.literal(3), astFactory.literal(4)])]));
   });
 
 });

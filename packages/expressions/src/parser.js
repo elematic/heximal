@@ -327,9 +327,9 @@ export class Parser {
   }
 
   _makeInvokeOrGetter(left, right) {
-    if (right.type === 'Identifier') {
+    if (right.type === 'ID') {
       return this._ast.getter(left, right.value);
-    } else if (right.type === 'Invoke' && right.receiver.type === 'Identifier') {
+    } else if (right.type === 'Invoke' && right.receiver.type === 'ID') {
       let method = right.receiver;
       return this._ast.invoke(left, method.value, right.arguments);
     } else {
@@ -388,7 +388,7 @@ export class Parser {
         if (keyword === 'this') {
           this._advance();
           // TODO(justin): return keyword node
-          return this._ast.identifier('this');
+          return this._ast.id(keyword);
         } else if (_KEYWORDS.indexOf(keyword) !== -1) {
           throw new Error(`unexpected keyword: ${keyword}`);
         }
@@ -425,7 +425,7 @@ export class Parser {
       items.push(this._parseExpression());
     } while(this._matches(COMMA));
     this._advance(GROUPER, ']');
-    return this._ast.listLiteral(items);
+    return this._ast.list(items);
   }
 
   _parseMap() {
@@ -439,7 +439,7 @@ export class Parser {
       entries[key] = this._parseExpression();
     } while(this._matches(COMMA));
     this._advance(GROUPER, '}');
-    return this._ast.mapLiteral(entries);
+    return this._ast.map(entries);
   }
 
   _parseInvokeOrIdentifier() {
@@ -467,7 +467,7 @@ export class Parser {
     }
     let value = this._value;
     this._advance();
-    return this._ast.identifier(value);
+    return this._ast.id(value);
   }
 
   _parseArguments() {
@@ -501,7 +501,7 @@ export class Parser {
     this._advance();
     let expr = this._parseExpression();
     this._advance(GROUPER, ')');
-    return this._ast.parenthesized(expr);
+    return this._ast.paren(expr);
   }
 
   _parseString() {

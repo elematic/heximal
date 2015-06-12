@@ -25,8 +25,6 @@ const _UNARY_OPERATORS = {
   '!': function(a) { return !a; },
 };
 
-const _BOOLEAN_OPERATORS = ['!', '||', '&&'];
-
 export class EvalAstFactory {
 
   empty() {
@@ -48,9 +46,9 @@ export class EvalAstFactory {
     };
   }
 
-  identifier(v) {
+  id(v) {
     return {
-      type: 'Identifier',
+      type: 'ID',
       value: v,
       evaluate: function(scope) {
         if (this.value === 'this') return scope;
@@ -175,9 +173,9 @@ export class EvalAstFactory {
     };
   }
 
-  mapLiteral(entries) {
+  map(entries) {
     return {
-      type: 'MapLiteral',
+      type: 'Map',
       entries: entries,
       evaluate: function(scope) {
         let map = {};
@@ -196,9 +194,9 @@ export class EvalAstFactory {
   }
 
   // TODO(justinfagnani): if the list is deeply literal
-  listLiteral(l) {
+  list(l) {
     return {
-      type: 'ListLiteral',
+      type: 'List',
       items: l,
       evaluate: function(scope) {
         return this.items.map(function(a) {

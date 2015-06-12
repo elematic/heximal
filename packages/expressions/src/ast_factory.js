@@ -15,9 +15,9 @@ export class AstFactory {
     };
   }
 
-  identifier(v) {
+  id(v) {
     return {
-      type: 'Identifier',
+      type: 'ID',
       value: v,
     };
   }
@@ -59,9 +59,9 @@ export class AstFactory {
     };
   }
 
-  parenthesized(e) {
+  paren(e) {
     return {
-      type: 'Parenthesized',
+      type: 'Paren',
       child: e,
     };
   }
@@ -83,16 +83,16 @@ export class AstFactory {
     };
   }
 
-  mapLiteral(entries) {
+  map(entries) {
     return {
-      type: 'MapLiteral',
+      type: 'Map',
       entries: entries,
     };
   }
 
-  listLiteral(l) {
+  list(l) {
     return {
-      type: 'ListLiteral',
+      type: 'List',
       items: l,
     };
   }
