@@ -389,7 +389,7 @@ export class Parser {
           this._advance();
           // TODO(justin): return keyword node
           return this._ast.identifier('this');
-        } else if (KEYWORDS.indexOf(keyword) !== -1) {
+        } else if (_KEYWORDS.indexOf(keyword) !== -1) {
           throw new Error(`unexpected keyword: ${keyword}`);
         }
         throw new Error(`unrecognized keyword: ${keyword}`);
