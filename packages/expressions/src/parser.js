@@ -9,7 +9,8 @@ const _UNARY_OPERATORS = ['+', '-', '!'];
 const _BINARY_OPERATORS = ['+', '-', '*', '/', '%', '^', '==',
     '!=', '>', '<', '>=', '<=', '||', '&&', '&', '===', '!==', '|'];
 
-export const PRECEDENCE = {
+export const PRECEDENCE = _PRECEDENCE;
+const _PRECEDENCE = {
   '!':  0,
   ':':  0,
   ',':  0,
@@ -51,19 +52,29 @@ export const PRECEDENCE = {
   '{': 11, //not sure this is correct
 };
 
-export const POSTFIX_PRECEDENCE = 11;
+export const POSTFIX_PRECEDENCE = _POSTFIX_PRECEDENCE;
+export const STRING = _STRING;
+export const IDENTIFIER = _IDENTIFIER;
+export const DOT = _DOT;
+export const COMMA = _COMMA;
+export const COLON = _COLON;
+export const INTEGER = _INTEGER;
+export const DECIMAL = _DECIMAL;
+export const OPERATOR = _OPERATOR;
+export const GROUPER = _GROUPER;
+export const KEYWORD = _KEYWORD;
 
-export const STRING = 1;
-export const IDENTIFIER = 2;
-export const DOT = 3;
-export const COMMA = 4;
-export const COLON = 5;
-export const INTEGER = 6;
-export const DECIMAL = 7;
-export const OPERATOR = 8;
-export const GROUPER = 9;
-export const KEYWORD = 10;
-
+const _POSTFIX_PRECEDENCE = 11;
+const _STRING = 1;
+const _IDENTIFIER = 2;
+const _DOT = 3;
+const _COMMA = 4;
+const _COLON = 5;
+const _INTEGER = 6;
+const _DECIMAL = 7;
+const _OPERATOR = 8;
+const _GROUPER = 9;
+const _KEYWORD = 10;
 
 export function token(kind, value, precedence) {
   return {
@@ -184,7 +195,7 @@ export const Tokenizer = (function() {
         }
         this._advance();
       }
-      let t = token(STRING, _escapeString(this._getValue()));
+      let t = token(_STRING, _escapeString(this._getValue()));
       this._advance();
       return t;
     }
@@ -194,7 +205,7 @@ export const Tokenizer = (function() {
         this._advance();
       }
       let value = this._getValue();
-      let kind = _isKeyword(value) ? KEYWORD : IDENTIFIER;
+      let kind = _isKeyword(value) ? _KEYWORD : _IDENTIFIER;
       return token(kind, value);
     }
 
@@ -203,31 +214,31 @@ export const Tokenizer = (function() {
         this._advance();
       }
       if (this._next === '.') return this._tokenizeDot();
-      return token(INTEGER, this._getValue());
+      return token(_INTEGER, this._getValue());
     }
 
     _tokenizeDot() {
       this._advance();
       if (_isNumber(this._next)) return this._tokenizeFraction();
       this._clearValue();
-      return token(DOT, '.', POSTFIX_PRECEDENCE);
+      return token(_DOT, '.', _POSTFIX_PRECEDENCE);
     }
 
     _tokenizeComma() {
       this._advance(true);
-      return token(COMMA, ',');
+      return token(_COMMA, ',');
     }
 
     _tokenizeColon() {
       this._advance(true);
-      return token(COLON, ':');
+      return token(_COLON, ':');
     }
 
     _tokenizeFraction() {
       while (_isNumber(this._next)) {
         this._advance();
       }
-      return token(DECIMAL, this._getValue());
+      return token(_DECIMAL, this._getValue());
     }
 
     _tokenizeOperator() {
@@ -244,12 +255,12 @@ export const Tokenizer = (function() {
         }
       }
       op = this._getValue();
-      return token(OPERATOR, op, PRECEDENCE[op]);
+      return token(_OPERATOR, op, _PRECEDENCE[op]);
     }
 
     _tokenizeGrouper() {
       let value = this._next;
-      let t = token(GROUPER, value, PRECEDENCE[value]);
+      let t = token(_GROUPER, value, _PRECEDENCE[value]);
       this._advance(true);
       return t;
     }
@@ -302,19 +313,19 @@ export class Parser {
   _parsePrecedence(left, precedence) {
     console.assert(left);
     while (this._token) {
-      if (this._matches(GROUPER, '(')) {
+      if (this._matches(_GROUPER, '(')) {
         let args = this._parseArguments();
         left = this._ast.invoke(left, null, args);
-      } else if (this._matches(GROUPER, '[')) {
+      } else if (this._matches(_GROUPER, '[')) {
         let indexExpr = this._parseIndex();
         left = this._ast.index(left, indexExpr);
-      } else if (this._matches(DOT)) {
+      } else if (this._matches(_DOT)) {
         this._advance();
         let right = this._parseUnary();
         left = this._makeInvokeOrGetter(left, right);
-      } else if (this._matches(KEYWORD)) {
+      } else if (this._matches(_KEYWORD)) {
         break;
-      } else if (this._matches(OPERATOR)
+      } else if (this._matches(_OPERATOR)
           && this._token.precedence >= precedence) {
         left = this._value == '?'
             ? this._parseTernary(left)
@@ -344,9 +355,9 @@ export class Parser {
     }
     this._advance();
     let right = this._parseUnary();
-    while ((this._kind == OPERATOR
-            || this._kind == DOT
-            || this._kind == GROUPER)
+    while ((this._kind == _OPERATOR
+            || this._kind == _DOT
+            || this._kind == _GROUPER)
         && this._token.precedence > op.precedence) {
       right = this._parsePrecedence(right, this._token.precedence);
     }
@@ -354,36 +365,36 @@ export class Parser {
   }
 
   _parseUnary() {
-    if (this._matches(OPERATOR)) {
+    if (this._matches(_OPERATOR)) {
       let value = this._value;
       this._advance();
       // handle unary + and - on numbers as part of the literal, not as a
       // unary operator
       if (value === '+' || value === '-') {
-        if (this._matches(INTEGER)) {
+        if (this._matches(_INTEGER)) {
           return this._parseInteger(value);
-        } else if (this._matches(DECIMAL)) {
+        } else if (this._matches(_DECIMAL)) {
           return this._parseDecimal(value);
         }
       }
       if (_UNARY_OPERATORS.indexOf(value) === -1) throw new Error(`unexpected token: ${value}`);
-      let expr = this._parsePrecedence(this._parsePrimary(), POSTFIX_PRECEDENCE);
+      let expr = this._parsePrecedence(this._parsePrimary(), _POSTFIX_PRECEDENCE);
       return this._ast.unary(value, expr);
     }
     return this._parsePrimary();
   }
 
   _parseTernary(condition) {
-    this._advance(OPERATOR, '?');
+    this._advance(_OPERATOR, '?');
     let trueExpr = this._parseExpression();
-    this._advance(COLON);
+    this._advance(_COLON);
     let falseExpr = this._parseExpression();
     return this._ast.ternary(condition, trueExpr, falseExpr);
   }
 
   _parsePrimary() {
     switch (this._kind) {
-      case KEYWORD:
+      case _KEYWORD:
         var keyword = this._value;
         if (keyword === 'this') {
           this._advance();
@@ -393,15 +404,15 @@ export class Parser {
           throw new Error(`unexpected keyword: ${keyword}`);
         }
         throw new Error(`unrecognized keyword: ${keyword}`);
-      case IDENTIFIER:
+      case _IDENTIFIER:
         return this._parseInvokeOrIdentifier();
-      case STRING:
+      case _STRING:
         return this._parseString();
-      case INTEGER:
+      case _INTEGER:
         return this._parseInteger();
-      case DECIMAL:
+      case _DECIMAL:
         return this._parseDecimal();
-      case GROUPER:
+      case _GROUPER:
         if (this._value == '(') {
           return this._parseParen();
         } else if (this._value == '{') {
@@ -410,7 +421,7 @@ export class Parser {
           return this._parseList();
         }
         return null;
-      case COLON:
+      case _COLON:
         throw new Error('unexpected token ":"');
       default:
         return null;
@@ -421,10 +432,10 @@ export class Parser {
     let items = [];
     do {
       this._advance();
-      if (this._matches(GROUPER, ']')) break;
+      if (this._matches(_GROUPER, ']')) break;
       items.push(this._parseExpression());
-    } while(this._matches(COMMA));
-    this._advance(GROUPER, ']');
+    } while(this._matches(_COMMA));
+    this._advance(_GROUPER, ']');
     return this._ast.list(items);
   }
 
@@ -432,13 +443,13 @@ export class Parser {
     let entries = {};
     do {
       this._advance();
-      if (this._matches(GROUPER, '}')) break;
+      if (this._matches(_GROUPER, '}')) break;
       let key = this._value;
-      this._advance(STRING);
-      this._advance(COLON);
+      this._advance(_STRING);
+      this._advance(_COLON);
       entries[key] = this._parseExpression();
-    } while(this._matches(COMMA));
-    this._advance(GROUPER, '}');
+    } while(this._matches(_COMMA));
+    this._advance(_GROUPER, '}');
     return this._ast.map(entries);
   }
 
@@ -462,7 +473,7 @@ export class Parser {
   }
 
   _parseIdentifier() {
-    if (!this._matches(IDENTIFIER)) {
+    if (!this._matches(_IDENTIFIER)) {
       throw new Error(`expected identifier: ${this._value}`);
     }
     let value = this._value;
@@ -471,27 +482,27 @@ export class Parser {
   }
 
   _parseArguments() {
-    if (this._matches(GROUPER, '(')) {
+    if (this._matches(_GROUPER, '(')) {
       let args = [];
       do {
         this._advance();
-        if (this._matches(GROUPER, ')')) {
+        if (this._matches(_GROUPER, ')')) {
           break;
         }
         let expr = this._parseExpression();
         args.push(expr);
-      } while(this._matches(COMMA));
-      this._advance(GROUPER, ')');
+      } while(this._matches(_COMMA));
+      this._advance(_GROUPER, ')');
       return args;
     }
     return null;
   }
 
   _parseIndex() {
-    if (this._matches(GROUPER, '[')) {
+    if (this._matches(_GROUPER, '[')) {
       this._advance();
       let expr = this._parseExpression();
-      this._advance(GROUPER, ']');
+      this._advance(_GROUPER, ']');
       return expr;
     }
     return null;
@@ -500,7 +511,7 @@ export class Parser {
   _parseParen() {
     this._advance();
     let expr = this._parseExpression();
-    this._advance(GROUPER, ')');
+    this._advance(_GROUPER, ')');
     return this._ast.paren(expr);
   }
 
