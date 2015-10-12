@@ -1,0 +1,85 @@
+<!doctype html>
+
+<html>
+  <head>
+    <script src="/vendor/systemjs/system.js"></script>
+    <script>
+      window.define = System.amdDefine;
+      window.require = System.amdRequire;
+
+      System.config({
+        map: {
+          'stampino': '/lib/stampino.js',
+          'incremental-dom': '/vendor/incremental-dom/incremental-dom.js',
+          'polymer-expressions/parser': '/vendor/polymer-expressions/parser.js',
+          'polymer-expressions/eval': '/vendor/polymer-expressions/eval.js',
+        },
+      });
+
+      System.import('./demo.js');
+    </script>  </head>
+  <body>
+
+    <template id="demo-1">
+      <h1>Static Template</h1>
+      <p>This template has only static content</p>
+    </template>
+
+    <template id="demo-2">
+      <h1>Simple Expressions</h1>
+      <p>This template contains expressions, like:</p>
+      <div>&#x7B;{ foo }}: <span>{{ foo }}</span></div>
+    </template>
+
+    <template id="demo-3">
+      <h1>Complex Expressions</h1>
+      <p>This template contains fancy expressions, like:</p>
+      <p>&#x7B;{ x * x - 1 }}: <span>{{ x * x - 1 }}</span></p>
+      <p>(where x = <span>{{ x }}</span>)</p>
+    </template>
+
+    <template id="demo-4">
+      <h1>Conditionals</h1>
+      <p>This template contains conditionals</p>
+      <template if="{{true}}">
+        <p>This renders (the other case doesn't)</p>
+      </template>
+      <template if="{{false}}">
+        <p>This does not</p>
+      </template>
+    </template>
+
+    <template id="demo-5">
+      <h1>Repeating</h1>
+      <p>This template contains a repeater</p>
+      <template repeat="{{items}}">
+        <p>{{item}}</p>
+      </template>
+    </template>
+
+    <template id="demo-6-super">
+      <h1>Template Composition</h1>
+      <p>This is the parent template that defines "holes" A and B</p>
+      <div>
+        <template name="A">The is default content for hole A</template>
+      </div>
+      <div>
+        <template name="B">The is default content for hole B</template>
+      </div>
+    </template>
+
+    <template id="demo-6" extends="demo-6-super">
+      <template name="B">This is child content for hole B</template>
+    </template>
+
+    <!--
+    TODO: support this form instead of the above
+    <template id="demo-6" extends="demo-6-super">
+      <template name="super">
+        <template name="B">This is child content for hole B</template>
+      </template>
+    </template>
+    -->
+
+  </body>
+</html>
