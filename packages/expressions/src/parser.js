@@ -84,6 +84,10 @@ export function token(kind, value, precedence) {
   };
 }
 
+// This closure exists to hide utillity functions from the outter scope so that
+// they're properly minimized by Uglify. This shouldn't be neccessary since
+// they're not exported, but somehow the combination of Babel transpile to AMD
+// modules and Uglify makes them appear in the final output.
 export const Tokenizer = (function() {
 
   function _isWhitespace(next) {
