@@ -5,5 +5,49 @@ The complete set of contributors may be found at http://polymer.github.io/CONTRI
 Code distributed by Google as part of the polymer project is also
 subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt -->
 
-<script src="third_party/esprima/esprima.js"></script>
-<script src="src/polymer-expressions.js"></script>
+<script src="polymer-expressions.min.js"></script>
+<script>
+  define(['polymer-expressions/eval', 'polymer-expressions/parser'],
+      function(evaluate, parser) {
+    'use strict';
+
+    let Parser = parser.Parser;
+    let astFactory = new evaluate.EvalAstFactory();
+
+    Polymer.Bind._annotatedExpressionEffect = function (source, value, effect) {
+      this._applyEffectValue(effect.ast.evaluate(this), effect);
+    };
+
+    window.PolymerExpressions = {
+
+      _addAnnotationEffect(note, index) {
+        if (Polymer.Bind._shouldAddListener(note)) {
+          Polymer.Bind._addAnnotatedListener(this, index,
+            note.name, note.value, note.event);
+        }
+
+        let ast = new Parser(note.value, astFactory).parse();
+        var args = ast.getIds([]);
+
+        if (args.length > 0) {
+          args.forEach(function(arg) {
+            this.__addExpressionEffect(note, arg, index, arg, ast);
+          }, this);
+        } else {
+          this.__addExpressionEffect(note, '__static__', index, null, ast);
+        }
+      },
+
+      __addExpressionEffect: function(note, property, index, arg, ast) {
+        this._addPropertyEffect(property, 'annotatedExpression', {
+          index: index,
+          property: note.name,
+          kind: note.kind,
+          ast: ast,
+          trigger: arg,
+        });
+      },
+
+    };
+  });
+</script>
