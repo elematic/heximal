@@ -5,7 +5,6 @@ The complete set of contributors may be found at http://polymer.github.io/CONTRI
 Code distributed by Google as part of the polymer project is also
 subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt -->
 
-<link rel="import" href="../imd/imd.html">
 <script src="polymer-expressions.min.js"></script>
 <script>
   define(['polymer-expressions/eval', 'polymer-expressions/parser'],
@@ -23,7 +22,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       _addAnnotationEffect(note, index) {
         if (Polymer.Bind._shouldAddListener(note)) {
-          // <node>.on.<dash-case-property>-changed: <path> = e.detail.value
           Polymer.Bind._addAnnotatedListener(this, index,
             note.name, note.value, note.event);
         }
