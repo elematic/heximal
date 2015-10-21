@@ -13,36 +13,46 @@ property access, function invocation, list/map indexing, and two-way filtering
 like:
 
 ```html
-    {{ person.title + " " + person.getFullName() | upppercase }}
+    {{ person.title + " " + person.getFullName() | uppercase }}
 ```
 
 ## Usage
 
 ### Installation
 
-Add the following to your pubspec.yaml file:
+Add the following to your `bower.json` file:
 
 ```json
-    "dependencies": {
-      "polymer-expressions": "Polymer/polymer-expressions#^2.0.0",
-    }
+"dependencies": {
+  "polymer-expressions": "Polymer/polymer-expressions#^2.0.0"
+}
 ```
 
-Then import polymer-expressions.html:
+### Usage
+
+Import `polymer-expressions.html` and add the `PolymerExpressions` behavior:
 
 ```html
-    <link rel="import" href="../polymer-expressions/polymer-expressions.html">
+<link rel="import" href="../polymer-expressions/polymer-expressions.html">
+<script>
+  Polymer({
+    is: 'my-element',
+
+    behaviors: [PolymerExpressions],
+
+  });
+</script>
 ```
 
 ## Features
 
 ### Models and Scopes
 
-/TBD/
+***TBD***
 
 ### Assignable and Non-Assignable Expressions
 
-/Subject to Change/
+***NOTE: Subject to Change***
 
 Some expressions can be used in two-way binding contexts. For this to work,
 the expression must be "assignable". Only a subset of expressions are
@@ -61,7 +71,7 @@ Assignable Expressions:
  * `items[0].description`
  * `people['john'].name`
  * `product.cost | convertCurrency('ZWD')` where `convertCurrency` evaluates to
-   a Tranformer object.
+   a Transformer object.
 
 Non-Assignable Expressions:
 
@@ -72,10 +82,9 @@ Non-Assignable Expressions:
 
 ### Null-Safety
 
-Expressions are generally null-safe. If an intermediate expression yields `null`
-the entire expression will return null, rather than throwing an exception.
-Property access, method invocation and operators are null-safe. Passing null to
-a function that doesn't handle null will not be null safe.
+Expressions are generally null-safe. If a subexpression yields `null` or
+`undefined`, subsequent property access will return null, rather than throwing
+an exception. Property access, method invocation and operators are null-safe. Passing null to a function that doesn't handle null will not be null safe.
 
 ## Syntax
 
@@ -147,4 +156,4 @@ been registered, then `person.name | uppercase` will have the value `"JOHN"`.
 
 The pipe syntax is used rather than a regular function call so that we can
 support two-way bindings through transformers. A transformer is a filter that
-has an inverse function.
+has an inverse function. Two-way transformers are not supported yet.
