@@ -14,7 +14,7 @@ This approach leads to a low-cost for features like conditionals and repeating, 
 
 The core of stampino less than 200 lines of code.
 
-stampino keeps things simple by relying on standard HTML `<template>` tags, using `incremental-dom` and `polymer-expressions`, only supporting on-way data-binding, and letting the developers be responsible for when to re-render. stampino doesn't concern itself with custom elements, DOM and style encapsulation, or any of the other amazing features of Web Components, because that's what Web Components are for! It's great for implementing a shadow DOM renderer for custom elements.
+stampino keeps things simple by relying on standard HTML `<template>` tags, using `incremental-dom` and `polymer-expressions`, only supporting one-way data-binding, and letting the developers be responsible for when to re-render. stampino doesn't concern itself with custom elements, DOM and style encapsulation, or any of the other amazing features of Web Components, because that's what Web Components are for! It's great for implementing a shadow DOM renderer for custom elements.
 
 By using HTML `<template>` tags, stampino templates can be defined right inline your HTML. Browsers will not render template contents, run script, or apply CSS.
 
@@ -51,10 +51,34 @@ In the future, it will be very easy to compile a template to a list of increment
 stampino conceptually views a template as a function of the form:
 
 ```javascript
-  _render(model); // simplified
+  renderFunction(model); // simplified, a little
 ```
 
-`render` is then called to update a particular container node. `render` can call, and be called by, other render functions. Using this basic concept stampino build template inheritance and "blocks" or named holes that can be filled by sub-templates, similar to sub routines.
+`renderFunction` is then called to update a particular container node. `renderFunction` can call, and be called by, other render functions. Using this basic concept stampino build template inheritance and "blocks" or named holes that can be filled by sub-templates, similar to sub routines.
+
+```html
+<template id="base-template">
+  This the base template, that defines a "block"
+  <template name="A">
+    This is a block with default content.
+  </template>
+</template>
+
+<template id="my-template">
+  <template name="A">
+    This is a sub-template providing new content for a block.
+  </template>
+</template>
+```
+
+```javascript
+let base = document.querySelector('#base-template');
+let template = document.querySelector('#my-template');
+
+stampino.render(template, container, model, {
+  extends: base,
+});
+```
 
 #### Binding Expressions
 
@@ -79,7 +103,7 @@ Handlers implement the stampino render function signature:
 function(template, model, renderers, handlers)
 ```
 
-They can call incremental-dom functions to render nodes, but usually they will perform some logic and call back into stampino's default `_render` with new data and/or a new template node to render.
+They can call incremental-dom functions to render nodes, but usually they will perform some logic and call back into stampino's default `renderNode` with new data and/or a new template node to render.
 
 Handlers are passed to the public render function:
 
@@ -88,8 +112,8 @@ render(template, container, model, {
   handlers: {
     // renders a template twice
     'echo': function(template, model, renderers, handlers) {
-      _render(template.content, model, renderers, handlers);
-      _render(template.content, model, renderers, handlers);
+      renderNode(template.content, model, renderers, handlers);
+      renderNode(template.content, model, renderers, handlers);
     },
   }
 });
@@ -113,7 +137,7 @@ handlers: {
   'if': function(template, model, renderers, handlers) {
     let ifAttribute = template.getAttribute('if');
     if (ifAttribute && getValue(ifAttribute, model)) {
-      _render(template.content, model, renderers, handlers);
+      renderNode(template.content, model, renderers, handlers);
     }
   },
 },
