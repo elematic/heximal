@@ -125,10 +125,8 @@ export function renderNode(node, model, renderers, handlers) {
         // Handle named holes
         let nameAttribute = node.getAttribute('name');
         if (nameAttribute) {
-          console.log('named template', nameAttribute, renderers);
           if (renderers) {
             let renderer = renderers[nameAttribute];
-            console.log('  renderer', renderer);
             if (renderer) {
               renderer(model, renderers, handlers);
               return;
