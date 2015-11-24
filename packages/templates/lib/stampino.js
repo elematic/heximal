@@ -152,7 +152,7 @@ export function renderNode(node, model, renderers, handlers) {
         idom.elementOpen.apply(null, args);
         let children = node.childNodes;
         for (let i = 0; i < children.length; i++) {
-          renderNode(children[i], model, renderers);
+          renderNode(children[i], model, renderers, handlers);
         }
         idom.elementClose(node.tagName);
       }
