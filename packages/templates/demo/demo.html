@@ -84,14 +84,14 @@
       <template name="B">This is child content for hole B</template>
     </template>
 
-    <!--
-    TODO: support this form instead of the above
-    <template id="demo-6" extends="demo-6-super">
-      <template name="super">
-        <template name="B">This is child content for hole B</template>
-      </template>
+    <template id="demo-7" extends="demo-6-super">
+      <h1>Explicit Super Template</h1>
+      <div>before super template</div>
+        <template name="super">
+          <template name="B">This is child content for hole B</template>
+        </template>
+      <div>after super template</div>
     </template>
-    -->
 
   </body>
 </html>

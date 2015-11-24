@@ -5,7 +5,7 @@ function runDemo(id, model, opts) {
   let container = document.createElement('div');
   let content = template.innerHTML;
   let source = document.createElement('code');
-  console.log(content);
+  // console.log(content);
   source.innerText = content;
   container.appendChild(source);
   let output = document.createElement('div');
@@ -20,3 +20,4 @@ runDemo('demo-3', {x: 9});
 runDemo('demo-4');
 runDemo('demo-5', {items: ['a', 'b', 'c']});
 runDemo('demo-6', {}, {extends: document.querySelector('#demo-6-super')});
+runDemo('demo-7', {}, {extends: document.querySelector('#demo-6-super')});

@@ -29,7 +29,7 @@ const defaultHandlers = {
   'if': function(template, model, renderers, handlers) {
     let ifAttribute = template.getAttribute('if');
     if (ifAttribute && getValue(ifAttribute, model)) {
-      _render(template.content, model, renderers, handlers);
+      renderNode(template.content, model, renderers, handlers);
     }
   },
 
@@ -42,11 +42,26 @@ const defaultHandlers = {
         // TODO: provide keys to incremental-dom
         let itemModel = Object.create(model);
         itemModel.item = item;
-        _render(template.content, itemModel, renderers, handlers);
+        renderNode(template.content, itemModel, renderers, handlers);
       }
     }
   },
 };
+
+function getRenderers(template) {
+  let namedTemplates = template.content.querySelectorAll('[name]');
+  let renderers = {};
+  for (let i = 0; i < namedTemplates.length; i++) {
+    let t = namedTemplates[i];
+    console.assert(t);
+    let name = t.getAttribute('name');
+    if (name !== 'super') {
+      renderers[name] = (model, renderers, handlers) =>
+          renderNode(t.content, model, renderers, handlers);
+    }
+  }
+  return renderers;
+}
 
 /**
  * Renders a template element containing a Stampino template.
@@ -66,33 +81,32 @@ export function render(template, container, model, opts) {
   let renderers = opts.renderers || {};
 
   if (_extends) {
-    // TODO: this only finds unnested named templates. Named templates nested
-    // in other templates won't be returned by querySelectorAll, although it's
-    // slightly unclear what they would mean when filling a hole, vs defining
-    // one. It's probably best to actually tighten this restriction and require
-    // named templates be top-level
-    // TODO: super support
-    let namedTemplates = template.content.querySelectorAll('[name]');
-    for (let i = 0; i < namedTemplates.length; i++) {
-      let t = namedTemplates[i];
-      console.assert(t);
-      let name = t.getAttribute('name');
-      renderers[name] = (model, renderers, handlers) =>
-          _render(t.content, model, renderers, handlers);
+    let superNode = template.content.querySelector('[name=super]');
+    if (superNode) {
+      let superRenderers = getRenderers(superNode);
+      renderers = {
+        'super': (model, renderers, handlers) => {
+          renderNode(_extends.content, model, superRenderers, handlers);
+        },
+      };
+    } else {
+      // Wrap the whole template in an implicit super call: immediately render
+      // the super template, with all renderers from this template
+      renderers = getRenderers(template);
+      template = _extends;
     }
-    template = _extends;
   }
 
-  idom.patch(container, () => _render(template.content, model, renderers, handlers), model);
+  idom.patch(container, () => renderNode(template.content, model, renderers, handlers), model);
 }
 
-function _render(node, model, renderers, handlers) {
+export function renderNode(node, model, renderers, handlers) {
   switch (node.nodeType) {
     // We encounter DocumentFragments when we recurse into a nested template
     case Node.DOCUMENT_FRAGMENT_NODE:
       let children = node.childNodes;
       for (let i = 0; i < children.length; i++) {
-        _render(children[i], model, renderers, handlers);
+        renderNode(children[i], model, renderers, handlers);
       }
       break;
     case Node.ELEMENT_NODE:
@@ -111,15 +125,17 @@ function _render(node, model, renderers, handlers) {
         // Handle named holes
         let nameAttribute = node.getAttribute('name');
         if (nameAttribute) {
+          console.log('named template', nameAttribute, renderers);
           if (renderers) {
             let renderer = renderers[nameAttribute];
+            console.log('  renderer', renderer);
             if (renderer) {
               renderer(model, renderers, handlers);
               return;
             }
           }
           // if there's no named renderer, render the default content
-          _render(node.content, model, renderers, handlers);
+          renderNode(node.content, model, renderers, handlers);
           return;
         }
         // by default, templates are not rendered
@@ -136,7 +152,7 @@ function _render(node, model, renderers, handlers) {
         idom.elementOpen.apply(null, args);
         let children = node.childNodes;
         for (let i = 0; i < children.length; i++) {
-          _render(children[i], model, renderers);
+          renderNode(children[i], model, renderers);
         }
         idom.elementClose(node.tagName);
       }
