@@ -1,9 +1,10 @@
 {
   "name": "stampino",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "dependencies": {
     "incremental-dom": "^0.2.0",
     "polymer-expressions": "git+https://github.com/justinfagnani/polymer-expressions.git#master",
+    "requirejs": "^2.1.22",
     "systemjs": "^0.19.4"
   },
   "devDependencies": {

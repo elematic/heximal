@@ -19,8 +19,34 @@ function getValue(value, model) {
     let ast = new Parser(expression, astFactory).parse();
     return ast.evaluate(model);
   }
+  if (value.startsWith('\\{{')) {
+    return value.substring(1);
+  }
   return value;
 }
+
+const defaultHandlers = {
+  'if': function(template, model, renderers, handlers) {
+    let ifAttribute = template.getAttribute('if');
+    if (ifAttribute && getValue(ifAttribute, model)) {
+      _render(template.content, model, renderers, handlers);
+    }
+  },
+
+  'repeat': function(template, model, renderers, handlers) {
+    let repeatAttribute = template.getAttribute('repeat');
+
+    if (repeatAttribute) {
+      let items = getValue(repeatAttribute, model);
+      for (let item of items) {
+        // TODO: provide keys to incremental-dom
+        let itemModel = Object.create(model);
+        itemModel.item = item;
+        _render(template.content, itemModel, renderers, handlers);
+      }
+    }
+  },
+};
 
 /**
  * Renders a template element containing a Stampino template.
@@ -36,6 +62,9 @@ function getValue(value, model) {
 export function render(template, container, model, opts) {
   opts = opts || {};
   let _extends = opts.extends;
+  let handlers = opts.handlers || defaultHandlers;
+  let renderers = opts.renderers || {};
+
   if (_extends) {
     // TODO: this only finds unnested named templates. Named templates nested
     // in other templates won't be returned by querySelectorAll, although it's
@@ -44,61 +73,56 @@ export function render(template, container, model, opts) {
     // named templates be top-level
     // TODO: super support
     let namedTemplates = template.content.querySelectorAll('[name]');
-    let renderers = {};
     for (let i = 0; i < namedTemplates.length; i++) {
       let t = namedTemplates[i];
+      console.assert(t);
       let name = t.getAttribute('name');
-      renderers[name] = (model, renderers) => _render(t.content, model, renderers);
+      renderers[name] = (model, renderers, handlers) =>
+          _render(t.content, model, renderers, handlers);
     }
-    idom.patch(container, () => _render(_extends.content, model, renderers), model);
-  } else {
-    idom.patch(container, () => _render(template.content, model), model);
+    template = _extends;
   }
+
+  idom.patch(container, () => _render(template.content, model, renderers, handlers), model);
 }
 
-function _render(node, model, renderers) {
+function _render(node, model, renderers, handlers) {
   switch (node.nodeType) {
+    // We encounter DocumentFragments when we recurse into a nested template
     case Node.DOCUMENT_FRAGMENT_NODE:
       let children = node.childNodes;
       for (let i = 0; i < children.length; i++) {
-        _render(children[i], model, renderers);
+        _render(children[i], model, renderers, handlers);
       }
       break;
     case Node.ELEMENT_NODE:
       if (node.tagName.toLowerCase() === 'template') {
+        // Handle template types, like: 'if' and 'repeat'
+        let typeAttribute = node.getAttribute('type');
+        if (typeAttribute) {
+          let handler = handlers[typeAttribute];
+          if (handler) {
+            handler(node, model, renderers, handlers);
+          } else {
+            console.warn('No handler for template type', typeAttribute);
+            return;
+          }
+        }
         // Handle named holes
         let nameAttribute = node.getAttribute('name');
         if (nameAttribute) {
           if (renderers) {
             let renderer = renderers[nameAttribute];
             if (renderer) {
-              renderer(model, renderers);
+              renderer(model, renderers, handlers);
               return;
             }
           }
           // if there's no named renderer, render the default content
-          _render(node.content, model, renderers);
+          _render(node.content, model, renderers, handlers);
           return;
         }
-
-        // Handle conditionals and repeats
-        let ifAttribute = node.getAttribute('if');
-        let repeatAttribute = node.getAttribute('repeat');
-        let doRender = ifAttribute && getValue(ifAttribute, model);
-
-        if (repeatAttribute) {
-          if (!ifAttribute || doRender) {
-            let items = getValue(repeatAttribute, model);
-            for (let item of items) {
-              // TODO: provide keys to incremental-dom
-              let itemModel = Object.create(model);
-              itemModel.item = item;
-              _render(node.content, itemModel, renderers);
-            }
-          }
-        } else if (doRender) {
-          _render(node.content, model, renderers);
-        }
+        // by default, templates are not rendered
       } else {
         // elementOpen has a weird API. It takes varargs, so we need to build
         // up the arguments array to pass to Function.apply :(
