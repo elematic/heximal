@@ -6,29 +6,14 @@
     <script>
       require.config({
         paths: {
-            "stampino": "../lib/stampino",
-            "incremental-dom": "../vendor/incremental-dom/incremental-dom",
-            'polymer-expressions/parser': '../vendor/polymer-expressions/parser',
-            'polymer-expressions/eval': '../vendor/polymer-expressions/eval',
+            'stampino': '../lib/stampino',
+            'incremental-dom': '../vendor/incremental-dom/incremental-dom',
+            'polymer-expressions/parser': '../vendor/polymer-expressions/polymer-expressions',
+            'polymer-expressions/eval': '../vendor/polymer-expressions/polymer-expressions',
         },
         waitSeconds: 15
       });
-    </script>    <!-- <script src="/vendor/systemjs/system.js"></script>
-    <script>
-      window.define = System.amdDefine;
-      window.require = System.amdRequire;
-
-      System.config({
-        map: {
-          'stampino': '/lib/stampino.js',
-          'incremental-dom': '/vendor/incremental-dom/incremental-dom.js',
-          'polymer-expressions/parser': '/vendor/polymer-expressions/parser.js',
-          'polymer-expressions/eval': '/vendor/polymer-expressions/eval.js',
-        },
-      });
-
-      System.import('./demo.js');
-    </script> -->
+    </script>
   </head>
   <body>
 

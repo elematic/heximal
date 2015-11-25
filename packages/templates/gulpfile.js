@@ -6,16 +6,12 @@ let es = require('event-stream');
 let watch = require('gulp-watch');
 let glob = require('glob');
 
-let babelOptions = {
-  modules: 'amd',
-};
-
 gulp.task('default', ['vendor', 'lib', 'demo']);
 
 gulp.task('demo', function() {
   return es.merge(
     gulp.src('demo/*.js')
-        .pipe(babel(babelOptions))
+        .pipe(babel())
         .pipe(gulp.dest('build/demo')),
     gulp.src('demo/*.html')
         .pipe(gulp.dest('build/demo'))
@@ -24,7 +20,7 @@ gulp.task('demo', function() {
 
 gulp.task('lib', function() {
   return gulp.src('lib/*.js')
-      .pipe(babel(babelOptions))
+      .pipe(babel())
       .pipe(gulp.dest('build/lib'));
 });
 
@@ -47,7 +43,7 @@ gulp.task('incremental-dom', function() {
 });
 
 gulp.task('polymer-expressions', function() {
-  gulp.src('node_modules/polymer-expressions/src/*.js')
-    .pipe(babel(babelOptions))
+  gulp.src('node_modules/polymer-expressions/polymer-expressions.js')
+    // .pipe(babel())
     .pipe(gulp.dest('build/vendor/polymer-expressions/'))
 });

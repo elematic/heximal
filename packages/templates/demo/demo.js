@@ -5,7 +5,6 @@ function runDemo(id, model, opts) {
   let container = document.createElement('div');
   let content = template.innerHTML;
   let source = document.createElement('code');
-  // console.log(content);
   source.innerText = content;
   container.appendChild(source);
   let output = document.createElement('div');
