@@ -19,7 +19,48 @@ function getValue(value, model) {
     let ast = new Parser(expression, astFactory).parse();
     return ast.evaluate(model);
   }
+  if (value.startsWith('\\{{')) {
+    return value.substring(1);
+  }
   return value;
+}
+
+const defaultHandlers = {
+  'if': function(template, model, renderers, handlers) {
+    let ifAttribute = template.getAttribute('if');
+    if (ifAttribute && getValue(ifAttribute, model)) {
+      renderNode(template.content, model, renderers, handlers);
+    }
+  },
+
+  'repeat': function(template, model, renderers, handlers) {
+    let repeatAttribute = template.getAttribute('repeat');
+
+    if (repeatAttribute) {
+      let items = getValue(repeatAttribute, model);
+      for (let item of items) {
+        // TODO: provide keys to incremental-dom
+        let itemModel = Object.create(model);
+        itemModel.item = item;
+        renderNode(template.content, itemModel, renderers, handlers);
+      }
+    }
+  },
+};
+
+function getRenderers(template) {
+  let namedTemplates = template.content.querySelectorAll('[name]');
+  let renderers = {};
+  for (let i = 0; i < namedTemplates.length; i++) {
+    let t = namedTemplates[i];
+    console.assert(t);
+    let name = t.getAttribute('name');
+    if (name !== 'super') {
+      renderers[name] = (model, renderers, handlers) =>
+          renderNode(t.content, model, renderers, handlers);
+    }
+  }
+  return renderers;
 }
 
 /**
@@ -36,69 +77,66 @@ function getValue(value, model) {
 export function render(template, container, model, opts) {
   opts = opts || {};
   let _extends = opts.extends;
+  let handlers = opts.handlers || defaultHandlers;
+  let renderers = opts.renderers || {};
+
   if (_extends) {
-    // TODO: this only finds unnested named templates. Named templates nested
-    // in other templates won't be returned by querySelectorAll, although it's
-    // slightly unclear what they would mean when filling a hole, vs defining
-    // one. It's probably best to actually tighten this restriction and require
-    // named templates be top-level
-    // TODO: super support
-    let namedTemplates = template.content.querySelectorAll('[name]');
-    let renderers = {};
-    for (let i = 0; i < namedTemplates.length; i++) {
-      let t = namedTemplates[i];
-      let name = t.getAttribute('name');
-      renderers[name] = (model, renderers) => _render(t.content, model, renderers);
+    let superNode = template.content.querySelector('[name=super]');
+    if (superNode) {
+      let superRenderers = getRenderers(superNode);
+      renderers = {
+        'super': (model, renderers, handlers) => {
+          renderNode(_extends.content, model, superRenderers, handlers);
+        },
+      };
+    } else {
+      // Wrap the whole template in an implicit super call: immediately render
+      // the super template, with all renderers from this template
+      renderers = getRenderers(template);
+      template = _extends;
     }
-    idom.patch(container, () => _render(_extends.content, model, renderers), model);
-  } else {
-    idom.patch(container, () => _render(template.content, model), model);
   }
+
+  idom.patch(container, () => renderNode(template.content, model, renderers, handlers), model);
 }
 
-function _render(node, model, renderers) {
+export function renderNode(node, model, renderers, handlers) {
   switch (node.nodeType) {
+    // We encounter DocumentFragments when we recurse into a nested template
     case Node.DOCUMENT_FRAGMENT_NODE:
       let children = node.childNodes;
       for (let i = 0; i < children.length; i++) {
-        _render(children[i], model, renderers);
+        renderNode(children[i], model, renderers, handlers);
       }
       break;
     case Node.ELEMENT_NODE:
       if (node.tagName.toLowerCase() === 'template') {
+        // Handle template types, like: 'if' and 'repeat'
+        let typeAttribute = node.getAttribute('type');
+        if (typeAttribute) {
+          let handler = handlers[typeAttribute];
+          if (handler) {
+            handler(node, model, renderers, handlers);
+          } else {
+            console.warn('No handler for template type', typeAttribute);
+            return;
+          }
+        }
         // Handle named holes
         let nameAttribute = node.getAttribute('name');
         if (nameAttribute) {
           if (renderers) {
             let renderer = renderers[nameAttribute];
             if (renderer) {
-              renderer(model, renderers);
+              renderer(model, renderers, handlers);
               return;
             }
           }
           // if there's no named renderer, render the default content
-          _render(node.content, model, renderers);
+          renderNode(node.content, model, renderers, handlers);
           return;
         }
-
-        // Handle conditionals and repeats
-        let ifAttribute = node.getAttribute('if');
-        let repeatAttribute = node.getAttribute('repeat');
-        let doRender = ifAttribute && getValue(ifAttribute, model);
-
-        if (repeatAttribute) {
-          if (!ifAttribute || doRender) {
-            let items = getValue(repeatAttribute, model);
-            for (let item of items) {
-              // TODO: provide keys to incremental-dom
-              let itemModel = Object.create(model);
-              itemModel.item = item;
-              _render(node.content, itemModel, renderers);
-            }
-          }
-        } else if (doRender) {
-          _render(node.content, model, renderers);
-        }
+        // by default, templates are not rendered
       } else {
         // elementOpen has a weird API. It takes varargs, so we need to build
         // up the arguments array to pass to Function.apply :(
@@ -112,7 +150,7 @@ function _render(node, model, renderers) {
         idom.elementOpen.apply(null, args);
         let children = node.childNodes;
         for (let i = 0; i < children.length; i++) {
-          _render(children[i], model, renderers);
+          renderNode(children[i], model, renderers, handlers);
         }
         idom.elementClose(node.tagName);
       }

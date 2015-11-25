@@ -28,11 +28,17 @@ gulp.task('lib', function() {
       .pipe(gulp.dest('build/lib'));
 });
 
-gulp.task('vendor', ['incremental-dom', 'polymer-expressions', 'system.js']);
+gulp.task('vendor', ['incremental-dom', 'polymer-expressions', 'requirejs',
+    'system.js']);
 
 gulp.task('system.js', function() {
   return gulp.src('node_modules/systemjs/dist/system.js')
     .pipe(gulp.dest('build/vendor/systemjs/'));
+});
+
+gulp.task('requirejs', function() {
+  return gulp.src('node_modules/requirejs/require.js')
+    .pipe(gulp.dest('build/vendor/requirejs/'));
 });
 
 gulp.task('incremental-dom', function() {
