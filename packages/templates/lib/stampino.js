@@ -49,18 +49,47 @@ const defaultHandlers = {
 };
 
 function getRenderers(template) {
-  let namedTemplates = template.content.querySelectorAll('[name]');
+  let blocks = template.content.querySelectorAll('[name]');
   let renderers = {};
-  for (let i = 0; i < namedTemplates.length; i++) {
-    let t = namedTemplates[i];
-    console.assert(t);
-    let name = t.getAttribute('name');
+  for (let i = 0; i < blocks.length; i++) {
+    let block = blocks[i];
+    let name = block.getAttribute('name');
     if (name !== 'super') {
       renderers[name] = (model, renderers, handlers) =>
-          renderNode(t.content, model, renderers, handlers);
+          renderNode(block.content, model, renderers, handlers);
     }
   }
   return renderers;
+}
+
+/**
+ * @returns {Function} a render function that can be passed to incremental-dom's
+ * patch() function.
+ */
+export function prepareTemplate(template, renderers, handlers, superTemplate) {
+  handlers = handlers || defaultHandlers;
+  renderers = renderers || {};
+
+  if (superTemplate) {
+    let superNode = template.content.querySelector('[name=super]');
+    if (superNode) {
+      let superRenderers = getRenderers(superNode);
+      renderers = {
+        'super': (model, renderers, handlers) => {
+          renderNode(superTemplate.content, model, superRenderers, handlers);
+        },
+      };
+    } else {
+      // Wrap the whole template in an implicit super call: immediately render
+      // the super template, with all renderers from this template
+      let templateRenderers = getRenderers(template);
+      Object.assign(templateRenderers, renderers);
+      renderers = templateRenderers;
+      template = superTemplate;
+    }
+  }
+
+  return (model) => renderNode(template.content, model, renderers, handlers);
 }
 
 /**
@@ -75,29 +104,8 @@ function getRenderers(template) {
  * expressions. We won't optimize until we have benchmarks in place however.
  */
 export function render(template, container, model, opts) {
-  opts = opts || {};
-  let _extends = opts.extends;
-  let handlers = opts.handlers || defaultHandlers;
-  let renderers = opts.renderers || {};
-
-  if (_extends) {
-    let superNode = template.content.querySelector('[name=super]');
-    if (superNode) {
-      let superRenderers = getRenderers(superNode);
-      renderers = {
-        'super': (model, renderers, handlers) => {
-          renderNode(_extends.content, model, superRenderers, handlers);
-        },
-      };
-    } else {
-      // Wrap the whole template in an implicit super call: immediately render
-      // the super template, with all renderers from this template
-      renderers = getRenderers(template);
-      template = _extends;
-    }
-  }
-
-  idom.patch(container, () => renderNode(template.content, model, renderers, handlers), model);
+  let _render = prepareTemplate(template, opts.renderers, opts.handlers, opts.extends);
+  idom.patch(container, _render, model);
 }
 
 export function renderNode(node, model, renderers, handlers) {
@@ -128,7 +136,7 @@ export function renderNode(node, model, renderers, handlers) {
           if (renderers) {
             let renderer = renderers[nameAttribute];
             if (renderer) {
-              renderer(model, renderers, handlers);
+              renderer(node, model, renderers, handlers);
               return;
             }
           }

@@ -1,16 +1,57 @@
 import * as stampino from 'stampino';
 
-function runDemo(id, model, opts) {
+let demoTemplate = document.querySelector(`#demo`);
+
+function formatOuterHtml(s) {
+  let lines = s.split('\n');
+  if (lines.length < 2) {
+    return s;
+  }
+  let lastLine = lines[lines.length - 1];
+  let indent = /^\s*/.exec(lastLine)[0].length;
+
+  for (let i = 1; i < lines.length; i++) {
+    lines[i] = lines[i].substring(indent);
+  }
+  return lines.join('\n');
+}
+
+function runDemo(id, model) {
   let template = document.querySelector(`#${id}`);
-  let container = document.createElement('div');
-  let content = template.innerHTML;
-  let source = document.createElement('code');
-  source.innerText = content;
-  container.appendChild(source);
   let output = document.createElement('div');
-  container.appendChild(output);
-  stampino.render(template, output, model, opts);
-  document.body.appendChild(container);
+  document.body.appendChild(output);
+
+  let sourceTemplate = template.content.querySelector('[name=demo]');
+  let source = document.createTextNode(
+      formatOuterHtml(sourceTemplate.outerHTML));
+
+  let superTemplate;
+  if (sourceTemplate.hasAttribute('extends')) {
+    let extendsRef = sourceTemplate.getAttribute('extends');
+    superTemplate = document.querySelector(`#${extendsRef}`);
+
+    let sourceFrag = document.createDocumentFragment();
+    sourceFrag.appendChild(document.createTextNode(
+        formatOuterHtml(superTemplate.outerHTML)));
+    sourceFrag.appendChild(document.createTextNode('\n\n'));
+    sourceFrag.appendChild(source);
+    source = sourceFrag;
+  }
+
+  let demoRenderer = stampino.prepareTemplate(sourceTemplate, null, null,
+      superTemplate);
+
+  stampino.render(template, output, model, {
+    extends: demoTemplate,
+    renderers: {
+      'source': function(template, model, renderers, handlers) {
+        stampino.renderNode(source, model, renderers, handlers);
+      },
+      'demo': function(template, model, renderers, handlers) {
+        demoRenderer(model);
+      },
+    },
+  });
 }
 
 runDemo('demo-1');
@@ -18,5 +59,5 @@ runDemo('demo-2', {foo: 'this is foo'});
 runDemo('demo-3', {x: 9});
 runDemo('demo-4');
 runDemo('demo-5', {items: ['a', 'b', 'c']});
-runDemo('demo-6', {}, {extends: document.querySelector('#demo-6-super')});
-runDemo('demo-7', {}, {extends: document.querySelector('#demo-6-super')});
+runDemo('demo-6', {});
+runDemo('demo-7', {});
