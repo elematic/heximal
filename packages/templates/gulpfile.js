@@ -18,6 +18,12 @@ gulp.task('demo', function() {
   );
 });
 
+gulp.task('dist', function() {
+  return gulp.src('lib/stampino.js')
+      .pipe(babel())
+      .pipe(gulp.dest(''));
+});
+
 gulp.task('lib', function() {
   return gulp.src('lib/*.js')
       .pipe(babel())
