@@ -9,7 +9,6 @@ const _UNARY_OPERATORS = ['+', '-', '!'];
 const _BINARY_OPERATORS = ['+', '-', '*', '/', '%', '^', '==',
     '!=', '>', '<', '>=', '<=', '||', '&&', '&', '===', '!==', '|'];
 
-export const PRECEDENCE = _PRECEDENCE;
 const _PRECEDENCE = {
   '!':  0,
   ':':  0,
@@ -52,18 +51,6 @@ const _PRECEDENCE = {
   '{': 11, //not sure this is correct
 };
 
-export const POSTFIX_PRECEDENCE = _POSTFIX_PRECEDENCE;
-export const STRING = _STRING;
-export const IDENTIFIER = _IDENTIFIER;
-export const DOT = _DOT;
-export const COMMA = _COMMA;
-export const COLON = _COLON;
-export const INTEGER = _INTEGER;
-export const DECIMAL = _DECIMAL;
-export const OPERATOR = _OPERATOR;
-export const GROUPER = _GROUPER;
-export const KEYWORD = _KEYWORD;
-
 const _POSTFIX_PRECEDENCE = 11;
 const _STRING = 1;
 const _IDENTIFIER = 2;
@@ -75,6 +62,19 @@ const _DECIMAL = 7;
 const _OPERATOR = 8;
 const _GROUPER = 9;
 const _KEYWORD = 10;
+
+export const PRECEDENCE = _PRECEDENCE;
+export const POSTFIX_PRECEDENCE = _POSTFIX_PRECEDENCE;
+export const STRING = _STRING;
+export const IDENTIFIER = _IDENTIFIER;
+export const DOT = _DOT;
+export const COMMA = _COMMA;
+export const COLON = _COLON;
+export const INTEGER = _INTEGER;
+export const DECIMAL = _DECIMAL;
+export const OPERATOR = _OPERATOR;
+export const GROUPER = _GROUPER;
+export const KEYWORD = _KEYWORD;
 
 export function token(kind, value, precedence) {
   return {
