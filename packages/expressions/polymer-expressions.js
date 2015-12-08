@@ -813,12 +813,15 @@ define(['exports'], function (exports) {
           arguments: args,
           evaluate: function evaluate(scope) {
             var receiver = this.receiver.evaluate(scope);
+            // TODO(justinfagnani): this might be wrong in cases where we're
+            // invoking a top-level function rather than a method. If method is
+            // defined on a nested scope, then we should probably set _this to null.
             var _this = this.method ? receiver : scope['this'] || scope;
             var f = this.method ? receiver[method] : receiver;
             var argValues = this.arguments.map(function (a) {
               return a.evaluate(scope);
             });
-            return f.apply(receiver, argValues);
+            return f.apply(_this, argValues);
           },
           getIds: function getIds(idents) {
             this.receiver.getIds(idents);

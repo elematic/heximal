@@ -139,6 +139,38 @@ suite('eval', function() {
     expectEval('y(5, 10)', 50, foo);
   });
 
+  test('should call functions with `this` as scope', function() {
+    var o = {
+      foo: 'bar',
+      checkThis() {
+        return this.foo === 'bar';
+      },
+    };
+    expectEval('checkThis()', true, o);
+  });
+
+  test('should call functions with `this` in nested scopes', function() {
+    var o = {
+      getThis() {
+        return this;
+      },
+    };
+    var scope = Object.create(o);
+    scope['this'] = o;
+    expectEval('getThis()', o, scope);
+  });
+
+  test('should call methods with `this` as receiver', function() {
+    var scope = {
+      foo: {
+        getThis() {
+          return this;
+        },
+      },
+    };
+    expectEval('foo.getThis()', scope.foo, scope);
+  });
+
   test('should invoke chained methods', function() {
     var foo = {
       a: function() {

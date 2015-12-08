@@ -51,6 +51,7 @@ export class EvalAstFactory {
       type: 'ID',
       value: v,
       evaluate: function(scope) {
+        // TODO(justinfagnani): this prevernts access to properties named 'this'
         if (this.value === 'this') return scope;
         return scope[this.value];
       },
@@ -108,18 +109,23 @@ export class EvalAstFactory {
   }
 
   invoke(receiver, method, args) {
+    if (method != null && typeof method !== 'string') {
+      throw new Error('method not a string');
+    }
     return {
       type: 'Invoke',
       receiver: receiver,
       method: method,
       arguments: args,
       evaluate: function(scope) {
-        let o = this.receiver.evaluate(scope);
-        let argValues = this.arguments.map(function(a) {
-          return a.evaluate(scope);
-        });
-        let f = this.method == null ? o : o[this.method];
-        return f.apply(o, argValues);
+        let receiver = this.receiver.evaluate(scope);
+        // TODO(justinfagnani): this might be wrong in cases where we're
+        // invoking a top-level function rather than a method. If method is
+        // defined on a nested scope, then we should probably set _this to null.
+        let _this = this.method ? receiver : scope['this'] || scope;
+        var f = this.method ? receiver[method] : receiver;
+        let argValues = this.arguments.map((a) => a.evaluate(scope));
+        return f.apply(_this, argValues);
       },
       getIds(idents) {
         this.receiver.getIds(idents);
