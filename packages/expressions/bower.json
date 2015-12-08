@@ -1,11 +1,13 @@
 {
   "name": "polymer-expressions",
+  "version": "2.0.0-pre.1",
   "homepage": "https://github.com/Polymer/polymer-expressions",
   "authors": [
     "The Polymer Authors"
   ],
   "dependencies": {
-    "TemplateBinding": "Polymer/TemplateBinding#master"
+    "polymer": "Polymer/polymer#^1.0.0",
+    "imd": "PolymerLabs/imd"
   },
   "license": "BSD",
   "private": true,
