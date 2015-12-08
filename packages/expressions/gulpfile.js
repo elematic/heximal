@@ -1,47 +1,44 @@
 'use strict';
 
-var gulp = require('gulp');
-var babel = require('gulp-babel');
-var uglify = require('gulp-uglify');
-var concat = require('gulp-concat');
+const gulp = require('gulp');
+const babel = require('gulp-babel');
+const concat = require('gulp-concat');
+const gulpif = require('gulp-if');
+const uglify = require('gulp-uglify');
+const es = require('event-stream');
 
-gulp.task('default', ['minify']);
+const _babel = (moduleType) => babel({
+  presets: ["es2015"],
+  plugins: [`transform-es2015-modules-${moduleType}`],
+});
 
-gulp.task('js', () => js()
-    .pipe(concat('polymer-expressions.js'))
-    .pipe(gulp.dest('.')));
+const _build = (dir) => gulp.src(`${dir}/**`)
+    .pipe(gulpif(/\.js$/, _babel('commonjs')))
+    .pipe(gulp.dest(`build/${dir}`));
 
-gulp.task('minify', () => js()
+const dist = (moduleType) =>
+    () => es.merge(jsDist(moduleType), minDist(moduleType))
+        .pipe(gulp.dest('.'));
+
+const jsDist = (moduleType) => compileJs(moduleType)
+    .pipe(concat('polymer-expressions.js'));
+
+const minDist = (moduleType) => compileJs(moduleType)
     .pipe(concat('polymer-expressions.min.js'))
     .pipe(uglify({
       compress: true,
       minify: {
         sort: true,
       },
-    }))
-    .pipe(gulp.dest('.')));
-
-let js = () => gulp.src(['src/parser.js', 'src/eval.js'])
-    .pipe(babel({
-      modules: 'amd',
-      moduleRoot: 'polymer-expressions',
-      sourceRoot: 'src',
-      moduleIds: true,
-      experimental: true,
-      loose: [
-        'es6.classes',
-        'es6.destructuring',
-        'es6.forOf',
-        'es6.modules',
-        'es6.properties.computed',
-        'es6.spread',
-        'es6.templateLiterals',
-      ],
-      optional: [
-        'minification.constantFolding',
-        // this is causing an error in babel :(
-        // 'minification.deadCodeElimination',
-        'minification.memberExpressionLiterals',
-        'minification.propertyLiterals',
-      ],
     }));
+
+const compileJs = (moduleType) => gulp.src(['src/parser.js', 'src/eval.js'])
+    .pipe(_babel(moduleType));
+
+gulp.task('default', ['bower']);
+
+gulp.task('build', () => es.merge(_build('src'), _build('test')));
+
+gulp.task('bower', dist('amd'));
+
+gulp.task('npm', dist('commonjs'));

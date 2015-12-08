@@ -1,11 +1,35 @@
-define('polymer-expressions/parser', ['exports'], function (exports) {
-  'use strict';
+'use strict';
 
-  exports.__esModule = true;
+define(['exports'], function (exports) {
+  Object.defineProperty(exports, "__esModule", {
+    value: true
+  });
   exports.token = token;
   exports.parse = parse;
 
-  function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+  function _classCallCheck(instance, Constructor) {
+    if (!(instance instanceof Constructor)) {
+      throw new TypeError("Cannot call a class as a function");
+    }
+  }
+
+  var _createClass = (function () {
+    function defineProperties(target, props) {
+      for (var i = 0; i < props.length; i++) {
+        var descriptor = props[i];
+        descriptor.enumerable = descriptor.enumerable || false;
+        descriptor.configurable = true;
+        if ("value" in descriptor) descriptor.writable = true;
+        Object.defineProperty(target, descriptor.key, descriptor);
+      }
+    }
+
+    return function (Constructor, protoProps, staticProps) {
+      if (protoProps) defineProperties(Constructor.prototype, protoProps);
+      if (staticProps) defineProperties(Constructor, staticProps);
+      return Constructor;
+    };
+  })();
 
   var _GROUPERS = '()[]{}';
   var _OPERATORS = '+-*/!&%<=>?^|';
@@ -14,9 +38,6 @@ define('polymer-expressions/parser', ['exports'], function (exports) {
   var _KEYWORDS = ['this'];
   var _UNARY_OPERATORS = ['+', '-', '!'];
   var _BINARY_OPERATORS = ['+', '-', '*', '/', '%', '^', '==', '!=', '>', '<', '>=', '<=', '||', '&&', '&', '===', '!==', '|'];
-
-  var PRECEDENCE = _PRECEDENCE;
-  exports.PRECEDENCE = PRECEDENCE;
   var _PRECEDENCE = {
     '!': 0,
     ':': 0,
@@ -30,58 +51,24 @@ define('polymer-expressions/parser', ['exports'], function (exports) {
     '|': 4,
     '^': 5,
     '&': 6,
-
-    // equality
     '!=': 7,
     '==': 7,
     '!==': 7,
     '===': 7,
-
-    // relational
     '>=': 8,
     '>': 8,
     '<=': 8,
     '<': 8,
-
-    // additive
     '+': 9,
     '-': 9,
-
-    // multiplicative
     '%': 10,
     '/': 10,
     '*': 10,
-
-    // postfix
     '(': 11,
     '[': 11,
     '.': 11,
-    '{': 11 };
-
-  //not sure this is correct
-  var POSTFIX_PRECEDENCE = 11;
-  exports.POSTFIX_PRECEDENCE = POSTFIX_PRECEDENCE;
-  var STRING = 1;
-  exports.STRING = STRING;
-  var IDENTIFIER = 2;
-  exports.IDENTIFIER = IDENTIFIER;
-  var DOT = 3;
-  exports.DOT = DOT;
-  var COMMA = 4;
-  exports.COMMA = COMMA;
-  var COLON = 5;
-  exports.COLON = COLON;
-  var INTEGER = 6;
-  exports.INTEGER = INTEGER;
-  var DECIMAL = 7;
-  exports.DECIMAL = DECIMAL;
-  var OPERATOR = 8;
-  exports.OPERATOR = OPERATOR;
-  var GROUPER = 9;
-  exports.GROUPER = GROUPER;
-  var KEYWORD = 10;
-
-  exports.KEYWORD = KEYWORD;
+    '{': 11
+  };
   var _POSTFIX_PRECEDENCE = 11;
   var _STRING = 1;
   var _IDENTIFIER = 2;
@@ -93,6 +80,18 @@ define('polymer-expressions/parser', ['exports'], function (exports) {
   var _OPERATOR = 8;
   var _GROUPER = 9;
   var _KEYWORD = 10;
+  var PRECEDENCE = exports.PRECEDENCE = _PRECEDENCE;
+  var POSTFIX_PRECEDENCE = exports.POSTFIX_PRECEDENCE = _POSTFIX_PRECEDENCE;
+  var STRING = exports.STRING = _STRING;
+  var IDENTIFIER = exports.IDENTIFIER = _IDENTIFIER;
+  var DOT = exports.DOT = _DOT;
+  var COMMA = exports.COMMA = _COMMA;
+  var COLON = exports.COLON = _COLON;
+  var INTEGER = exports.INTEGER = _INTEGER;
+  var DECIMAL = exports.DECIMAL = _DECIMAL;
+  var OPERATOR = exports.OPERATOR = _OPERATOR;
+  var GROUPER = exports.GROUPER = _GROUPER;
+  var KEYWORD = exports.KEYWORD = _KEYWORD;
 
   function token(kind, value, precedence) {
     return {
@@ -102,11 +101,7 @@ define('polymer-expressions/parser', ['exports'], function (exports) {
     };
   }
 
-  // This closure exists to hide utillity functions from the outter scope so that
-  // they're properly minimized by Uglify. This shouldn't be neccessary since
-  // they're not exported, but somehow the combination of Babel transpile to AMD
-  // modules and Uglify makes them appear in the final output.
-  var Tokenizer = (function () {
+  var Tokenizer = exports.Tokenizer = (function () {
 
     function _isWhitespace(next) {
       return (/^\s$/.test(next)
@@ -140,11 +135,11 @@ define('polymer-expressions/parser', ['exports'], function (exports) {
     }
 
     function _isOperator(next) {
-      return '+-*/!&%<=>?^|'.indexOf(next) !== -1;
+      return _OPERATORS.indexOf(next) !== -1;
     }
 
     function _isGrouper(next) {
-      return '()[]{}'.indexOf(next) !== -1;
+      return _GROUPERS.indexOf(next) !== -1;
     }
 
     function _escapeString(str) {
@@ -176,128 +171,143 @@ define('polymer-expressions/parser', ['exports'], function (exports) {
         this._next = null;
       }
 
-      Tokenizer.prototype._advance = function _advance(resetTokenStart) {
-        if (this._index < this._input.length) {
-          this._index++;
-          this._next = this._input[this._index];
-          if (resetTokenStart) {
-            this._tokenStart = this._index;
+      _createClass(Tokenizer, [{
+        key: '_advance',
+        value: function _advance(resetTokenStart) {
+          if (this._index < this._input.length) {
+            this._index++;
+            this._next = this._input[this._index];
+            if (resetTokenStart) {
+              this._tokenStart = this._index;
+            }
+          } else {
+            this._next = null;
           }
-        } else {
-          this._next = null;
         }
-      };
-
-      Tokenizer.prototype._getValue = function _getValue(lookahead) {
-        var v = this._input.substring(this._tokenStart, this._index + (lookahead || 0));
-        if (!lookahead) this._clearValue();
-        return v;
-      };
-
-      Tokenizer.prototype._clearValue = function _clearValue() {
-        this._tokenStart = this._index;
-      };
-
-      Tokenizer.prototype.nextToken = function nextToken() {
-        if (this._index === -1) this._advance();
-        while (_isWhitespace(this._next)) {
+      }, {
+        key: '_getValue',
+        value: function _getValue(lookahead) {
+          var v = this._input.substring(this._tokenStart, this._index + (lookahead || 0));
+          if (!lookahead) this._clearValue();
+          return v;
+        }
+      }, {
+        key: '_clearValue',
+        value: function _clearValue() {
+          this._tokenStart = this._index;
+        }
+      }, {
+        key: 'nextToken',
+        value: function nextToken() {
+          if (this._index === -1) this._advance();
+          while (_isWhitespace(this._next)) {
+            this._advance(true);
+          }
+          if (_isQuote(this._next)) return this._tokenizeString();
+          if (_isIdentOrKeywordStart(this._next)) return this._tokenizeIdentOrKeyword();
+          if (_isNumber(this._next)) return this._tokenizeNumber();
+          if (this._next === '.') return this._tokenizeDot();
+          if (this._next === ',') return this._tokenizeComma();
+          if (this._next === ':') return this._tokenizeColon();
+          if (_isOperator(this._next)) return this._tokenizeOperator();
+          if (_isGrouper(this._next)) return this._tokenizeGrouper();
+          // no match, should be end of input
+          this._advance();
+          console.assert(!this._next);
+          return null;
+        }
+      }, {
+        key: '_tokenizeString',
+        value: function _tokenizeString() {
+          var _us = "unterminated string";
+          var quoteChar = this._next;
           this._advance(true);
-        }
-        if (_isQuote(this._next)) return this._tokenizeString();
-        if (_isIdentOrKeywordStart(this._next)) return this._tokenizeIdentOrKeyword();
-        if (_isNumber(this._next)) return this._tokenizeNumber();
-        if (this._next === '.') return this._tokenizeDot();
-        if (this._next === ',') return this._tokenizeComma();
-        if (this._next === ':') return this._tokenizeColon();
-        if (_isOperator(this._next)) return this._tokenizeOperator();
-        if (_isGrouper(this._next)) return this._tokenizeGrouper();
-        // no match, should be end of input
-        this._advance();
-        console.assert(!this._next);
-        return null;
-      };
-
-      Tokenizer.prototype._tokenizeString = function _tokenizeString() {
-        var _us = 'unterminated string';
-        var quoteChar = this._next;
-        this._advance(true);
-        while (this._next !== quoteChar) {
-          if (!this._next) throw new Error(_us);
-          if (this._next === '\\') {
-            this._advance();
+          while (this._next !== quoteChar) {
             if (!this._next) throw new Error(_us);
-          }
-          this._advance();
-        }
-        var t = token(1, _escapeString(this._getValue()));
-        this._advance();
-        return t;
-      };
-
-      Tokenizer.prototype._tokenizeIdentOrKeyword = function _tokenizeIdentOrKeyword() {
-        while (_isIdentifier(this._next)) {
-          this._advance();
-        }
-        var value = this._getValue();
-        var kind = _isKeyword(value) ? 10 : 2;
-        return token(kind, value);
-      };
-
-      Tokenizer.prototype._tokenizeNumber = function _tokenizeNumber() {
-        while (_isNumber(this._next)) {
-          this._advance();
-        }
-        if (this._next === '.') return this._tokenizeDot();
-        return token(6, this._getValue());
-      };
-
-      Tokenizer.prototype._tokenizeDot = function _tokenizeDot() {
-        this._advance();
-        if (_isNumber(this._next)) return this._tokenizeFraction();
-        this._clearValue();
-        return token(3, '.', 11);
-      };
-
-      Tokenizer.prototype._tokenizeComma = function _tokenizeComma() {
-        this._advance(true);
-        return token(4, ',');
-      };
-
-      Tokenizer.prototype._tokenizeColon = function _tokenizeColon() {
-        this._advance(true);
-        return token(5, ':');
-      };
-
-      Tokenizer.prototype._tokenizeFraction = function _tokenizeFraction() {
-        while (_isNumber(this._next)) {
-          this._advance();
-        }
-        return token(7, this._getValue());
-      };
-
-      Tokenizer.prototype._tokenizeOperator = function _tokenizeOperator() {
-        this._advance();
-        var op = this._getValue(2);
-
-        if (_THREE_CHAR_OPS.indexOf(op) !== -1) {
-          this._advance();
-          this._advance();
-        } else {
-          op = this._getValue(1);
-          if (_TWO_CHAR_OPS.indexOf(op) !== -1) {
+            if (this._next === '\\') {
+              this._advance();
+              if (!this._next) throw new Error(_us);
+            }
             this._advance();
           }
+          var t = token(_STRING, _escapeString(this._getValue()));
+          this._advance();
+          return t;
         }
-        op = this._getValue();
-        return token(8, op, _PRECEDENCE[op]);
-      };
+      }, {
+        key: '_tokenizeIdentOrKeyword',
+        value: function _tokenizeIdentOrKeyword() {
+          while (_isIdentifier(this._next)) {
+            this._advance();
+          }
+          var value = this._getValue();
+          var kind = _isKeyword(value) ? _KEYWORD : _IDENTIFIER;
+          return token(kind, value);
+        }
+      }, {
+        key: '_tokenizeNumber',
+        value: function _tokenizeNumber() {
+          while (_isNumber(this._next)) {
+            this._advance();
+          }
+          if (this._next === '.') return this._tokenizeDot();
+          return token(_INTEGER, this._getValue());
+        }
+      }, {
+        key: '_tokenizeDot',
+        value: function _tokenizeDot() {
+          this._advance();
+          if (_isNumber(this._next)) return this._tokenizeFraction();
+          this._clearValue();
+          return token(_DOT, '.', _POSTFIX_PRECEDENCE);
+        }
+      }, {
+        key: '_tokenizeComma',
+        value: function _tokenizeComma() {
+          this._advance(true);
+          return token(_COMMA, ',');
+        }
+      }, {
+        key: '_tokenizeColon',
+        value: function _tokenizeColon() {
+          this._advance(true);
+          return token(_COLON, ':');
+        }
+      }, {
+        key: '_tokenizeFraction',
+        value: function _tokenizeFraction() {
+          while (_isNumber(this._next)) {
+            this._advance();
+          }
+          return token(_DECIMAL, this._getValue());
+        }
+      }, {
+        key: '_tokenizeOperator',
+        value: function _tokenizeOperator() {
+          this._advance();
+          var op = this._getValue(2);
 
-      Tokenizer.prototype._tokenizeGrouper = function _tokenizeGrouper() {
-        var value = this._next;
-        var t = token(9, value, _PRECEDENCE[value]);
-        this._advance(true);
-        return t;
-      };
+          if (_THREE_CHAR_OPS.indexOf(op) !== -1) {
+            this._advance();
+            this._advance();
+          } else {
+            op = this._getValue(1);
+            if (_TWO_CHAR_OPS.indexOf(op) !== -1) {
+              this._advance();
+            }
+          }
+          op = this._getValue();
+          return token(_OPERATOR, op, _PRECEDENCE[op]);
+        }
+      }, {
+        key: '_tokenizeGrouper',
+        value: function _tokenizeGrouper() {
+          var value = this._next;
+          var t = token(_GROUPER, value, _PRECEDENCE[value]);
+          this._advance(true);
+          return t;
+        }
+      }]);
 
       return Tokenizer;
     })();
@@ -305,13 +315,11 @@ define('polymer-expressions/parser', ['exports'], function (exports) {
     return Tokenizer;
   })();
 
-  exports.Tokenizer = Tokenizer;
-
   function parse(expr, astFactory) {
     return new Parser(expr, astFactory).parse();
   }
 
-  var Parser = (function () {
+  var Parser = exports.Parser = (function () {
     function Parser(input, astFactory) {
       _classCallCheck(this, Parser);
 
@@ -322,265 +330,310 @@ define('polymer-expressions/parser', ['exports'], function (exports) {
       this._value = null;
     }
 
-    Parser.prototype.parse = function parse() {
-      this._advance();
-      return this._parseExpression();
-    };
-
-    Parser.prototype._advance = function _advance(kind, value) {
-      if (!this._matches(kind, value)) {
-        throw new Error('Expected kind ' + kind + ' (' + value + '), was ' + this._token);
-      }
-      var t = this._tokenizer.nextToken();
-      this._token = t;
-      this._kind = t && t.kind;
-      this._value = t && t.value;
-    };
-
-    Parser.prototype._matches = function _matches(kind, value) {
-      return !(kind && this._kind != kind || value && this._value !== value);
-    };
-
-    Parser.prototype._parseExpression = function _parseExpression() {
-      if (!this._token) return this._ast.empty();
-      var expr = this._parseUnary();
-      return !expr ? null : this._parsePrecedence(expr, 0);
-    };
-
-    // _parsePrecedence and _parseBinary implement the precedence climbing
-    // algorithm as described in:
-    // http://en.wikipedia.org/wiki/Operator-precedence_parser#Precedence_climbing_method
-
-    Parser.prototype._parsePrecedence = function _parsePrecedence(left, precedence) {
-      console.assert(left);
-      while (this._token) {
-        if (this._matches(_GROUPER, '(')) {
-          var args = this._parseArguments();
-          left = this._ast.invoke(left, null, args);
-        } else if (this._matches(_GROUPER, '[')) {
-          var indexExpr = this._parseIndex();
-          left = this._ast.index(left, indexExpr);
-        } else if (this._matches(_DOT)) {
-          this._advance();
-          var right = this._parseUnary();
-          left = this._makeInvokeOrGetter(left, right);
-        } else if (this._matches(_KEYWORD)) {
-          break;
-        } else if (this._matches(_OPERATOR) && this._token.precedence >= precedence) {
-          left = this._value == '?' ? this._parseTernary(left) : this._parseBinary(left);
-        } else {
-          break;
-        }
-      }
-      return left;
-    };
-
-    Parser.prototype._makeInvokeOrGetter = function _makeInvokeOrGetter(left, right) {
-      if (right.type === 'ID') {
-        return this._ast.getter(left, right.value);
-      } else if (right.type === 'Invoke' && right.receiver.type === 'ID') {
-        var method = right.receiver;
-        return this._ast.invoke(left, method.value, right.arguments);
-      } else {
-        throw new Error('expected identifier: ' + right);
-      }
-    };
-
-    Parser.prototype._parseBinary = function _parseBinary(left) {
-      var op = this._token;
-      if (_BINARY_OPERATORS.indexOf(op.value) === -1) {
-        throw new Error('unknown operator: ' + op.value);
-      }
-      this._advance();
-      var right = this._parseUnary();
-      while ((this._kind == 8 || this._kind == 3 || this._kind == 9) && this._token.precedence > op.precedence) {
-        right = this._parsePrecedence(right, this._token.precedence);
-      }
-      return this._ast.binary(left, op.value, right);
-    };
-
-    Parser.prototype._parseUnary = function _parseUnary() {
-      if (this._matches(_OPERATOR)) {
-        var value = this._value;
+    _createClass(Parser, [{
+      key: 'parse',
+      value: function parse() {
         this._advance();
-        // handle unary + and - on numbers as part of the literal, not as a
-        // unary operator
-        if (value === '+' || value === '-') {
-          if (this._matches(_INTEGER)) {
-            return this._parseInteger(value);
-          } else if (this._matches(_DECIMAL)) {
-            return this._parseDecimal(value);
-          }
-        }
-        if (_UNARY_OPERATORS.indexOf(value) === -1) throw new Error('unexpected token: ' + value);
-        var expr = this._parsePrecedence(this._parsePrimary(), _POSTFIX_PRECEDENCE);
-        return this._ast.unary(value, expr);
+        return this._parseExpression();
       }
-      return this._parsePrimary();
-    };
+    }, {
+      key: '_advance',
+      value: function _advance(kind, value) {
+        if (!this._matches(kind, value)) {
+          throw new Error('Expected kind ' + kind + ' (' + value + '), was ' + this._token);
+        }
+        var t = this._tokenizer.nextToken();
+        this._token = t;
+        this._kind = t && t.kind;
+        this._value = t && t.value;
+      }
+    }, {
+      key: '_matches',
+      value: function _matches(kind, value) {
+        return !(kind && this._kind != kind || value && this._value !== value);
+      }
+    }, {
+      key: '_parseExpression',
+      value: function _parseExpression() {
+        if (!this._token) return this._ast.empty();
+        var expr = this._parseUnary();
+        return !expr ? null : this._parsePrecedence(expr, 0);
+      }
 
-    Parser.prototype._parseTernary = function _parseTernary(condition) {
-      this._advance(8, '?');
-      var trueExpr = this._parseExpression();
-      this._advance(5);
-      var falseExpr = this._parseExpression();
-      return this._ast.ternary(condition, trueExpr, falseExpr);
-    };
+      // _parsePrecedence and _parseBinary implement the precedence climbing
+      // algorithm as described in:
+      // http://en.wikipedia.org/wiki/Operator-precedence_parser#Precedence_climbing_method
 
-    Parser.prototype._parsePrimary = function _parsePrimary() {
-      switch (this._kind) {
-        case 10:
-          var keyword = this._value;
-          if (keyword === 'this') {
+    }, {
+      key: '_parsePrecedence',
+      value: function _parsePrecedence(left, precedence) {
+        console.assert(left);
+        while (this._token) {
+          if (this._matches(_GROUPER, '(')) {
+            var args = this._parseArguments();
+            left = this._ast.invoke(left, null, args);
+          } else if (this._matches(_GROUPER, '[')) {
+            var indexExpr = this._parseIndex();
+            left = this._ast.index(left, indexExpr);
+          } else if (this._matches(_DOT)) {
             this._advance();
-            // TODO(justin): return keyword node
-            return this._ast.id(keyword);
-          } else if (_KEYWORDS.indexOf(keyword) !== -1) {
-            throw new Error('unexpected keyword: ' + keyword);
-          }
-          throw new Error('unrecognized keyword: ' + keyword);
-        case 2:
-          return this._parseInvokeOrIdentifier();
-        case 1:
-          return this._parseString();
-        case 6:
-          return this._parseInteger();
-        case 7:
-          return this._parseDecimal();
-        case 9:
-          if (this._value == '(') {
-            return this._parseParen();
-          } else if (this._value == '{') {
-            return this._parseMap();
-          } else if (this._value == '[') {
-            return this._parseList();
-          }
-          return null;
-        case 5:
-          throw new Error('unexpected token ":"');
-        default:
-          return null;
-      }
-    };
-
-    Parser.prototype._parseList = function _parseList() {
-      var items = [];
-      do {
-        this._advance();
-        if (this._matches(_GROUPER, ']')) break;
-        items.push(this._parseExpression());
-      } while (this._matches(4));
-      this._advance(9, ']');
-      return this._ast.list(items);
-    };
-
-    Parser.prototype._parseMap = function _parseMap() {
-      var entries = {};
-      do {
-        this._advance();
-        if (this._matches(_GROUPER, '}')) break;
-        var key = this._value;
-        this._advance(1);
-        this._advance(5);
-        entries[key] = this._parseExpression();
-      } while (this._matches(4));
-      this._advance(9, '}');
-      return this._ast.map(entries);
-    };
-
-    Parser.prototype._parseInvokeOrIdentifier = function _parseInvokeOrIdentifier() {
-      var value = this._value;
-      if (value === 'true') {
-        this._advance();
-        return this._ast.literal(true);
-      }
-      if (value === 'false') {
-        this._advance();
-        return this._ast.literal(false);
-      }
-      if (value == 'null') {
-        this._advance();
-        return this._ast.literal(null);
-      }
-      var identifier = this._parseIdentifier();
-      var args = this._parseArguments();
-      return !args ? identifier : this._ast.invoke(identifier, null, args);
-    };
-
-    Parser.prototype._parseIdentifier = function _parseIdentifier() {
-      if (!this._matches(_IDENTIFIER)) {
-        throw new Error('expected identifier: ' + this._value);
-      }
-      var value = this._value;
-      this._advance();
-      return this._ast.id(value);
-    };
-
-    Parser.prototype._parseArguments = function _parseArguments() {
-      if (this._matches(_GROUPER, '(')) {
-        var args = [];
-        do {
-          this._advance();
-          if (this._matches(_GROUPER, ')')) {
+            var right = this._parseUnary();
+            left = this._makeInvokeOrGetter(left, right);
+          } else if (this._matches(_KEYWORD)) {
+            break;
+          } else if (this._matches(_OPERATOR) && this._token.precedence >= precedence) {
+            left = this._value == '?' ? this._parseTernary(left) : this._parseBinary(left);
+          } else {
             break;
           }
-          var expr = this._parseExpression();
-          args.push(expr);
-        } while (this._matches(_COMMA));
-        this._advance(_GROUPER, ')');
-        return args;
+        }
+        return left;
       }
-      return null;
-    };
-
-    Parser.prototype._parseIndex = function _parseIndex() {
-      if (this._matches(_GROUPER, '[')) {
+    }, {
+      key: '_makeInvokeOrGetter',
+      value: function _makeInvokeOrGetter(left, right) {
+        if (right.type === 'ID') {
+          return this._ast.getter(left, right.value);
+        } else if (right.type === 'Invoke' && right.receiver.type === 'ID') {
+          var method = right.receiver;
+          return this._ast.invoke(left, method.value, right.arguments);
+        } else {
+          throw new Error('expected identifier: ' + right);
+        }
+      }
+    }, {
+      key: '_parseBinary',
+      value: function _parseBinary(left) {
+        var op = this._token;
+        if (_BINARY_OPERATORS.indexOf(op.value) === -1) {
+          throw new Error('unknown operator: ' + op.value);
+        }
+        this._advance();
+        var right = this._parseUnary();
+        while ((this._kind == _OPERATOR || this._kind == _DOT || this._kind == _GROUPER) && this._token.precedence > op.precedence) {
+          right = this._parsePrecedence(right, this._token.precedence);
+        }
+        return this._ast.binary(left, op.value, right);
+      }
+    }, {
+      key: '_parseUnary',
+      value: function _parseUnary() {
+        if (this._matches(_OPERATOR)) {
+          var value = this._value;
+          this._advance();
+          // handle unary + and - on numbers as part of the literal, not as a
+          // unary operator
+          if (value === '+' || value === '-') {
+            if (this._matches(_INTEGER)) {
+              return this._parseInteger(value);
+            } else if (this._matches(_DECIMAL)) {
+              return this._parseDecimal(value);
+            }
+          }
+          if (_UNARY_OPERATORS.indexOf(value) === -1) throw new Error('unexpected token: ' + value);
+          var expr = this._parsePrecedence(this._parsePrimary(), _POSTFIX_PRECEDENCE);
+          return this._ast.unary(value, expr);
+        }
+        return this._parsePrimary();
+      }
+    }, {
+      key: '_parseTernary',
+      value: function _parseTernary(condition) {
+        this._advance(_OPERATOR, '?');
+        var trueExpr = this._parseExpression();
+        this._advance(_COLON);
+        var falseExpr = this._parseExpression();
+        return this._ast.ternary(condition, trueExpr, falseExpr);
+      }
+    }, {
+      key: '_parsePrimary',
+      value: function _parsePrimary() {
+        switch (this._kind) {
+          case _KEYWORD:
+            var keyword = this._value;
+            if (keyword === 'this') {
+              this._advance();
+              // TODO(justin): return keyword node
+              return this._ast.id(keyword);
+            } else if (_KEYWORDS.indexOf(keyword) !== -1) {
+              throw new Error('unexpected keyword: ' + keyword);
+            }
+            throw new Error('unrecognized keyword: ' + keyword);
+          case _IDENTIFIER:
+            return this._parseInvokeOrIdentifier();
+          case _STRING:
+            return this._parseString();
+          case _INTEGER:
+            return this._parseInteger();
+          case _DECIMAL:
+            return this._parseDecimal();
+          case _GROUPER:
+            if (this._value == '(') {
+              return this._parseParen();
+            } else if (this._value == '{') {
+              return this._parseMap();
+            } else if (this._value == '[') {
+              return this._parseList();
+            }
+            return null;
+          case _COLON:
+            throw new Error('unexpected token ":"');
+          default:
+            return null;
+        }
+      }
+    }, {
+      key: '_parseList',
+      value: function _parseList() {
+        var items = [];
+        do {
+          this._advance();
+          if (this._matches(_GROUPER, ']')) break;
+          items.push(this._parseExpression());
+        } while (this._matches(_COMMA));
+        this._advance(_GROUPER, ']');
+        return this._ast.list(items);
+      }
+    }, {
+      key: '_parseMap',
+      value: function _parseMap() {
+        var entries = {};
+        do {
+          this._advance();
+          if (this._matches(_GROUPER, '}')) break;
+          var key = this._value;
+          this._advance(_STRING);
+          this._advance(_COLON);
+          entries[key] = this._parseExpression();
+        } while (this._matches(_COMMA));
+        this._advance(_GROUPER, '}');
+        return this._ast.map(entries);
+      }
+    }, {
+      key: '_parseInvokeOrIdentifier',
+      value: function _parseInvokeOrIdentifier() {
+        var value = this._value;
+        if (value === 'true') {
+          this._advance();
+          return this._ast.literal(true);
+        }
+        if (value === 'false') {
+          this._advance();
+          return this._ast.literal(false);
+        }
+        if (value == 'null') {
+          this._advance();
+          return this._ast.literal(null);
+        }
+        var identifier = this._parseIdentifier();
+        var args = this._parseArguments();
+        return !args ? identifier : this._ast.invoke(identifier, null, args);
+      }
+    }, {
+      key: '_parseIdentifier',
+      value: function _parseIdentifier() {
+        if (!this._matches(_IDENTIFIER)) {
+          throw new Error('expected identifier: ' + this._value);
+        }
+        var value = this._value;
+        this._advance();
+        return this._ast.id(value);
+      }
+    }, {
+      key: '_parseArguments',
+      value: function _parseArguments() {
+        if (this._matches(_GROUPER, '(')) {
+          var args = [];
+          do {
+            this._advance();
+            if (this._matches(_GROUPER, ')')) {
+              break;
+            }
+            var expr = this._parseExpression();
+            args.push(expr);
+          } while (this._matches(_COMMA));
+          this._advance(_GROUPER, ')');
+          return args;
+        }
+        return null;
+      }
+    }, {
+      key: '_parseIndex',
+      value: function _parseIndex() {
+        if (this._matches(_GROUPER, '[')) {
+          this._advance();
+          var expr = this._parseExpression();
+          this._advance(_GROUPER, ']');
+          return expr;
+        }
+        return null;
+      }
+    }, {
+      key: '_parseParen',
+      value: function _parseParen() {
         this._advance();
         var expr = this._parseExpression();
-        this._advance(_GROUPER, ']');
-        return expr;
+        this._advance(_GROUPER, ')');
+        return this._ast.paren(expr);
       }
-      return null;
-    };
-
-    Parser.prototype._parseParen = function _parseParen() {
-      this._advance();
-      var expr = this._parseExpression();
-      this._advance(9, ')');
-      return this._ast.paren(expr);
-    };
-
-    Parser.prototype._parseString = function _parseString() {
-      var value = this._ast.literal(this._value);
-      this._advance();
-      return value;
-    };
-
-    Parser.prototype._parseInteger = function _parseInteger(prefix) {
-      prefix = prefix || '';
-      var value = this._ast.literal(parseInt('' + prefix + this._value, 10));
-      this._advance();
-      return value;
-    };
-
-    Parser.prototype._parseDecimal = function _parseDecimal(prefix) {
-      prefix = prefix || '';
-      var value = this._ast.literal(parseFloat('' + prefix + this._value));
-      this._advance();
-      return value;
-    };
+    }, {
+      key: '_parseString',
+      value: function _parseString() {
+        var value = this._ast.literal(this._value);
+        this._advance();
+        return value;
+      }
+    }, {
+      key: '_parseInteger',
+      value: function _parseInteger(prefix) {
+        prefix = prefix || '';
+        var value = this._ast.literal(parseInt('' + prefix + this._value, 10));
+        this._advance();
+        return value;
+      }
+    }, {
+      key: '_parseDecimal',
+      value: function _parseDecimal(prefix) {
+        prefix = prefix || '';
+        var value = this._ast.literal(parseFloat('' + prefix + this._value));
+        this._advance();
+        return value;
+      }
+    }]);
 
     return Parser;
   })();
-
-  exports.Parser = Parser;
 });
-define('polymer-expressions/eval', ['exports'], function (exports) {
-  'use strict';
+'use strict';
 
-  exports.__esModule = true;
+define(['exports'], function (exports) {
+  Object.defineProperty(exports, "__esModule", {
+    value: true
+  });
 
-  function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+  function _classCallCheck(instance, Constructor) {
+    if (!(instance instanceof Constructor)) {
+      throw new TypeError("Cannot call a class as a function");
+    }
+  }
+
+  var _createClass = (function () {
+    function defineProperties(target, props) {
+      for (var i = 0; i < props.length; i++) {
+        var descriptor = props[i];
+        descriptor.enumerable = descriptor.enumerable || false;
+        descriptor.configurable = true;
+        if ("value" in descriptor) descriptor.writable = true;
+        Object.defineProperty(target, descriptor.key, descriptor);
+      }
+    }
+
+    return function (Constructor, protoProps, staticProps) {
+      if (protoProps) defineProperties(Constructor.prototype, protoProps);
+      if (staticProps) defineProperties(Constructor, staticProps);
+      return Constructor;
+    };
+  })();
 
   var _BINARY_OPERATORS = {
     '+': function _(a, b) {
@@ -632,7 +685,6 @@ define('polymer-expressions/eval', ['exports'], function (exports) {
       return f(a);
     }
   };
-
   var _UNARY_OPERATORS = {
     '+': function _(a) {
       return a;
@@ -645,212 +697,228 @@ define('polymer-expressions/eval', ['exports'], function (exports) {
     }
   };
 
-  var EvalAstFactory = (function () {
+  var EvalAstFactory = exports.EvalAstFactory = (function () {
     function EvalAstFactory() {
       _classCallCheck(this, EvalAstFactory);
     }
 
-    EvalAstFactory.prototype.empty = function empty() {
-      // TODO(justinfagnani): return null instead?
-      return {
-        evaluate: function evaluate(scope) {
-          return scope;
-        },
-        getIds: function getIds(idents) {
-          return idents;
-        }
-      };
-    };
-
-    // TODO(justinfagnani): just use a JS literal?
-
-    EvalAstFactory.prototype.literal = function literal(v) {
-      return {
-        type: 'Literal',
-        value: v,
-        evaluate: function evaluate(scope) {
-          return this.value;
-        },
-        getIds: function getIds(idents) {
-          return idents;
-        }
-      };
-    };
-
-    EvalAstFactory.prototype.id = function id(v) {
-      return {
-        type: 'ID',
-        value: v,
-        evaluate: function evaluate(scope) {
-          if (this.value === 'this') return scope;
-          if (this.value === 'uppercase') {
-            console.log('uppercase', scope);
+    _createClass(EvalAstFactory, [{
+      key: 'empty',
+      value: function empty() {
+        // TODO(justinfagnani): return null instead?
+        return {
+          evaluate: function evaluate(scope) {
+            return scope;
+          },
+          getIds: function getIds(idents) {
+            return idents;
           }
-          return scope[this.value];
-        },
-        getIds: function getIds(idents) {
-          idents.push(this.value);
-          return idents;
-        }
-      };
-    };
+        };
+      }
 
-    EvalAstFactory.prototype.unary = function unary(op, expr) {
-      var f = _UNARY_OPERATORS[op];
-      return {
-        type: 'Unary',
-        operator: op,
-        child: expr,
-        evaluate: function evaluate(scope) {
-          return f(this.child.evaluate(scope));
-        },
-        getIds: function getIds(idents) {
-          return this.child.getIds(idents);
-        }
-      };
-    };
+      // TODO(justinfagnani): just use a JS literal?
 
-    EvalAstFactory.prototype.binary = function binary(l, op, r) {
-      var f = _BINARY_OPERATORS[op];
-      return {
-        type: 'Binary',
-        operator: op,
-        left: l,
-        right: r,
-        evaluate: function evaluate(scope) {
-          return f(this.left.evaluate(scope), this.right.evaluate(scope));
-        },
-        getIds: function getIds(idents) {
-          this.left.getIds(idents);
-          this.right.getIds(idents);
-          return idents;
-        }
-      };
-    };
-
-    EvalAstFactory.prototype.getter = function getter(g, n) {
-      return {
-        type: 'Getter',
-        receiver: g,
-        name: n,
-        evaluate: function evaluate(scope) {
-          return this.receiver.evaluate(scope)[this.name];
-        },
-        getIds: function getIds(idents) {
-          this.receiver.getIds(idents);
-          return idents;
-        }
-      };
-    };
-
-    EvalAstFactory.prototype.invoke = function invoke(receiver, method, args) {
-      return {
-        type: 'Invoke',
-        receiver: receiver,
-        method: method,
-        arguments: args,
-        evaluate: function evaluate(scope) {
-          var o = this.receiver.evaluate(scope);
-          var argValues = this.arguments.map(function (a) {
-            return a.evaluate(scope);
-          });
-          var f = this.method == null ? o : o[this.method];
-          return f.apply(o, argValues);
-        },
-        getIds: function getIds(idents) {
-          this.receiver.getIds(idents);
-          this.arguments.forEach(function (a) {
-            return a.getIds(idents);
-          });
-          return idents;
-        }
-      };
-    };
-
-    EvalAstFactory.prototype.parenthesized = function parenthesized(e) {
-      return e;
-    };
-
-    EvalAstFactory.prototype.index = function index(e, a) {
-      return {
-        type: 'Index',
-        receiver: e,
-        argument: a,
-        evaluate: function evaluate(scope) {
-          return this.receiver.evaluate(scope)[this.argument.evaluate(scope)];
-        },
-        getIds: function getIds(idents) {
-          this.receiver.getIds(idents);
-          return idents;
-        }
-      };
-    };
-
-    EvalAstFactory.prototype.ternary = function ternary(c, t, f) {
-      return {
-        type: 'Ternary',
-        condition: c,
-        trueExpr: t,
-        falseExpr: f,
-        evaluate: function evaluate(scope) {
-          var c = this.condition.evaluate(scope);
-          if (c) {
-            return this.trueExpr.evaluate(scope);
-          } else {
-            return this.falseExpr.evaluate(scope);
+    }, {
+      key: 'literal',
+      value: function literal(v) {
+        return {
+          type: 'Literal',
+          value: v,
+          evaluate: function evaluate(scope) {
+            return this.value;
+          },
+          getIds: function getIds(idents) {
+            return idents;
           }
-        },
-        getIds: function getIds(idents) {
-          this.condition.getIds(idents);
-          this.trueExpr.getIds(idents);
-          this.falseExpr.getIds(idents);
-          return idents;
-        }
-      };
-    };
-
-    EvalAstFactory.prototype.map = function map(entries) {
-      return {
-        type: 'Map',
-        entries: entries,
-        evaluate: function evaluate(scope) {
-          var map = {};
-          for (var key in entries) {
-            map[key] = this.entries[key].evaluate(scope);
+        };
+      }
+    }, {
+      key: 'id',
+      value: function id(v) {
+        return {
+          type: 'ID',
+          value: v,
+          evaluate: function evaluate(scope) {
+            // TODO(justinfagnani): this prevernts access to properties named 'this'
+            if (this.value === 'this') return scope;
+            return scope[this.value];
+          },
+          getIds: function getIds(idents) {
+            idents.push(this.value);
+            return idents;
           }
-          return map;
-        },
-        getIds: function getIds(idents) {
-          for (var key in entries) {
-            this.entries[key].getIds(idents);
+        };
+      }
+    }, {
+      key: 'unary',
+      value: function unary(op, expr) {
+        var f = _UNARY_OPERATORS[op];
+        return {
+          type: 'Unary',
+          operator: op,
+          child: expr,
+          evaluate: function evaluate(scope) {
+            return f(this.child.evaluate(scope));
+          },
+          getIds: function getIds(idents) {
+            return this.child.getIds(idents);
           }
-          return idents;
+        };
+      }
+    }, {
+      key: 'binary',
+      value: function binary(l, op, r) {
+        var f = _BINARY_OPERATORS[op];
+        return {
+          type: 'Binary',
+          operator: op,
+          left: l,
+          right: r,
+          evaluate: function evaluate(scope) {
+            return f(this.left.evaluate(scope), this.right.evaluate(scope));
+          },
+          getIds: function getIds(idents) {
+            this.left.getIds(idents);
+            this.right.getIds(idents);
+            return idents;
+          }
+        };
+      }
+    }, {
+      key: 'getter',
+      value: function getter(g, n) {
+        return {
+          type: 'Getter',
+          receiver: g,
+          name: n,
+          evaluate: function evaluate(scope) {
+            return this.receiver.evaluate(scope)[this.name];
+          },
+          getIds: function getIds(idents) {
+            this.receiver.getIds(idents);
+            return idents;
+          }
+        };
+      }
+    }, {
+      key: 'invoke',
+      value: function invoke(receiver, method, args) {
+        if (method != null && typeof method !== 'string') {
+          throw new Error('method not a string');
         }
-      };
-    };
+        return {
+          type: 'Invoke',
+          receiver: receiver,
+          method: method,
+          arguments: args,
+          evaluate: function evaluate(scope) {
+            var receiver = this.receiver.evaluate(scope);
+            var _this = this.method ? receiver : scope['this'] || scope;
+            var f = this.method ? receiver[method] : receiver;
+            var argValues = this.arguments.map(function (a) {
+              return a.evaluate(scope);
+            });
+            return f.apply(receiver, argValues);
+          },
+          getIds: function getIds(idents) {
+            this.receiver.getIds(idents);
+            this.arguments.forEach(function (a) {
+              return a.getIds(idents);
+            });
+            return idents;
+          }
+        };
+      }
+    }, {
+      key: 'parenthesized',
+      value: function parenthesized(e) {
+        return e;
+      }
+    }, {
+      key: 'index',
+      value: function index(e, a) {
+        return {
+          type: 'Index',
+          receiver: e,
+          argument: a,
+          evaluate: function evaluate(scope) {
+            return this.receiver.evaluate(scope)[this.argument.evaluate(scope)];
+          },
+          getIds: function getIds(idents) {
+            this.receiver.getIds(idents);
+            return idents;
+          }
+        };
+      }
+    }, {
+      key: 'ternary',
+      value: function ternary(c, t, f) {
+        return {
+          type: 'Ternary',
+          condition: c,
+          trueExpr: t,
+          falseExpr: f,
+          evaluate: function evaluate(scope) {
+            var c = this.condition.evaluate(scope);
+            if (c) {
+              return this.trueExpr.evaluate(scope);
+            } else {
+              return this.falseExpr.evaluate(scope);
+            }
+          },
+          getIds: function getIds(idents) {
+            this.condition.getIds(idents);
+            this.trueExpr.getIds(idents);
+            this.falseExpr.getIds(idents);
+            return idents;
+          }
+        };
+      }
+    }, {
+      key: 'map',
+      value: function map(entries) {
+        return {
+          type: 'Map',
+          entries: entries,
+          evaluate: function evaluate(scope) {
+            var map = {};
+            for (var key in entries) {
+              map[key] = this.entries[key].evaluate(scope);
+            }
+            return map;
+          },
+          getIds: function getIds(idents) {
+            for (var key in entries) {
+              this.entries[key].getIds(idents);
+            }
+            return idents;
+          }
+        };
+      }
 
-    // TODO(justinfagnani): if the list is deeply literal
+      // TODO(justinfagnani): if the list is deeply literal
 
-    EvalAstFactory.prototype.list = function list(l) {
-      return {
-        type: 'List',
-        items: l,
-        evaluate: function evaluate(scope) {
-          return this.items.map(function (a) {
-            return a.evaluate(scope);
-          });
-        },
-        getIds: function getIds(idents) {
-          this.items.forEach(function (i) {
-            i.getIds(idents);
-          });
-          return idents;
-        }
-      };
-    };
+    }, {
+      key: 'list',
+      value: function list(l) {
+        return {
+          type: 'List',
+          items: l,
+          evaluate: function evaluate(scope) {
+            return this.items.map(function (a) {
+              return a.evaluate(scope);
+            });
+          },
+          getIds: function getIds(idents) {
+            this.items.forEach(function (i) {
+              i.getIds(idents);
+            });
+            return idents;
+          }
+        };
+      }
+    }]);
 
     return EvalAstFactory;
   })();
-
-  exports.EvalAstFactory = EvalAstFactory;
 });
