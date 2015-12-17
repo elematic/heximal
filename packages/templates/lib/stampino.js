@@ -4,16 +4,18 @@ import { EvalAstFactory } from 'polymer-expressions/eval';
 
 let astFactory = new EvalAstFactory();
 
+const toCamelCase = (s) => s.replace(/-(\w)/, (m) => m.p1.toUppercase());
+
 idom.attributes.__default = function(element, name, value) {
   if (name.endsWith('$')) {
     name = name.substring(0, name.length - 1);
     element.setAttribute(name, value);
   } else {
-    element[name] = value;
+    element[toCamelCase(name)] = value;
   }
 };
 
-function getValue(value, model) {
+export function getValue(value, model) {
   if (value.startsWith('{{') && value.endsWith('}}')) {
     let expression = value.substring(2, value.length - 2);
     let ast = new Parser(expression, astFactory).parse();
@@ -26,14 +28,14 @@ function getValue(value, model) {
 }
 
 const defaultHandlers = {
-  'if': function(template, model, renderers, handlers) {
+  'if': function(template, model, renderers, handlers, attributeHandler) {
     let ifAttribute = template.getAttribute('if');
     if (ifAttribute && getValue(ifAttribute, model)) {
-      renderNode(template.content, model, renderers, handlers);
+      renderNode(template.content, model, renderers, handlers, attributeHandler);
     }
   },
 
-  'repeat': function(template, model, renderers, handlers) {
+  'repeat': function(template, model, renderers, handlers, attributeHandler) {
     let repeatAttribute = template.getAttribute('repeat');
 
     if (repeatAttribute) {
@@ -42,7 +44,7 @@ const defaultHandlers = {
         // TODO: provide keys to incremental-dom
         let itemModel = Object.create(model);
         itemModel.item = item;
-        renderNode(template.content, itemModel, renderers, handlers);
+        renderNode(template.content, itemModel, renderers, handlers, attributeHandler);
       }
     }
   },
@@ -55,8 +57,8 @@ function getRenderers(template) {
     let block = blocks[i];
     let name = block.getAttribute('name');
     if (name !== 'super') {
-      renderers[name] = (model, renderers, handlers) =>
-          renderNode(block.content, model, renderers, handlers);
+      renderers[name] = (model, renderers, handlers, attributeHandler) =>
+          renderNode(block.content, model, renderers, handlers, attributeHandler);
     }
   }
   return renderers;
@@ -66,7 +68,8 @@ function getRenderers(template) {
  * @returns {Function} a render function that can be passed to incremental-dom's
  * patch() function.
  */
-export function prepareTemplate(template, renderers, handlers, superTemplate) {
+export function prepareTemplate(template, renderers, handlers, attributeHandler,
+    superTemplate) {
   handlers = handlers || defaultHandlers;
   renderers = renderers || {};
 
@@ -75,8 +78,9 @@ export function prepareTemplate(template, renderers, handlers, superTemplate) {
     if (superNode) {
       let superRenderers = getRenderers(superNode);
       renderers = {
-        'super': (model, renderers, handlers) => {
-          renderNode(superTemplate.content, model, superRenderers, handlers);
+        'super': (model, renderers, handlers, attributeHandler) => {
+          renderNode(superTemplate.content, model, superRenderers, handlers,
+              attributeHandler);
         },
       };
     } else {
@@ -89,7 +93,8 @@ export function prepareTemplate(template, renderers, handlers, superTemplate) {
     }
   }
 
-  return (model) => renderNode(template.content, model, renderers, handlers);
+  return (model) => renderNode(template.content, model, renderers, handlers,
+      attributeHandler);
 }
 
 /**
@@ -104,17 +109,19 @@ export function prepareTemplate(template, renderers, handlers, superTemplate) {
  * expressions. We won't optimize until we have benchmarks in place however.
  */
 export function render(template, container, model, opts) {
-  let _render = prepareTemplate(template, opts.renderers, opts.handlers, opts.extends);
+  console.log('stampino.render', opts.attributeHandler);
+  let _render = prepareTemplate(template, opts.renderers, opts.handlers,
+      opts.attributeHandler, opts.extends);
   idom.patch(container, _render, model);
 }
 
-export function renderNode(node, model, renderers, handlers) {
+export function renderNode(node, model, renderers, handlers, attributeHandler) {
   switch (node.nodeType) {
     // We encounter DocumentFragments when we recurse into a nested template
     case Node.DOCUMENT_FRAGMENT_NODE:
       let children = node.childNodes;
       for (let i = 0; i < children.length; i++) {
-        renderNode(children[i], model, renderers, handlers);
+        renderNode(children[i], model, renderers, handlers, attributeHandler);
       }
       break;
     case Node.ELEMENT_NODE:
@@ -124,7 +131,7 @@ export function renderNode(node, model, renderers, handlers) {
         if (typeAttribute) {
           let handler = handlers[typeAttribute];
           if (handler) {
-            handler(node, model, renderers, handlers);
+            handler(node, model, renderers, handlers, attributeHandler);
           } else {
             console.warn('No handler for template type', typeAttribute);
             return;
@@ -136,12 +143,12 @@ export function renderNode(node, model, renderers, handlers) {
           if (renderers) {
             let renderer = renderers[nameAttribute];
             if (renderer) {
-              renderer(node, model, renderers, handlers);
+              renderer(node, model, renderers, handlers, attributeHandler);
               return;
             }
           }
           // if there's no named renderer, render the default content
-          renderNode(node.content, model, renderers, handlers);
+          renderNode(node.content, model, renderers, handlers, attributeHandler);
           return;
         }
         // by default, templates are not rendered
@@ -150,15 +157,27 @@ export function renderNode(node, model, renderers, handlers) {
         // up the arguments array to pass to Function.apply :(
         let args = [node.tagName, null, null];
         let attributes = node.attributes;
+        let handledAttributes = [];
         for (let i = 0; i < attributes.length; i++) {
-          // TODO: if attribute is a literal, add it to statics instead
-          args.push(attributes[i].name);
-          args.push(getValue(attributes[i].value, model));
+          let attr = attributes[i];
+          if (attributeHandler && attributeHandler.matches(attr.name)) {
+            handledAttributes.push(attr);
+          } else {
+            // TODO: if attribute is a literal, add it to statics instead
+            args.push(attr.name);
+            args.push(getValue(attr.value, model));
+          }
         }
-        idom.elementOpen.apply(null, args);
+        let el = idom.elementOpen.apply(null, args);
+
+        for (let i = 0; i < handledAttributes.length; i++) {
+          let attr = handledAttributes[i];
+          attributeHandler.handle(el, attr.name, attr.value, model);
+        }
+
         let children = node.childNodes;
         for (let i = 0; i < children.length; i++) {
-          renderNode(children[i], model, renderers, handlers);
+          renderNode(children[i], model, renderers, handlers, attributeHandler);
         }
         idom.elementClose(node.tagName);
       }

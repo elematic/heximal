@@ -16,6 +16,7 @@
   Object.defineProperty(exports, "__esModule", {
     value: true
   });
+  exports.getValue = getValue;
   exports.prepareTemplate = prepareTemplate;
   exports.render = render;
   exports.renderNode = renderNode;
@@ -65,14 +66,14 @@
   }
 
   var defaultHandlers = {
-    'if': function _if(template, model, renderers, handlers) {
+    'if': function _if(template, model, renderers, handlers, attributeHandler) {
       var ifAttribute = template.getAttribute('if');
 
       if (ifAttribute && getValue(ifAttribute, model)) {
-        renderNode(template.content, model, renderers, handlers);
+        renderNode(template.content, model, renderers, handlers, attributeHandler);
       }
     },
-    'repeat': function repeat(template, model, renderers, handlers) {
+    'repeat': function repeat(template, model, renderers, handlers, attributeHandler) {
       var repeatAttribute = template.getAttribute('repeat');
 
       if (repeatAttribute) {
@@ -86,7 +87,7 @@
             var item = _step.value;
             var itemModel = Object.create(model);
             itemModel.item = item;
-            renderNode(template.content, itemModel, renderers, handlers);
+            renderNode(template.content, itemModel, renderers, handlers, attributeHandler);
           }
         } catch (err) {
           _didIteratorError = true;
@@ -115,8 +116,8 @@
       var name = block.getAttribute('name');
 
       if (name !== 'super') {
-        renderers[name] = function (model, renderers, handlers) {
-          return renderNode(block.content, model, renderers, handlers);
+        renderers[name] = function (model, renderers, handlers, attributeHandler) {
+          return renderNode(block.content, model, renderers, handlers, attributeHandler);
         };
       }
     };
@@ -128,7 +129,7 @@
     return renderers;
   }
 
-  function prepareTemplate(template, renderers, handlers, superTemplate) {
+  function prepareTemplate(template, renderers, handlers, attributeHandler, superTemplate) {
     handlers = handlers || defaultHandlers;
     renderers = renderers || {};
 
@@ -139,8 +140,8 @@
         (function () {
           var superRenderers = getRenderers(superNode);
           renderers = {
-            'super': function _super(model, renderers, handlers) {
-              renderNode(superTemplate.content, model, superRenderers, handlers);
+            'super': function _super(model, renderers, handlers, attributeHandler) {
+              renderNode(superTemplate.content, model, superRenderers, handlers, attributeHandler);
             }
           };
         })();
@@ -153,23 +154,25 @@
     }
 
     return function (model) {
-      return renderNode(template.content, model, renderers, handlers);
+      return renderNode(template.content, model, renderers, handlers, attributeHandler);
     };
   }
 
   function render(template, container, model, opts) {
-    var _render = prepareTemplate(template, opts.renderers, opts.handlers, opts.extends);
+    console.log('stampino.render', opts.attributeHandler);
+
+    var _render = prepareTemplate(template, opts.renderers, opts.handlers, opts.attributeHandler, opts.extends);
 
     idom.patch(container, _render, model);
   }
 
-  function renderNode(node, model, renderers, handlers) {
+  function renderNode(node, model, renderers, handlers, attributeHandler) {
     switch (node.nodeType) {
       case Node.DOCUMENT_FRAGMENT_NODE:
         var children = node.childNodes;
 
         for (var i = 0; i < children.length; i++) {
-          renderNode(children[i], model, renderers, handlers);
+          renderNode(children[i], model, renderers, handlers, attributeHandler);
         }
 
         break;
@@ -182,7 +185,7 @@
             var handler = handlers[typeAttribute];
 
             if (handler) {
-              handler(node, model, renderers, handlers);
+              handler(node, model, renderers, handlers, attributeHandler);
             } else {
               console.warn('No handler for template type', typeAttribute);
               return;
@@ -196,28 +199,41 @@
               var renderer = renderers[nameAttribute];
 
               if (renderer) {
-                renderer(node, model, renderers, handlers);
+                renderer(node, model, renderers, handlers, attributeHandler);
                 return;
               }
             }
 
-            renderNode(node.content, model, renderers, handlers);
+            renderNode(node.content, model, renderers, handlers, attributeHandler);
             return;
           }
         } else {
           var args = [node.tagName, null, null];
           var attributes = node.attributes;
+          var handledAttributes = [];
 
           for (var i = 0; i < attributes.length; i++) {
-            args.push(attributes[i].name);
-            args.push(getValue(attributes[i].value, model));
+            var attr = attributes[i];
+
+            if (attributeHandler && attributeHandler.matches(attr.name)) {
+              handledAttributes.push(attr);
+            } else {
+              args.push(attr.name);
+              args.push(getValue(attr.value, model));
+            }
           }
 
-          idom.elementOpen.apply(null, args);
+          var el = idom.elementOpen.apply(null, args);
+
+          for (var i = 0; i < handledAttributes.length; i++) {
+            var attr = handledAttributes[i];
+            attributeHandler.handle(el, attr.name, attr.value, model);
+          }
+
           var _children = node.childNodes;
 
           for (var i = 0; i < _children.length; i++) {
-            renderNode(_children[i], model, renderers, handlers);
+            renderNode(_children[i], model, renderers, handlers, attributeHandler);
           }
 
           idom.elementClose(node.tagName);

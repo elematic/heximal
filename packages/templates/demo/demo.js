@@ -39,15 +39,15 @@ function runDemo(id, model) {
   }
 
   let demoRenderer = stampino.prepareTemplate(sourceTemplate, null, null,
-      superTemplate);
+      null, superTemplate);
 
   stampino.render(template, output, model, {
     extends: demoTemplate,
     renderers: {
-      'source': function(template, model, renderers, handlers) {
-        stampino.renderNode(source, model, renderers, handlers);
+      'source': function(template, model, renderers, handlers, attributeHandler) {
+        stampino.renderNode(source, model, renderers, handlers, attributeHandler);
       },
-      'demo': function(template, model, renderers, handlers) {
+      'demo': function(template, model, renderers, handlers, attributeHandler) {
         demoRenderer(model);
       },
     },

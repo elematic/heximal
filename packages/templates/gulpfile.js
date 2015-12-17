@@ -18,7 +18,7 @@ gulp.task('demo', function() {
   );
 });
 
-gulp.task('dist', function() {
+gulp.task('dist', ['lib'], function() {
   return gulp.src('lib/stampino.js')
       .pipe(babel())
       .pipe(gulp.dest(''));
