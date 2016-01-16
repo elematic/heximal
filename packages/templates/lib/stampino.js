@@ -40,10 +40,12 @@ const defaultHandlers = {
 
     if (repeatAttribute) {
       let items = getValue(repeatAttribute, model);
-      for (let item of items) {
+      for (let index = 0; index < items.length; index++) {
+        let item = items[index];
         // TODO: provide keys to incremental-dom
         let itemModel = Object.create(model);
         itemModel.item = item;
+        itemModel.index = index;
         renderNode(template.content, itemModel, renderers, handlers, attributeHandler);
       }
     }

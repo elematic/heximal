@@ -42,12 +42,18 @@
 
   var astFactory = new _eval.EvalAstFactory();
 
+  var toCamelCase = function toCamelCase(s) {
+    return s.replace(/-(\w)/, function (m) {
+      return m.p1.toUppercase();
+    });
+  };
+
   idom.attributes.__default = function (element, name, value) {
     if (name.endsWith('$')) {
       name = name.substring(0, name.length - 1);
       element.setAttribute(name, value);
     } else {
-      element[name] = value;
+      element[toCamelCase(name)] = value;
     }
   };
 
@@ -78,30 +84,13 @@
 
       if (repeatAttribute) {
         var items = getValue(repeatAttribute, model);
-        var _iteratorNormalCompletion = true;
-        var _didIteratorError = false;
-        var _iteratorError = undefined;
 
-        try {
-          for (var _iterator = items[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
-            var item = _step.value;
-            var itemModel = Object.create(model);
-            itemModel.item = item;
-            renderNode(template.content, itemModel, renderers, handlers, attributeHandler);
-          }
-        } catch (err) {
-          _didIteratorError = true;
-          _iteratorError = err;
-        } finally {
-          try {
-            if (!_iteratorNormalCompletion && _iterator.return) {
-              _iterator.return();
-            }
-          } finally {
-            if (_didIteratorError) {
-              throw _iteratorError;
-            }
-          }
+        for (var index = 0; index < items.length; index++) {
+          var item = items[index];
+          var itemModel = Object.create(model);
+          itemModel.item = item;
+          itemModel.index = index;
+          renderNode(template.content, itemModel, renderers, handlers, attributeHandler);
         }
       }
     }
