@@ -8,7 +8,7 @@ let glob = require('glob');
 
 gulp.task('default', ['vendor', 'lib', 'demo']);
 
-gulp.task('demo', function() {
+gulp.task('demo', ['vendor', 'lib'], function() {
   return es.merge(
     gulp.src('demo/*.js')
         .pipe(babel())
