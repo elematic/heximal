@@ -46,6 +46,7 @@ const defaultHandlers = {
         let itemModel = Object.create(model);
         itemModel.item = item;
         itemModel.index = index;
+        itemModel['this'] = model['this'] || model;
         renderNode(template.content, itemModel, renderers, handlers, attributeHandler);
       }
     }
@@ -111,7 +112,6 @@ export function prepareTemplate(template, renderers, handlers, attributeHandler,
  * expressions. We won't optimize until we have benchmarks in place however.
  */
 export function render(template, container, model, opts) {
-  console.log('stampino.render', opts.attributeHandler);
   let _render = prepareTemplate(template, opts.renderers, opts.handlers,
       opts.attributeHandler, opts.extends);
   idom.patch(container, _render, model);

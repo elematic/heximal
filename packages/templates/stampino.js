@@ -90,6 +90,7 @@
           var itemModel = Object.create(model);
           itemModel.item = item;
           itemModel.index = index;
+          itemModel['this'] = model['this'] || model;
           renderNode(template.content, itemModel, renderers, handlers, attributeHandler);
         }
       }
@@ -148,8 +149,6 @@
   }
 
   function render(template, container, model, opts) {
-    console.log('stampino.render', opts.attributeHandler);
-
     var _render = prepareTemplate(template, opts.renderers, opts.handlers, opts.attributeHandler, opts.extends);
 
     idom.patch(container, _render, model);
