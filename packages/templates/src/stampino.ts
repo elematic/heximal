@@ -1,12 +1,12 @@
 import * as idom from 'incremental-dom';
 import { Parser } from 'polymer-expressions/parser';
-import { EvalAstFactory } from 'polymer-expressions/eval';
+import { EvalAstFactory, EvalAstNode } from 'polymer-expressions/eval';
 
 let astFactory = new EvalAstFactory();
 
-const toCamelCase = (s) => s.replace(/-(\w)/, (m) => m.p1.toUppercase());
+const toCamelCase = (s: string) => s.replace(/-(\w)/, (_, p1) => p1.toUppercase());
 
-idom.attributes.__default = function(element, name, value) {
+idom.attributes.__default = function(element: Element, name: string, value: any) {
   if (name.endsWith('$')) {
     name = name.substring(0, name.length - 1);
     element.setAttribute(name, value);
@@ -15,10 +15,10 @@ idom.attributes.__default = function(element, name, value) {
   }
 };
 
-export function getValue(value, model) {
+export function getValue(value: string, model: any) {
   if (value.startsWith('{{') && value.endsWith('}}')) {
     let expression = value.substring(2, value.length - 2);
-    let ast = new Parser(expression, astFactory).parse();
+    let ast = <EvalAstNode>(new Parser(expression, astFactory).parse());
     return ast.evaluate(model);
   }
   if (value.startsWith('\\{{')) {
@@ -27,7 +27,34 @@ export function getValue(value, model) {
   return value;
 }
 
-const defaultHandlers = {
+export interface TemplateUpdater {
+  (model: any): void;
+}
+
+export interface AttributeHandler {
+  matches(name: string): boolean;
+  handle(el: Element, name: string, value: any, model: any): void;
+}
+
+export interface Renderers {
+  [name: string]: Renderer;
+}
+
+export interface Renderer {
+  (model: any, renderers: Renderers, handlers: Handlers,
+    attributeHandler: AttributeHandler): void;
+}
+
+export interface Handler {
+  (template: HTMLTemplateElement, model: any, renderers: Renderers,
+    handlers: Handlers, attributeHandler: AttributeHandler): void;
+}
+
+export interface Handlers {
+  [name: string]: Handler;
+}
+
+const defaultHandlers = <Handlers>{
   'if': function(template, model, renderers, handlers, attributeHandler) {
     let ifAttribute = template.getAttribute('if');
     if (ifAttribute && getValue(ifAttribute, model)) {
@@ -53,9 +80,10 @@ const defaultHandlers = {
   },
 };
 
-function getRenderers(template) {
-  let blocks = template.content.querySelectorAll('[name]');
-  let renderers = {};
+function getRenderers(template: HTMLTemplateElement): Renderers {
+  let blocks = <NodeListOf<HTMLTemplateElement>>
+    template.content.querySelectorAll('template[name]');
+  let renderers = <Renderers>{};
   for (let i = 0; i < blocks.length; i++) {
     let block = blocks[i];
     let name = block.getAttribute('name');
@@ -71,13 +99,18 @@ function getRenderers(template) {
  * @returns {Function} a render function that can be passed to incremental-dom's
  * patch() function.
  */
-export function prepareTemplate(template, renderers, handlers, attributeHandler,
-    superTemplate) {
+export function prepareTemplate(
+    template: HTMLTemplateElement,
+    renderers: Renderers,
+    handlers: Handlers,
+    attributeHandler: AttributeHandler,
+    superTemplate: HTMLTemplateElement): TemplateUpdater {
   handlers = handlers || defaultHandlers;
   renderers = renderers || {};
 
   if (superTemplate) {
-    let superNode = template.content.querySelector('[name=super]');
+    let superNode = <HTMLTemplateElement>
+      template.content.querySelector('[name=super]');
     if (superNode) {
       let superRenderers = getRenderers(superNode);
       renderers = {
@@ -100,6 +133,13 @@ export function prepareTemplate(template, renderers, handlers, attributeHandler,
       attributeHandler);
 }
 
+export interface RenderOptions {
+  attributeHandler: AttributeHandler;
+  renderers: Renderers;
+  handlers: Handlers;
+  extends: HTMLTemplateElement;
+}
+
 /**
  * Renders a template element containing a Stampino template.
  *
@@ -111,13 +151,22 @@ export function prepareTemplate(template, renderers, handlers, attributeHandler,
  * directly translate to incremental-dom calls, and includes pre-parsed
  * expressions. We won't optimize until we have benchmarks in place however.
  */
-export function render(template, container, model, opts) {
+export function render(
+    template: HTMLTemplateElement,
+    container: Element,
+    model: any,
+    opts: RenderOptions) {
   let _render = prepareTemplate(template, opts.renderers, opts.handlers,
       opts.attributeHandler, opts.extends);
   idom.patch(container, _render, model);
 }
 
-export function renderNode(node, model, renderers, handlers, attributeHandler) {
+export function renderNode(
+    node: Node,
+    model: any,
+    renderers: Renderers,
+    handlers: Handlers,
+    attributeHandler: AttributeHandler) {
   switch (node.nodeType) {
     // We encounter DocumentFragments when we recurse into a nested template
     case Node.DOCUMENT_FRAGMENT_NODE:
@@ -127,39 +176,43 @@ export function renderNode(node, model, renderers, handlers, attributeHandler) {
       }
       break;
     case Node.ELEMENT_NODE:
-      if (node.tagName.toLowerCase() === 'template') {
+      let element = <Element>node;
+      if (element.tagName.toLowerCase() === 'template') {
+        let template = <HTMLTemplateElement>element;
         // Handle template types, like: 'if' and 'repeat'
-        let typeAttribute = node.getAttribute('type');
+        let typeAttribute = element.getAttribute('type');
         if (typeAttribute) {
           let handler = handlers[typeAttribute];
           if (handler) {
-            handler(node, model, renderers, handlers, attributeHandler);
+            handler(template, model, renderers, handlers, attributeHandler);
           } else {
             console.warn('No handler for template type', typeAttribute);
             return;
           }
         }
         // Handle named holes
-        let nameAttribute = node.getAttribute('name');
+        let nameAttribute = element.getAttribute('name');
         if (nameAttribute) {
           if (renderers) {
             let renderer = renderers[nameAttribute];
             if (renderer) {
-              renderer(node, model, renderers, handlers, attributeHandler);
+              // TS revealed a type error here:
+              renderer(model, renderers, handlers, attributeHandler);
+              // renderer(template, model, renderers, handlers, attributeHandler);
               return;
             }
           }
           // if there's no named renderer, render the default content
-          renderNode(node.content, model, renderers, handlers, attributeHandler);
+          renderNode(template.content, model, renderers, handlers, attributeHandler);
           return;
         }
         // by default, templates are not rendered
       } else {
         // elementOpen has a weird API. It takes varargs, so we need to build
         // up the arguments array to pass to Function.apply :(
-        let args = [node.tagName, null, null];
-        let attributes = node.attributes;
-        let handledAttributes = [];
+        let args = [element.tagName, null, null];
+        let attributes = element.attributes;
+        let handledAttributes = <Attr[]>[];
         for (let i = 0; i < attributes.length; i++) {
           let attr = attributes[i];
           if (attributeHandler && attributeHandler.matches(attr.name)) {
@@ -181,7 +234,7 @@ export function renderNode(node, model, renderers, handlers, attributeHandler) {
         for (let i = 0; i < children.length; i++) {
           renderNode(children[i], model, renderers, handlers, attributeHandler);
         }
-        idom.elementClose(node.tagName);
+        idom.elementClose(element.tagName);
       }
       break;
     case Node.TEXT_NODE:

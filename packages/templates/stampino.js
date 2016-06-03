@@ -1,241 +1,191 @@
-'use strict';
-
-(function (global, factory) {
-  if (typeof define === "function" && define.amd) {
-    define(['exports', 'incremental-dom', 'polymer-expressions/parser', 'polymer-expressions/eval'], factory);
-  } else if (typeof exports !== "undefined") {
-    factory(exports, require('incremental-dom'), require('polymer-expressions/parser'), require('polymer-expressions/eval'));
-  } else {
-    var mod = {
-      exports: {}
+define("stampino", ["require", "exports", 'incremental-dom', 'polymer-expressions/parser', 'polymer-expressions/eval'], function (require, exports, idom, parser_1, eval_1) {
+    "use strict";
+    var astFactory = new eval_1.EvalAstFactory();
+    var toCamelCase = function (s) { return s.replace(/-(\w)/, function (_, p1) { return p1.toUppercase(); }); };
+    idom.attributes.__default = function (element, name, value) {
+        if (name.endsWith('$')) {
+            name = name.substring(0, name.length - 1);
+            element.setAttribute(name, value);
+        }
+        else {
+            element[toCamelCase(name)] = value;
+        }
     };
-    factory(mod.exports, global.incrementalDom, global.parser, global.eval);
-    global.stampino = mod.exports;
-  }
-})(this, function (exports, _incrementalDom, _parser, _eval) {
-  Object.defineProperty(exports, "__esModule", {
-    value: true
-  });
-  exports.getValue = getValue;
-  exports.prepareTemplate = prepareTemplate;
-  exports.render = render;
-  exports.renderNode = renderNode;
-
-  var idom = _interopRequireWildcard(_incrementalDom);
-
-  function _interopRequireWildcard(obj) {
-    if (obj && obj.__esModule) {
-      return obj;
-    } else {
-      var newObj = {};
-
-      if (obj != null) {
-        for (var key in obj) {
-          if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key];
+    function getValue(value, model) {
+        if (value.startsWith('{{') && value.endsWith('}}')) {
+            var expression = value.substring(2, value.length - 2);
+            var ast = (new parser_1.Parser(expression, astFactory).parse());
+            return ast.evaluate(model);
         }
-      }
-
-      newObj.default = obj;
-      return newObj;
-    }
-  }
-
-  var astFactory = new _eval.EvalAstFactory();
-
-  var toCamelCase = function toCamelCase(s) {
-    return s.replace(/-(\w)/, function (m) {
-      return m.p1.toUppercase();
-    });
-  };
-
-  idom.attributes.__default = function (element, name, value) {
-    if (name.endsWith('$')) {
-      name = name.substring(0, name.length - 1);
-      element.setAttribute(name, value);
-    } else {
-      element[toCamelCase(name)] = value;
-    }
-  };
-
-  function getValue(value, model) {
-    if (value.startsWith('{{') && value.endsWith('}}')) {
-      var expression = value.substring(2, value.length - 2);
-      var ast = new _parser.Parser(expression, astFactory).parse();
-      return ast.evaluate(model);
-    }
-
-    if (value.startsWith('\\{{')) {
-      return value.substring(1);
-    }
-
-    return value;
-  }
-
-  var defaultHandlers = {
-    'if': function _if(template, model, renderers, handlers, attributeHandler) {
-      var ifAttribute = template.getAttribute('if');
-
-      if (ifAttribute && getValue(ifAttribute, model)) {
-        renderNode(template.content, model, renderers, handlers, attributeHandler);
-      }
-    },
-    'repeat': function repeat(template, model, renderers, handlers, attributeHandler) {
-      var repeatAttribute = template.getAttribute('repeat');
-
-      if (repeatAttribute) {
-        var items = getValue(repeatAttribute, model);
-
-        for (var index = 0; index < items.length; index++) {
-          var item = items[index];
-          var itemModel = Object.create(model);
-          itemModel.item = item;
-          itemModel.index = index;
-          itemModel['this'] = model['this'] || model;
-          renderNode(template.content, itemModel, renderers, handlers, attributeHandler);
+        if (value.startsWith('\\{{')) {
+            return value.substring(1);
         }
-      }
+        return value;
     }
-  };
-
-  function getRenderers(template) {
-    var blocks = template.content.querySelectorAll('[name]');
-    var renderers = {};
-
-    var _loop = function _loop(i) {
-      var block = blocks[i];
-      var name = block.getAttribute('name');
-
-      if (name !== 'super') {
-        renderers[name] = function (model, renderers, handlers, attributeHandler) {
-          return renderNode(block.content, model, renderers, handlers, attributeHandler);
+    exports.getValue = getValue;
+    var defaultHandlers = {
+        'if': function (template, model, renderers, handlers, attributeHandler) {
+            var ifAttribute = template.getAttribute('if');
+            if (ifAttribute && getValue(ifAttribute, model)) {
+                renderNode(template.content, model, renderers, handlers, attributeHandler);
+            }
+        },
+        'repeat': function (template, model, renderers, handlers, attributeHandler) {
+            var repeatAttribute = template.getAttribute('repeat');
+            if (repeatAttribute) {
+                var items = getValue(repeatAttribute, model);
+                for (var index = 0; index < items.length; index++) {
+                    var item = items[index];
+                    // TODO: provide keys to incremental-dom
+                    var itemModel = Object.create(model);
+                    itemModel.item = item;
+                    itemModel.index = index;
+                    itemModel['this'] = model['this'] || model;
+                    renderNode(template.content, itemModel, renderers, handlers, attributeHandler);
+                }
+            }
+        },
+    };
+    function getRenderers(template) {
+        var blocks = template.content.querySelectorAll('template[name]');
+        var renderers = {};
+        var _loop_1 = function(i) {
+            var block = blocks[i];
+            var name_1 = block.getAttribute('name');
+            if (name_1 !== 'super') {
+                renderers[name_1] = function (model, renderers, handlers, attributeHandler) {
+                    return renderNode(block.content, model, renderers, handlers, attributeHandler);
+                };
+            }
         };
-      }
-    };
-
-    for (var i = 0; i < blocks.length; i++) {
-      _loop(i);
-    }
-
-    return renderers;
-  }
-
-  function prepareTemplate(template, renderers, handlers, attributeHandler, superTemplate) {
-    handlers = handlers || defaultHandlers;
-    renderers = renderers || {};
-
-    if (superTemplate) {
-      var superNode = template.content.querySelector('[name=super]');
-
-      if (superNode) {
-        (function () {
-          var superRenderers = getRenderers(superNode);
-          renderers = {
-            'super': function _super(model, renderers, handlers, attributeHandler) {
-              renderNode(superTemplate.content, model, superRenderers, handlers, attributeHandler);
-            }
-          };
-        })();
-      } else {
-        var templateRenderers = getRenderers(template);
-        Object.assign(templateRenderers, renderers);
-        renderers = templateRenderers;
-        template = superTemplate;
-      }
-    }
-
-    return function (model) {
-      return renderNode(template.content, model, renderers, handlers, attributeHandler);
-    };
-  }
-
-  function render(template, container, model, opts) {
-    var _render = prepareTemplate(template, opts.renderers, opts.handlers, opts.attributeHandler, opts.extends);
-
-    idom.patch(container, _render, model);
-  }
-
-  function renderNode(node, model, renderers, handlers, attributeHandler) {
-    switch (node.nodeType) {
-      case Node.DOCUMENT_FRAGMENT_NODE:
-        var children = node.childNodes;
-
-        for (var i = 0; i < children.length; i++) {
-          renderNode(children[i], model, renderers, handlers, attributeHandler);
+        for (var i = 0; i < blocks.length; i++) {
+            _loop_1(i);
         }
-
-        break;
-
-      case Node.ELEMENT_NODE:
-        if (node.tagName.toLowerCase() === 'template') {
-          var typeAttribute = node.getAttribute('type');
-
-          if (typeAttribute) {
-            var handler = handlers[typeAttribute];
-
-            if (handler) {
-              handler(node, model, renderers, handlers, attributeHandler);
-            } else {
-              console.warn('No handler for template type', typeAttribute);
-              return;
-            }
-          }
-
-          var nameAttribute = node.getAttribute('name');
-
-          if (nameAttribute) {
-            if (renderers) {
-              var renderer = renderers[nameAttribute];
-
-              if (renderer) {
-                renderer(node, model, renderers, handlers, attributeHandler);
-                return;
-              }
-            }
-
-            renderNode(node.content, model, renderers, handlers, attributeHandler);
-            return;
-          }
-        } else {
-          var args = [node.tagName, null, null];
-          var attributes = node.attributes;
-          var handledAttributes = [];
-
-          for (var i = 0; i < attributes.length; i++) {
-            var attr = attributes[i];
-
-            if (attributeHandler && attributeHandler.matches(attr.name)) {
-              handledAttributes.push(attr);
-            } else {
-              args.push(attr.name);
-              args.push(getValue(attr.value, model));
-            }
-          }
-
-          var el = idom.elementOpen.apply(null, args);
-
-          for (var i = 0; i < handledAttributes.length; i++) {
-            var attr = handledAttributes[i];
-            attributeHandler.handle(el, attr.name, attr.value, model);
-          }
-
-          var _children = node.childNodes;
-
-          for (var i = 0; i < _children.length; i++) {
-            renderNode(_children[i], model, renderers, handlers, attributeHandler);
-          }
-
-          idom.elementClose(node.tagName);
-        }
-
-        break;
-
-      case Node.TEXT_NODE:
-        var value = getValue(node.nodeValue, model);
-        idom.text(value);
-        break;
-
-      default:
-        console.warn('unhandled node type', node.nodeType);
+        return renderers;
     }
-  }
+    /**
+     * @returns {Function} a render function that can be passed to incremental-dom's
+     * patch() function.
+     */
+    function prepareTemplate(template, renderers, handlers, attributeHandler, superTemplate) {
+        handlers = handlers || defaultHandlers;
+        renderers = renderers || {};
+        if (superTemplate) {
+            var superNode = template.content.querySelector('[name=super]');
+            if (superNode) {
+                var superRenderers_1 = getRenderers(superNode);
+                renderers = {
+                    'super': function (model, renderers, handlers, attributeHandler) {
+                        renderNode(superTemplate.content, model, superRenderers_1, handlers, attributeHandler);
+                    },
+                };
+            }
+            else {
+                // Wrap the whole template in an implicit super call: immediately render
+                // the super template, with all renderers from this template
+                var templateRenderers = getRenderers(template);
+                Object.assign(templateRenderers, renderers);
+                renderers = templateRenderers;
+                template = superTemplate;
+            }
+        }
+        return function (model) { return renderNode(template.content, model, renderers, handlers, attributeHandler); };
+    }
+    exports.prepareTemplate = prepareTemplate;
+    /**
+     * Renders a template element containing a Stampino template.
+     *
+     * This version interprets the template by walking its content and invoking
+     * incremental-dom calls for each node, and evaluating Polymer expressions
+     * contained within {{ }} blocks.
+     *
+     * As an optimization we can compile templates into a list of objects that
+     * directly translate to incremental-dom calls, and includes pre-parsed
+     * expressions. We won't optimize until we have benchmarks in place however.
+     */
+    function render(template, container, model, opts) {
+        var _render = prepareTemplate(template, opts.renderers, opts.handlers, opts.attributeHandler, opts.extends);
+        idom.patch(container, _render, model);
+    }
+    exports.render = render;
+    function renderNode(node, model, renderers, handlers, attributeHandler) {
+        switch (node.nodeType) {
+            // We encounter DocumentFragments when we recurse into a nested template
+            case Node.DOCUMENT_FRAGMENT_NODE:
+                var children = node.childNodes;
+                for (var i = 0; i < children.length; i++) {
+                    renderNode(children[i], model, renderers, handlers, attributeHandler);
+                }
+                break;
+            case Node.ELEMENT_NODE:
+                var element = node;
+                if (element.tagName.toLowerCase() === 'template') {
+                    var template = element;
+                    // Handle template types, like: 'if' and 'repeat'
+                    var typeAttribute = element.getAttribute('type');
+                    if (typeAttribute) {
+                        var handler = handlers[typeAttribute];
+                        if (handler) {
+                            handler(template, model, renderers, handlers, attributeHandler);
+                        }
+                        else {
+                            console.warn('No handler for template type', typeAttribute);
+                            return;
+                        }
+                    }
+                    // Handle named holes
+                    var nameAttribute = element.getAttribute('name');
+                    if (nameAttribute) {
+                        if (renderers) {
+                            var renderer = renderers[nameAttribute];
+                            if (renderer) {
+                                // TS revealed a type error here:
+                                renderer(model, renderers, handlers, attributeHandler);
+                                // renderer(template, model, renderers, handlers, attributeHandler);
+                                return;
+                            }
+                        }
+                        // if there's no named renderer, render the default content
+                        renderNode(template.content, model, renderers, handlers, attributeHandler);
+                        return;
+                    }
+                }
+                else {
+                    // elementOpen has a weird API. It takes varargs, so we need to build
+                    // up the arguments array to pass to Function.apply :(
+                    var args = [element.tagName, null, null];
+                    var attributes = element.attributes;
+                    var handledAttributes = [];
+                    for (var i = 0; i < attributes.length; i++) {
+                        var attr = attributes[i];
+                        if (attributeHandler && attributeHandler.matches(attr.name)) {
+                            handledAttributes.push(attr);
+                        }
+                        else {
+                            // TODO: if attribute is a literal, add it to statics instead
+                            args.push(attr.name);
+                            args.push(getValue(attr.value, model));
+                        }
+                    }
+                    var el = idom.elementOpen.apply(null, args);
+                    for (var i = 0; i < handledAttributes.length; i++) {
+                        var attr = handledAttributes[i];
+                        attributeHandler.handle(el, attr.name, attr.value, model);
+                    }
+                    var children_1 = node.childNodes;
+                    for (var i = 0; i < children_1.length; i++) {
+                        renderNode(children_1[i], model, renderers, handlers, attributeHandler);
+                    }
+                    idom.elementClose(element.tagName);
+                }
+                break;
+            case Node.TEXT_NODE:
+                var value = getValue(node.nodeValue, model);
+                idom.text(value);
+                break;
+            default:
+                console.warn('unhandled node type', node.nodeType);
+        }
+    }
+    exports.renderNode = renderNode;
 });

@@ -2,18 +2,11 @@
 
 <html>
   <head>
-    <script data-main="demo" src="../vendor/requirejs/require.js"></script>
-    <script>
-      require.config({
-        paths: {
-          'stampino': '../lib/stampino',
-          'incremental-dom': '../vendor/incremental-dom/incremental-dom',
-          'polymer-expressions/parser': '../vendor/polymer-expressions/polymer-expressions',
-          'polymer-expressions/eval': '../vendor/polymer-expressions/polymer-expressions',
-        },
-        waitSeconds: 15
-      });
-    </script>
+    <link rel="import" href="../bower_components/imd/imd.html">
+    <script src="../node_modules/polymer-expressions/polymer-expressions.js"></script>
+    <script src="../node_modules/incremental-dom/dist/incremental-dom.js" as="incremental-dom"></script>
+    <script src="../stampino.js"></script>
+    <script src="demo.js" defer></script>
     <style>
       body {
         max-width: 800px;
