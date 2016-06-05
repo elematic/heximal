@@ -1,5 +1,5 @@
 declare module "stampino" {
-    export function getValue(value: string, model: any): any;
+    export function getValue(node: Node, model: any): any;
     export interface TemplateUpdater {
         (model: any): void;
     }

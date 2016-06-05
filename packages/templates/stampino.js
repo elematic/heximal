@@ -11,10 +11,17 @@ define("stampino", ["require", "exports", 'incremental-dom', 'polymer-expression
             element[toCamelCase(name)] = value;
         }
     };
-    function getValue(value, model) {
+    var _expressionCache = new WeakMap();
+    function getValue(node, model) {
+        var ast = _expressionCache.get(node);
+        if (ast) {
+            return ast.evaluate(model);
+        }
+        var value = node.textContent;
         if (value.startsWith('{{') && value.endsWith('}}')) {
-            var expression = value.substring(2, value.length - 2);
-            var ast = (new parser_1.Parser(expression, astFactory).parse());
+            var expression = value.substring(2, value.length - 2).trim();
+            ast = (new parser_1.Parser(expression, astFactory).parse());
+            _expressionCache.set(node, ast);
             return ast.evaluate(model);
         }
         if (value.startsWith('\\{{')) {
@@ -25,13 +32,13 @@ define("stampino", ["require", "exports", 'incremental-dom', 'polymer-expression
     exports.getValue = getValue;
     var defaultHandlers = {
         'if': function (template, model, renderers, handlers, attributeHandler) {
-            var ifAttribute = template.getAttribute('if');
+            var ifAttribute = template.getAttributeNode('if');
             if (ifAttribute && getValue(ifAttribute, model)) {
                 renderNode(template.content, model, renderers, handlers, attributeHandler);
             }
         },
         'repeat': function (template, model, renderers, handlers, attributeHandler) {
-            var repeatAttribute = template.getAttribute('repeat');
+            var repeatAttribute = template.getAttributeNode('repeat');
             if (repeatAttribute) {
                 var items = getValue(repeatAttribute, model);
                 for (var index = 0; index < items.length; index++) {
@@ -164,7 +171,7 @@ define("stampino", ["require", "exports", 'incremental-dom', 'polymer-expression
                         else {
                             // TODO: if attribute is a literal, add it to statics instead
                             args.push(attr.name);
-                            args.push(getValue(attr.value, model));
+                            args.push(getValue(attr, model));
                         }
                     }
                     var el = idom.elementOpen.apply(null, args);
@@ -180,7 +187,7 @@ define("stampino", ["require", "exports", 'incremental-dom', 'polymer-expression
                 }
                 break;
             case Node.TEXT_NODE:
-                var value = getValue(node.nodeValue, model);
+                var value = getValue(node, model);
                 idom.text(value);
                 break;
             default:

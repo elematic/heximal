@@ -15,10 +15,18 @@ idom.attributes.__default = function(element: Element, name: string, value: any)
   }
 };
 
-export function getValue(value: string, model: any) {
+let _expressionCache = new WeakMap<Node, EvalAstNode>();
+
+export function getValue(node: Node, model: any) {
+  let ast = _expressionCache.get(node);
+  if (ast) {
+    return ast.evaluate(model);
+  }
+  let value = node.textContent;
   if (value.startsWith('{{') && value.endsWith('}}')) {
-    let expression = value.substring(2, value.length - 2);
-    let ast = <EvalAstNode>(new Parser(expression, astFactory).parse());
+    let expression = value.substring(2, value.length - 2).trim();
+    ast = <EvalAstNode>(new Parser(expression, astFactory).parse());
+    _expressionCache.set(node, ast);
     return ast.evaluate(model);
   }
   if (value.startsWith('\\{{')) {
@@ -56,14 +64,14 @@ export interface Handlers {
 
 const defaultHandlers = <Handlers>{
   'if': function(template, model, renderers, handlers, attributeHandler) {
-    let ifAttribute = template.getAttribute('if');
+    let ifAttribute = template.getAttributeNode('if');
     if (ifAttribute && getValue(ifAttribute, model)) {
       renderNode(template.content, model, renderers, handlers, attributeHandler);
     }
   },
 
   'repeat': function(template, model, renderers, handlers, attributeHandler) {
-    let repeatAttribute = template.getAttribute('repeat');
+    let repeatAttribute = template.getAttributeNode('repeat');
 
     if (repeatAttribute) {
       let items = getValue(repeatAttribute, model);
@@ -220,7 +228,7 @@ export function renderNode(
           } else {
             // TODO: if attribute is a literal, add it to statics instead
             args.push(attr.name);
-            args.push(getValue(attr.value, model));
+            args.push(getValue(attr, model));
           }
         }
         let el = idom.elementOpen.apply(null, args);
@@ -238,7 +246,7 @@ export function renderNode(
       }
       break;
     case Node.TEXT_NODE:
-      let value = getValue(node.nodeValue, model);
+      let value = getValue(node, model);
       idom.text(value);
       break;
     default:
