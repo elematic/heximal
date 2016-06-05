@@ -160,7 +160,7 @@ define("stampino", ["require", "exports", 'incremental-dom', 'polymer-expression
                 else {
                     // elementOpen has a weird API. It takes varargs, so we need to build
                     // up the arguments array to pass to Function.apply :(
-                    var args = [element.tagName, null, null];
+                    var args = []; //[element.tagName, null, null];
                     var attributes = element.attributes;
                     var handledAttributes = [];
                     for (var i = 0; i < attributes.length; i++) {
@@ -174,7 +174,7 @@ define("stampino", ["require", "exports", 'incremental-dom', 'polymer-expression
                             args.push(getValue(attr, model));
                         }
                     }
-                    var el = idom.elementOpen.apply(null, args);
+                    var el = idom.elementOpen.apply(idom, [element.tagName.toLowerCase(), null, null].concat(args));
                     for (var i = 0; i < handledAttributes.length; i++) {
                         var attr = handledAttributes[i];
                         attributeHandler.handle(el, attr.name, attr.value, model);

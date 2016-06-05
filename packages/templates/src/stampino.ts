@@ -216,9 +216,9 @@ export function renderNode(
         }
         // by default, templates are not rendered
       } else {
-        // elementOpen has a weird API. It takes varargs, so we need to build
-        // up the arguments array to pass to Function.apply :(
-        let args = [element.tagName, null, null];
+        // elementOpen has a weird API. It takes varargs of alternating
+        // attribute name/value pairs
+        let propertyValuePairs: any[] = [];
         let attributes = element.attributes;
         let handledAttributes = <Attr[]>[];
         for (let i = 0; i < attributes.length; i++) {
@@ -227,11 +227,12 @@ export function renderNode(
             handledAttributes.push(attr);
           } else {
             // TODO: if attribute is a literal, add it to statics instead
-            args.push(attr.name);
-            args.push(getValue(attr, model));
+            propertyValuePairs.push(attr.name);
+            propertyValuePairs.push(getValue(attr, model));
           }
         }
-        let el = idom.elementOpen.apply(null, args);
+        let tagName = element.tagName.toLowerCase();
+        let el = idom.elementOpen(tagName, null, null, ...propertyValuePairs);
 
         for (let i = 0; i < handledAttributes.length; i++) {
           let attr = handledAttributes[i];
