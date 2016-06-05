@@ -1,0 +1,11 @@
+MacBook Pro (Retina, 15-inch, Mid 2015)
+2.2 GHz Intel Core i7
+16 GB 1600 MHz DDR3
+
+Chrome 52.0.2743.24 MacIntel ()
+benchmark.html:162 benchmark-1	2.178
+benchmark.html:162 benchmark-2	15.47
+benchmark.html:162 benchmark-3	28.39
+benchmark.html:162 benchmark-4	55.58
+benchmark.html:162 benchmark-5	81.92
+benchmark.html:162 benchmark-6	493.1
