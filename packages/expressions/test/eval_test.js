@@ -1,8 +1,8 @@
 'use strict';
 
 let assert = require('assert');
-let parser = require('../src/parser');
-let evaluate = require('../src/eval');
+let parser = require('../lib/parser');
+let evaluate = require('../lib/eval');
 
 let Parser = parser.Parser;
 
@@ -39,8 +39,8 @@ suite('eval', function() {
   });
 
   test('should return a literal string', function() {
-    expectEval('"hello"', "hello");
-    expectEval("'hello'", "hello");
+    expectEval('"hello"', 'hello');
+    expectEval('\'hello\'', 'hello');
   });
 
   test('should return a literal boolean', function() {
@@ -130,8 +130,12 @@ suite('eval', function() {
 
   test('should call functions in scope', function() {
     var foo = {
-      x: function() { return 42; },
-      y: function(i, j) { return i * j; },
+      x: function() {
+        return 42;
+      },
+      y: function(i, j) {
+        return i * j;
+      },
       name: 'fred',
     };
     expectEval('x()', foo.x(), foo);
@@ -178,7 +182,9 @@ suite('eval', function() {
           return 1;
         };
       },
-      x: function() { return 42; },
+      x: function() {
+        return 42;
+      },
       name: 'fred',
     };
     expectEval('name.length', foo.name.length, foo);
