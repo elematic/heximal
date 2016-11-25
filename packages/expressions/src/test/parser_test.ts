@@ -3,12 +3,12 @@ import {assert} from 'chai';
 import * as ast_factory from '../ast_factory';
 import * as parser from '../parser';
 
-let Parser = parser.Parser;
-let astFactory = new ast_factory.DefaultAstFactory();
+const Parser = parser.Parser;
+const astFactory = new ast_factory.DefaultAstFactory();
 
 
 function expectParse(s: string, e: any) {
-  let p = new Parser(s, astFactory).parse();
+  const p = new Parser(s, astFactory).parse();
   assert.deepEqual(p, e);
 }
 
@@ -61,7 +61,7 @@ suite('Parser', function() {
   });
 
   test('should parse binary operators', function() {
-    let operators = [
+    const operators = [
       '+',
       '-',
       '*',
@@ -81,8 +81,8 @@ suite('Parser', function() {
       '!==',
       '|'
     ];
-    for (let i in operators) {
-      let op = operators[i];
+    for (const i in operators) {
+      const op = operators[i];
       expectParse(
           `a ${op} b`,
           astFactory.binary(astFactory.id('a'), op, astFactory.id('b')));

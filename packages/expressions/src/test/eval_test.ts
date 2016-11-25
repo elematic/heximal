@@ -3,13 +3,13 @@ import {assert} from 'chai';
 import * as evaluate from '../eval';
 import * as parser from '../parser';
 
-let Parser = parser.Parser;
+const Parser = parser.Parser;
 
-let astFactory = new evaluate.EvalAstFactory();
+const astFactory = new evaluate.EvalAstFactory();
 
 function expectEval(s: string, expected: any, scope?: evaluate.Scope) {
-  let expr = new Parser(s, astFactory).parse();
-  let result = expr.evaluate(scope);
+  const expr = new Parser(s, astFactory).parse();
+  const result = expr.evaluate(scope);
   assert.deepEqual(result, expected);
 }
 
@@ -85,8 +85,8 @@ suite('eval', function() {
     expectEval('1 != 2', true);
     expectEval('1 != null', true);
 
-    let x = {};
-    let y = {};
+    const x = {};
+    const y = {};
     expectEval('x === y', true, {'x': x, 'y': x});
     expectEval('x !== y', false, {'x': x, 'y': x});
     expectEval('x === y', false, {'x': x, 'y': y});
@@ -128,7 +128,7 @@ suite('eval', function() {
   });
 
   test('should call functions in scope', function() {
-    let foo = {
+    const foo = {
       x: function() {
         return 42;
       },
@@ -143,7 +143,7 @@ suite('eval', function() {
   });
 
   test('should call functions with `this` as scope', function() {
-    let o = {
+    const o = {
       foo: 'bar',
       checkThis(this: {foo: 'bar'}) {
         return this.foo === 'bar';
@@ -153,18 +153,18 @@ suite('eval', function() {
   });
 
   test('should call functions with `this` in nested scopes', function() {
-    let o = {
+    const o = {
       getThis(this: any) {
         return this;
       },
     };
-    let scope = Object.create(o);
+    const scope = Object.create(o);
     scope['this'] = o;
     expectEval('getThis()', o, scope);
   });
 
   test('should call methods with `this` as receiver', function() {
-    let scope = {
+    const scope = {
       foo: {
         getThis(this: any) {
           return this;
@@ -175,7 +175,7 @@ suite('eval', function() {
   });
 
   test('should invoke chained methods', function() {
-    let foo = {
+    const foo = {
       a: function() {
         return function() {
           return 1;

@@ -39,7 +39,7 @@ export class Parser<N extends Node> {
   _parseExpression(): N|null {
     if (!this._token)
       return this._ast.empty();
-    let expr = this._parseUnary();
+    const expr = this._parseUnary();
     return (!expr) ? null : this._parsePrecedence(expr, 0);
   }
 

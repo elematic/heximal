@@ -216,8 +216,8 @@ export class Tokenizer {
   }
 
   private _tokenizeGrouper() {
-    let value = this._next;
-    let t = token(Kind.GROUPER, value!, PRECEDENCE[value!]);
+    const value = this._next;
+    const t = token(Kind.GROUPER, value!, PRECEDENCE[value!]);
     this._advance(true);
     return t;
   }

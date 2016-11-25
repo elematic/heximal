@@ -18,8 +18,8 @@ const POSTFIX_PRECEDENCE = constants.POSTFIX_PRECEDENCE;
 const PRECEDENCE = constants.PRECEDENCE;
 
 function tokenize(s: string) {
-  let tokenizer = new Tokenizer(s);
-  let tokens: tokenizer.Token[] = [];
+  const tokenizer = new Tokenizer(s);
+  const tokens: tokenizer.Token[] = [];
   let token: tokenizer.Token;
   while ((token = tokenizer.nextToken()) != null) {
     tokens.push(token);
