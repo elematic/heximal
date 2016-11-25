@@ -1,39 +1,39 @@
-'use strict';
+import {assert} from 'chai';
 
-const assert = require('assert');
-const tokenizer = require('../lib/tokenizer');
-const constants = require('../lib/constants');
+import * as constants from '../constants';
+import * as tokenizer from '../tokenizer';
 
-var Tokenizer = tokenizer.Tokenizer;
-var STRING = constants.Kind.STRING;
-var IDENTIFIER = constants.Kind.IDENTIFIER;
-var DOT = constants.Kind.DOT;
-var COMMA = constants.Kind.COMMA;
-var COLON = constants.Kind.COLON;
-var INTEGER = constants.Kind.INTEGER;
-var DECIMAL = constants.Kind.DECIMAL;
-var OPERATOR = constants.Kind.OPERATOR;
-var GROUPER = constants.Kind.GROUPER;
-var KEYWORD = constants.Kind.KEYWORD;
-var POSTFIX_PRECEDENCE = constants.POSTFIX_PRECEDENCE;
-var PRECEDENCE = constants.PRECEDENCE;
+const Tokenizer = tokenizer.Tokenizer;
+const STRING = constants.Kind.STRING;
+const IDENTIFIER = constants.Kind.IDENTIFIER;
+const DOT = constants.Kind.DOT;
+const COMMA = constants.Kind.COMMA;
+const COLON = constants.Kind.COLON;
+const INTEGER = constants.Kind.INTEGER;
+const DECIMAL = constants.Kind.DECIMAL;
+const OPERATOR = constants.Kind.OPERATOR;
+const GROUPER = constants.Kind.GROUPER;
+const KEYWORD = constants.Kind.KEYWORD;
+const POSTFIX_PRECEDENCE = constants.POSTFIX_PRECEDENCE;
+const PRECEDENCE = constants.PRECEDENCE;
 
-function tokenize(s) {
+function tokenize(s: string) {
   let tokenizer = new Tokenizer(s);
-  let tokens = [];
-  let token;
+  let tokens: tokenizer.Token[] = [];
+  let token: tokenizer.Token;
   while ((token = tokenizer.nextToken()) != null) {
     tokens.push(token);
   }
   return tokens;
 }
 
-function expectTokens(s, expected) {
-  var tokens = tokenize(s);
+function expectTokens(s: string, expected: tokenizer.Token[]) {
+  const tokens = tokenize(s);
   assert.deepEqual(tokens, expected);
 }
 
-function t(kind, value, precedence) {
+function t(
+    kind: constants.Kind, value: string, precedence?: number): tokenizer.Token {
   return tokenizer.token(kind, value, precedence);
 }
 

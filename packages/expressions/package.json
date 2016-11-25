@@ -16,8 +16,10 @@
   "author": "The Polymer Authors",
   "license": "Apache-2.0",
   "devDependencies": {
+    "@types/chai": "^3.4.34",
+    "@types/mocha": "^2.2.33",
     "benchmark": "^1.0.0",
-    "chai": "*",
+    "chai": "^3.5.0",
     "mocha": ">=1.9",
     "tslint": "^4.0.1",
     "typescript": "^2.0.10"

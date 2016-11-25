@@ -1,27 +1,26 @@
-'use strict';
+import {assert} from 'chai';
 
-let assert = require('assert');
-let parser = require('../lib/parser');
-let evaluate = require('../lib/eval');
+import * as evaluate from '../eval';
+import * as parser from '../parser';
 
 let Parser = parser.Parser;
 
 let astFactory = new evaluate.EvalAstFactory();
 
-function expectEval(s, expected, scope) {
-  var expr = new Parser(s, astFactory).parse();
-  var result = expr.evaluate(scope);
+function expectEval(s: string, expected: any, scope?: evaluate.Scope) {
+  let expr = new Parser(s, astFactory).parse();
+  let result = expr.evaluate(scope);
   assert.deepEqual(result, expected);
 }
 
 suite('eval', function() {
 
   test('should return the model for an empty expression', function() {
-    expectEval('', 'model', 'model');
+    expectEval('', {foo: 'bar'}, {foo: 'bar'});
   });
 
   test('should handle the "this" keyword', function() {
-    expectEval('this', 'model', 'model');
+    expectEval('this', {foo: 'bar'}, {foo: 'bar'});
     expectEval('this.name', 'foo', {name: 'foo'});
     expectEval('this["a"]', 'x', {'a': 'x'});
   });
@@ -86,8 +85,8 @@ suite('eval', function() {
     expectEval('1 != 2', true);
     expectEval('1 != null', true);
 
-    var x = {};
-    var y = {};
+    let x = {};
+    let y = {};
     expectEval('x === y', true, {'x': x, 'y': x});
     expectEval('x !== y', false, {'x': x, 'y': x});
     expectEval('x === y', false, {'x': x, 'y': y});
@@ -129,11 +128,11 @@ suite('eval', function() {
   });
 
   test('should call functions in scope', function() {
-    var foo = {
+    let foo = {
       x: function() {
         return 42;
       },
-      y: function(i, j) {
+      y: function(i: any, j: any) {
         return i * j;
       },
       name: 'fred',
@@ -144,9 +143,9 @@ suite('eval', function() {
   });
 
   test('should call functions with `this` as scope', function() {
-    var o = {
+    let o = {
       foo: 'bar',
-      checkThis() {
+      checkThis(this: {foo: 'bar'}) {
         return this.foo === 'bar';
       },
     };
@@ -154,20 +153,20 @@ suite('eval', function() {
   });
 
   test('should call functions with `this` in nested scopes', function() {
-    var o = {
-      getThis() {
+    let o = {
+      getThis(this: any) {
         return this;
       },
     };
-    var scope = Object.create(o);
+    let scope = Object.create(o);
     scope['this'] = o;
     expectEval('getThis()', o, scope);
   });
 
   test('should call methods with `this` as receiver', function() {
-    var scope = {
+    let scope = {
       foo: {
-        getThis() {
+        getThis(this: any) {
           return this;
         },
       },
@@ -176,7 +175,7 @@ suite('eval', function() {
   });
 
   test('should invoke chained methods', function() {
-    var foo = {
+    let foo = {
       a: function() {
         return function() {
           return 1;

@@ -1,5 +1,3 @@
-'use strict';
-
 import {AstFactory} from './ast_factory';
 
 const _BINARY_OPERATORS = {

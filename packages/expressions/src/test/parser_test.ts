@@ -1,14 +1,13 @@
-'use strict';
+import {assert} from 'chai';
 
-let assert = require('assert');
-let parser = require('../lib/parser');
-let ast_factory = require('../lib/ast_factory');
+import * as ast_factory from '../ast_factory';
+import * as parser from '../parser';
 
 let Parser = parser.Parser;
 let astFactory = new ast_factory.DefaultAstFactory();
 
 
-function expectParse(s, e) {
+function expectParse(s: string, e: any) {
   let p = new Parser(s, astFactory).parse();
   assert.deepEqual(p, e);
 }
@@ -16,7 +15,7 @@ function expectParse(s, e) {
 suite('Parser', function() {
 
   test('can be constructed', function() {
-    new Parser('');
+    new Parser('', astFactory);
   });
 
   test('should parse an empty expression', function() {
