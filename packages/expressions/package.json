@@ -11,7 +11,8 @@
     "pretest": "npm run build",
     "test": "mocha",
     "prepublish": "npm test",
-    "benchmark": "node benchmark/eval_benchmark"
+    "benchmark": "node benchmark/eval_benchmark",
+    "test:watch": "watchy -w src/ -- npm test --loglevel=silent"
   },
   "author": "The Polymer Authors",
   "license": "Apache-2.0",
@@ -22,6 +23,7 @@
     "chai": "^3.5.0",
     "mocha": ">=1.9",
     "tslint": "^4.0.1",
-    "typescript": "^2.0.10"
+    "typescript": "^2.0.10",
+    "watchy": "^0.6.6"
   }
 }
