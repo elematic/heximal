@@ -29,7 +29,7 @@ const _UNARY_OPERATORS = {
 export interface Scope { [key: string]: any; }
 
 export interface Evaluatable {
-  evaluate: (this: this, scope: Scope) => any;
+  evaluate(this: this, scope: Scope): any;
   getIds(this: this, idents: string[]): string[];
 }
 
@@ -92,7 +92,7 @@ export class EvalAstFactory implements AstFactory<Expression> {
     // TODO(justinfagnani): return null instead?
     return {
       type: 'Empty',
-      evaluate: function(scope) {
+      evaluate(scope) {
         return scope;
       },
       getIds(idents) {
@@ -106,7 +106,7 @@ export class EvalAstFactory implements AstFactory<Expression> {
     return {
       type: 'Literal',
       value: v,
-      evaluate: function(_scope) {
+      evaluate(_scope) {
         return this.value;
       },
       getIds(idents) {
@@ -119,7 +119,7 @@ export class EvalAstFactory implements AstFactory<Expression> {
     return {
       type: 'ID',
       value: v,
-      evaluate: function(scope) {
+      evaluate(scope) {
         // TODO(justinfagnani): this prevernts access to properties named 'this'
         if (this.value === 'this')
           return scope;
@@ -138,7 +138,7 @@ export class EvalAstFactory implements AstFactory<Expression> {
       type: 'Unary',
       operator: op,
       child: expr,
-      evaluate: function(scope) {
+      evaluate(scope) {
         return f(this.child.evaluate(scope));
       },
       getIds(idents) {
@@ -154,7 +154,7 @@ export class EvalAstFactory implements AstFactory<Expression> {
       operator: op,
       left: l,
       right: r,
-      evaluate: function(scope) {
+      evaluate(scope) {
         return f(this.left.evaluate(scope), this.right.evaluate(scope));
       },
       getIds(idents) {
@@ -170,7 +170,7 @@ export class EvalAstFactory implements AstFactory<Expression> {
       type: 'Getter',
       receiver: g,
       name: n,
-      evaluate: function(scope) {
+      evaluate(scope) {
         return this.receiver.evaluate(scope)[this.name];
       },
       getIds(idents) {
@@ -189,7 +189,7 @@ export class EvalAstFactory implements AstFactory<Expression> {
       receiver: receiver,
       method: method,
       arguments: args,
-      evaluate: function(scope) {
+      evaluate(scope) {
         const receiver = this.receiver.evaluate(scope);
         // TODO(justinfagnani): this might be wrong in cases where we're
         // invoking a top-level function rather than a method. If method is
@@ -219,7 +219,7 @@ export class EvalAstFactory implements AstFactory<Expression> {
       type: 'Index',
       receiver: e,
       argument: a,
-      evaluate: function(scope) {
+      evaluate(scope) {
         return this.receiver.evaluate(scope)[this.argument.evaluate(scope)];
       },
       getIds(idents) {
@@ -235,7 +235,7 @@ export class EvalAstFactory implements AstFactory<Expression> {
       condition: c,
       trueExpr: t,
       falseExpr: f,
-      evaluate: function(scope) {
+      evaluate(scope) {
         const c = this.condition.evaluate(scope);
         if (c) {
           return this.trueExpr.evaluate(scope);
@@ -256,7 +256,7 @@ export class EvalAstFactory implements AstFactory<Expression> {
     return {
       type: 'Map',
       entries: entries,
-      evaluate: function(scope) {
+      evaluate(scope) {
         const map = {};
         if (entries && this.entries) {
           for (const key in entries) {
@@ -287,7 +287,7 @@ export class EvalAstFactory implements AstFactory<Expression> {
     return {
       type: 'List',
       items: l,
-      evaluate: function(scope) {
+      evaluate(scope) {
         return (this.items || []).map(function(a) {
           return (a && a.evaluate(scope));
         });
