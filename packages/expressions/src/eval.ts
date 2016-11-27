@@ -2,66 +2,28 @@ import * as ast from './ast';
 import {AstFactory} from './ast_factory';
 
 const _BINARY_OPERATORS = {
-  '+': function(a: any, b: any) {
-    return a + b;
-  },
-  '-': function(a: any, b: any) {
-    return a - b;
-  },
-  '*': function(a: any, b: any) {
-    return a * b;
-  },
-  '/': function(a: any, b: any) {
-    return a / b;
-  },
-  '%': function(a: any, b: any) {
-    return a % b;
-  },
-  '==': function(a: any, b: any) {
-    return a == b;  // tslint:disable-line: triple-equals
-  },
-  '!=': function(a: any, b: any) {
-    return a != b;  // tslint:disable-line: triple-equals
-  },
-  '===': function(a: any, b: any) {
-    return a === b;
-  },
-  '!==': function(a: any, b: any) {
-    return a !== b;
-  },
-  '>': function(a: any, b: any) {
-    return a > b;
-  },
-  '>=': function(a: any, b: any) {
-    return a >= b;
-  },
-  '<': function(a: any, b: any) {
-    return a < b;
-  },
-  '<=': function(a: any, b: any) {
-    return a <= b;
-  },
-  '||': function(a: any, b: any) {
-    return a || b;
-  },
-  '&&': function(a: any, b: any) {
-    return a && b;
-  },
-  '|': function(a: any, f: Function) {
-    return f(a);
-  },
+  '+': (a: any, b: any) => a + b,
+  '-': (a: any, b: any) => a - b,
+  '*': (a: any, b: any) => a * b,
+  '/': (a: any, b: any) => a / b,
+  '%': (a: any, b: any) => a % b,
+  '==': (a: any, b: any) => a == b,  // tslint:disable-line: triple-equals
+  '!=': (a: any, b: any) => a != b,  // tslint:disable-line: triple-equals
+  '===': (a: any, b: any) => a === b,
+  '!==': (a: any, b: any) => a !== b,
+  '>': (a: any, b: any) => a > b,
+  '>=': (a: any, b: any) => a >= b,
+  '<': (a: any, b: any) => a < b,
+  '<=': (a: any, b: any) => a <= b,
+  '||': (a: any, b: any) => a || b,
+  '&&': (a: any, b: any) => a && b,
+  '|': (a: any, f: (a: any) => any) => f(a),
 };
 
 const _UNARY_OPERATORS = {
-  '+': function(a: any) {
-    return a;
-  },
-  '-': function(a: any) {
-    return -a;
-  },
-  '!': function(a: any) {
-    return !a;
-  },
+  '+': (a: any) => a,
+  '-': (a: any) => -a,
+  '!': (a: any) => !a,
 };
 
 export interface Scope { [key: string]: any; }
