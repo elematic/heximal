@@ -202,9 +202,7 @@ export class EvalAstFactory implements AstFactory<Expression> {
       },
       getIds(idents) {
         this.receiver.getIds(idents);
-        (this.arguments || []).forEach(function(a) {
-          return (a && a.getIds(idents));
-        });
+        (this.arguments || []).forEach((a) => (a && a.getIds(idents)));
         return idents;
       },
     };
@@ -288,14 +286,10 @@ export class EvalAstFactory implements AstFactory<Expression> {
       type: 'List',
       items: l,
       evaluate(scope) {
-        return (this.items || []).map(function(a) {
-          return (a && a.evaluate(scope));
-        });
+        return (this.items || []).map((a) => (a && a.evaluate(scope)));
       },
       getIds(idents) {
-        (this.items || []).forEach(function(i) {
-          (i && i.getIds(idents));
-        });
+        (this.items || []).forEach((i) => (i && i.getIds(idents)));
         return idents;
       },
     };
