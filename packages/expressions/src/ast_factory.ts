@@ -1,62 +1,6 @@
-export type Node = Literal | Empty | ID | Unary | Binary | Getter | Invoke |
-    Paren | Index | Ternary | Map | List;
-export interface Literal {
-  type: 'Literal';
-  value: string|number|boolean|RegExp|null;
-}
-export interface Empty { type: 'Empty'; }
-export interface ID {
-  type: 'ID';
-  value: string;
-}
-export interface Unary {
-  type: 'Unary';
-  operator: string;
-  child: Node;
-}
-export interface Binary {
-  type: 'Binary';
-  operator: string;
-  left: Node;
-  right: Node;
-}
-export interface Getter {
-  type: 'Getter';
-  receiver: Node;
-  name: string;
-}
-export interface Invoke {
-  type: 'Invoke';
-  receiver: Node;
-  method: string|null;
-  arguments: Array<Node|null>|null;
-}
-export interface Paren {
-  type: 'Paren';
-  child: Node;
-}
-export interface Index {
-  type: 'Index';
-  receiver: Node;
-  argument: Node;
-}
-export interface Ternary {
-  type: 'Ternary';
-  condition: Node;
-  trueExpr: Node;
-  falseExpr: Node;
-}
-export interface Map {
-  type: 'Map';
-  entries: {[key: string]: Node | null}|null;
-}
-export interface List {
-  type: 'List';
-  items: Array<Node|null>|null;
-}
+import * as ast from './ast';
 
-
-export interface AstFactory<N extends Node> {
+export interface AstFactory<N extends ast.Expression> {
   empty(): N;
   literal(rawValue: string|number|boolean|RegExp|null): N;
   id(name: string): N;
@@ -71,27 +15,27 @@ export interface AstFactory<N extends Node> {
   list(items: Array<N|null>|null): N;
 }
 
-export class DefaultAstFactory implements AstFactory<Node> {
-  empty(): Empty {
+export class DefaultAstFactory implements AstFactory<ast.Expression> {
+  empty(): ast.Empty {
     return {type: 'Empty'};
   }
 
   // TODO(justinfagnani): just use a JS literal?
-  literal(v: string|number|boolean|RegExp|null): Literal {
+  literal(v: ast.LiteralValue): ast.Literal {
     return {
       type: 'Literal',
       value: v,
     };
   }
 
-  id(v: string): ID {
+  id(v: string): ast.ID {
     return {
       type: 'ID',
       value: v,
     };
   }
 
-  unary(op: string, expr: Node): Unary {
+  unary(op: string, expr: ast.Expression): ast.Unary {
     return {
       type: 'Unary',
       operator: op,
@@ -99,7 +43,7 @@ export class DefaultAstFactory implements AstFactory<Node> {
     };
   }
 
-  binary(l: Node, op: string, r: Node): Binary {
+  binary(l: ast.Expression, op: string, r: ast.Expression): ast.Binary {
     return {
       type: 'Binary',
       operator: op,
@@ -108,7 +52,7 @@ export class DefaultAstFactory implements AstFactory<Node> {
     };
   }
 
-  getter(g: Node, n: string): Getter {
+  getter(g: ast.Expression, n: string): ast.Getter {
     return {
       type: 'Getter',
       receiver: g,
@@ -116,8 +60,8 @@ export class DefaultAstFactory implements AstFactory<Node> {
     };
   }
 
-  invoke(receiver: Node, method: string|null, args: Array<Node|null>|null):
-      Invoke {
+  invoke(receiver: ast.Expression, method: string|null, args: Array<ast.Expression|null>|null):
+      ast.Invoke {
     if (args == null) {
       throw new Error('args');
     }
@@ -129,14 +73,14 @@ export class DefaultAstFactory implements AstFactory<Node> {
     };
   }
 
-  paren(e: Node): Paren {
+  paren(e: ast.Expression): ast.Paren {
     return {
       type: 'Paren',
       child: e,
     };
   }
 
-  index(e: Node, a: Node): Index {
+  index(e: ast.Expression, a: ast.Expression): ast.Index {
     return {
       type: 'Index',
       receiver: e,
@@ -144,7 +88,7 @@ export class DefaultAstFactory implements AstFactory<Node> {
     };
   }
 
-  ternary(c: Node, t: Node, f: Node): Ternary {
+  ternary(c: ast.Expression, t: ast.Expression, f: ast.Expression): ast.Ternary {
     return {
       type: 'Ternary',
       condition: c,
@@ -153,14 +97,14 @@ export class DefaultAstFactory implements AstFactory<Node> {
     };
   }
 
-  map(entries: {[key: string]: Node | null}|null): Map {
+  map(entries: {[key: string]: ast.Expression | null}|null): ast.Map {
     return {
       type: 'Map',
       entries: entries,
     };
   }
 
-  list(l: Array<Node|null>|null): List {
+  list(l: Array<ast.Expression|null>|null): ast.List {
     return {
       type: 'List',
       items: l,

@@ -1,3 +1,4 @@
+import * as ast from './ast';
 import {AstFactory} from './ast_factory';
 
 const _BINARY_OPERATORS = {
@@ -65,65 +66,66 @@ const _UNARY_OPERATORS = {
 
 export interface Scope { [key: string]: any; }
 
-export interface BaseNode {
+export interface Evaluatable {
   evaluate: (this: this, scope: Scope) => any;
   getIds(this: this, idents: string[]): string[];
 }
 
-export type Node = Literal | Empty | ID | Unary | Binary | Getter | Invoke |
+export type Expression = Literal | Empty | ID | Unary | Binary | Getter | Invoke |
     Index | Ternary | Map | List;
-export interface Literal extends BaseNode {
+
+export interface Literal extends Evaluatable {
   type: 'Literal';
-  value: string|number|boolean|RegExp|null;
+  value: ast.LiteralValue;
 }
-export interface Empty extends BaseNode { type: 'Empty'; }
-export interface ID extends BaseNode {
+export interface Empty extends Evaluatable { type: 'Empty'; }
+export interface ID extends Evaluatable {
   type: 'ID';
   value: string;
 }
-export interface Unary extends BaseNode {
+export interface Unary extends Evaluatable {
   type: 'Unary';
   operator: string;
-  child: Node;
+  child: Expression;
 }
-export interface Binary extends BaseNode {
+export interface Binary extends Evaluatable {
   type: 'Binary';
   operator: string;
-  left: Node;
-  right: Node;
+  left: Expression;
+  right: Expression;
 }
-export interface Getter extends BaseNode {
+export interface Getter extends Evaluatable {
   type: 'Getter';
-  receiver: Node;
+  receiver: Expression;
   name: string;
 }
-export interface Invoke extends BaseNode {
+export interface Invoke extends Evaluatable {
   type: 'Invoke';
-  receiver: Node;
+  receiver: Expression;
   method: string|null;
-  arguments: Array<Node|null>|null;
+  arguments: Array<Expression>|null;
 }
-export interface Index extends BaseNode {
+export interface Index extends Evaluatable {
   type: 'Index';
-  receiver: Node;
-  argument: Node;
+  receiver: Expression;
+  argument: Expression;
 }
-export interface Ternary extends BaseNode {
+export interface Ternary extends Evaluatable {
   type: 'Ternary';
-  condition: Node;
-  trueExpr: Node;
-  falseExpr: Node;
+  condition: Expression;
+  trueExpr: Expression;
+  falseExpr: Expression;
 }
-export interface Map extends BaseNode {
+export interface Map extends Evaluatable {
   type: 'Map';
-  entries: {[key: string]: Node | null}|null;
+  entries: {[key: string]: Expression | null}|null;
 }
-export interface List extends BaseNode {
+export interface List extends Evaluatable {
   type: 'List';
-  items: Array<Node|null>|null;
+  items: Array<Expression>|null;
 }
 
-export class EvalAstFactory implements AstFactory<Node> {
+export class EvalAstFactory implements AstFactory<Expression> {
   empty(): Empty {
     // TODO(justinfagnani): return null instead?
     return {
@@ -168,7 +170,7 @@ export class EvalAstFactory implements AstFactory<Node> {
     };
   }
 
-  unary(op: string, expr: Node): Unary {
+  unary(op: string, expr: Expression): Unary {
     const f = _UNARY_OPERATORS[op];
     return {
       type: 'Unary',
@@ -183,7 +185,7 @@ export class EvalAstFactory implements AstFactory<Node> {
     };
   }
 
-  binary(l: Node, op: string, r: Node): Binary {
+  binary(l: Expression, op: string, r: Expression): Binary {
     const f = _BINARY_OPERATORS[op];
     return {
       type: 'Binary',
@@ -201,7 +203,7 @@ export class EvalAstFactory implements AstFactory<Node> {
     };
   }
 
-  getter(g: Node, n: string): Getter {
+  getter(g: Expression, n: string): Getter {
     return {
       type: 'Getter',
       receiver: g,
@@ -216,7 +218,7 @@ export class EvalAstFactory implements AstFactory<Node> {
     };
   }
 
-  invoke(receiver: Node, method: string, args: Node[]): Invoke {
+  invoke(receiver: Expression, method: string, args: Expression[]): Invoke {
     if (method != null && typeof method !== 'string') {
       throw new Error('method not a string');
     }
@@ -246,11 +248,11 @@ export class EvalAstFactory implements AstFactory<Node> {
     };
   }
 
-  paren(e: Node): Node {
+  paren(e: Expression): Expression {
     return e;
   }
 
-  index(e: Node, a: Node): Index {
+  index(e: Expression, a: Expression): Index {
     return {
       type: 'Index',
       receiver: e,
@@ -265,7 +267,7 @@ export class EvalAstFactory implements AstFactory<Node> {
     };
   }
 
-  ternary(c: Node, t: Node, f: Node): Ternary {
+  ternary(c: Expression, t: Expression, f: Expression): Ternary {
     return {
       type: 'Ternary',
       condition: c,
@@ -288,7 +290,7 @@ export class EvalAstFactory implements AstFactory<Node> {
     };
   }
 
-  map(entries: {[key: string]: Node | null}|null): Map {
+  map(entries: {[key: string]: Expression}|null): Map {
     return {
       type: 'Map',
       entries: entries,
@@ -319,7 +321,7 @@ export class EvalAstFactory implements AstFactory<Node> {
   }
 
   // TODO(justinfagnani): if the list is deeply literal
-  list(l: Array<Node|null>|null): List {
+  list(l: Array<Expression>|null): List {
     return {
       type: 'List',
       items: l,

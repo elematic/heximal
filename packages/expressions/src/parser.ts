@@ -1,12 +1,13 @@
-import {AstFactory, ID, Invoke, Node} from './ast_factory';
+import {ID, Invoke, Expression} from './ast';
+import {AstFactory} from './ast_factory';
 import {BINARY_OPERATORS, KEYWORDS, Kind, POSTFIX_PRECEDENCE, UNARY_OPERATORS} from './constants';
 import {Token, Tokenizer} from './tokenizer';
 
-export function parse(expr: string, astFactory: AstFactory<Node>): Node|null {
+export function parse(expr: string, astFactory: AstFactory<Expression>): Expression|null {
   return new Parser(expr, astFactory).parse();
 }
 
-export class Parser<N extends Node> {
+export class Parser<N extends Expression> {
   private _kind: Kind|null = null;
   private _tokenizer: Tokenizer;
   private _ast: AstFactory<N>;
