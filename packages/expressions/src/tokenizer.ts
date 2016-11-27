@@ -1,8 +1,6 @@
 import {Kind, POSTFIX_PRECEDENCE, PRECEDENCE} from './constants';
 
 const _KEYWORDS = ['this'];
-const _GROUPERS = '()[]{}';
-const _OPERATORS = '+-*/!&%<=>?^|';
 const _TWO_CHAR_OPS = ['==', '!=', '<=', '>=', '||', '&&'];
 const _THREE_CHAR_OPS = ['===', '!=='];
 
@@ -20,38 +18,59 @@ export function token(kind: Kind, value: string, precedence?: number) {
   };
 }
 
-function _isWhitespace(next: string) {
-  return /^\s$/.test(next);
+function _isWhitespace(ch: number) {
+  return ch === 9  /* \t */  ||
+         ch === 10 /* \n */  ||
+         ch === 13 /* \r */  ||
+         ch === 32 /* space */;
 }
 
 // TODO(justinfagnani): allow code points > 127
-function _isIdentOrKeywordStart(next: string) {
-  return /^[a-zA-Z_$]$/.test(next);
+function _isIdentOrKeywordStart(ch: number) {
+  return _isIdentifier(ch) || ch === 95 /* _ */ || ch === 36 /* $ */;
 }
 
 // TODO(justinfagnani): allow code points > 127
-function _isIdentifier(next: string) {
-  return /^[a-zA-Z0-9_$]$/.test(next);
+function _isIdentifier(ch: number) {
+  ch &= ~32;
+  return 65 /* A */ <= ch && ch <= 90 /* Z */;
 }
 
 function _isKeyword(str: string) {
   return _KEYWORDS.indexOf(str) !== -1;
 }
 
-function _isQuote(next: string) {
-  return /^[\"\']$/.test(next);
+function _isQuote(ch: number) {
+  return ch === 34 /* " */ || ch === 39 /* ' */;
 }
 
-function _isNumber(next: string) {
-  return /^[0-9]$/.test(next);
+function _isNumber(ch: number) {
+  return 48 /* 0 */ <= ch && ch <= 57 /* 9 */;
 }
 
-function _isOperator(next: string) {
-  return _OPERATORS.indexOf(next) !== -1;
+function _isOperator(ch: number) {
+  return ch === 43 /* + */ ||
+         ch === 45 /* - */ ||
+         ch === 42 /* * */ ||
+         ch === 47 /* / */ ||
+         ch === 33 /* ! */ ||
+         ch === 38 /* & */ ||
+         ch === 37 /* % */ ||
+         ch === 60 /* < */ ||
+         ch === 61 /* = */ ||
+         ch === 62 /* > */ ||
+         ch === 63 /* ? */ ||
+         ch === 94 /* ^ */ ||
+         ch === 124 /* | */;
 }
 
-function _isGrouper(next: string) {
-  return _GROUPERS.indexOf(next) !== -1;
+function _isGrouper(ch: number) {
+  return ch === 40  /* ( */ ||
+         ch === 41 /* ) */ ||
+         ch === 91 /* [ */ ||
+         ch === 93 /* ] */ ||
+         ch === 123 /* { */ ||
+         ch === 125 /* } */;
 }
 
 function _escapeString(str: string) {
@@ -77,7 +96,8 @@ export class Tokenizer {
   private _input: string;
   private _index = -1;
   private _tokenStart = 0;
-  private _next: string|null = null;
+  private _next: number|null = null;
+
   constructor(input: string) {
     this._input = input;
   }
@@ -94,11 +114,11 @@ export class Tokenizer {
       return this._tokenizeIdentOrKeyword();
     if (_isNumber(this._next!))
       return this._tokenizeNumber();
-    if (this._next === '.')
+    if (this._next === 46 /* . */)
       return this._tokenizeDot();
-    if (this._next === ',')
+    if (this._next === 44 /* , */)
       return this._tokenizeComma();
-    if (this._next === ':')
+    if (this._next === 58 /* : */)
       return this._tokenizeColon();
     if (_isOperator(this._next!))
       return this._tokenizeOperator();
@@ -115,7 +135,7 @@ export class Tokenizer {
   private _advance(resetTokenStart?: boolean) {
     if (this._index < this._input.length) {
       this._index++;
-      this._next = this._input[this._index];
+      this._next = this._input.charCodeAt(this._index);
       if (resetTokenStart) {
         this._tokenStart = this._index;
       }
@@ -143,7 +163,7 @@ export class Tokenizer {
     while (this._next !== quoteChar) {
       if (!this._next)
         throw new Error(_us);
-      if (this._next === '\\') {
+      if (this._next === 92 /* \ */) {
         this._advance();
         if (!this._next)
           throw new Error(_us);
@@ -168,7 +188,7 @@ export class Tokenizer {
     while (_isNumber(this._next!)) {
       this._advance();
     }
-    if (this._next === '.')
+    if (this._next === 46 /* . */)
       return this._tokenizeDot();
     return token(Kind.INTEGER, this._getValue());
   }
@@ -216,8 +236,8 @@ export class Tokenizer {
   }
 
   private _tokenizeGrouper() {
-    const value = this._next;
-    const t = token(Kind.GROUPER, value!, PRECEDENCE[value!]);
+    const value = String.fromCharCode(this._next!);
+    const t = token(Kind.GROUPER, value, PRECEDENCE[value]);
     this._advance(true);
     return t;
   }
