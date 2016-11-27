@@ -1,18 +1,18 @@
 import * as ast from './ast';
 
-export interface AstFactory<N extends ast.Expression> {
-  empty(): N;
-  literal(rawValue: string|number|boolean|RegExp|null): N;
-  id(name: string): N;
-  unary(operator: string, expression: N): N;
-  binary(left: N, op: string, right: N): N;
-  getter(receiver: N, name: string): N;
-  invoke(receiver: N, method: string|null, args: Array<N|null>|null): N;
-  paren(child: N): N;
-  index(receiver: N, argument: N): N;
-  ternary(condition: N, trueExpr: N, falseExpr: N): N;
-  map(entries: {[key: string]: N | null}|null): N;
-  list(items: Array<N|null>|null): N;
+export interface AstFactory<E extends ast.Expression> {
+  empty(): E;
+  literal(value: ast.LiteralValue): E;
+  id(name: string): E;
+  unary(operator: string, expression: E): E;
+  binary(left: E, op: string, right: E): E;
+  getter(receiver: E, name: string): E;
+  invoke(receiver: E, method: string|null, args: Array<E>|null): E;
+  paren(child: E): E;
+  index(receiver: E, argument: E): E;
+  ternary(condition: E, trueExpr: E, falseExpr: E): E;
+  map(entries: {[key: string]: E }|null): E;
+  list(items: Array<E>|null): E;
 }
 
 export class DefaultAstFactory implements AstFactory<ast.Expression> {
@@ -21,93 +21,94 @@ export class DefaultAstFactory implements AstFactory<ast.Expression> {
   }
 
   // TODO(justinfagnani): just use a JS literal?
-  literal(v: ast.LiteralValue): ast.Literal {
+  literal(value: ast.LiteralValue): ast.Literal {
     return {
       type: 'Literal',
-      value: v,
+      value,
     };
   }
 
-  id(v: string): ast.ID {
+  id(value: string): ast.ID {
     return {
       type: 'ID',
-      value: v,
+      value,
     };
   }
 
-  unary(op: string, expr: ast.Expression): ast.Unary {
+  unary(operator: string, child: ast.Expression): ast.Unary {
     return {
       type: 'Unary',
-      operator: op,
-      child: expr,
+      operator,
+      child,
     };
   }
 
-  binary(l: ast.Expression, op: string, r: ast.Expression): ast.Binary {
+  binary(left: ast.Expression, operator: string, right: ast.Expression): ast.Binary {
     return {
       type: 'Binary',
-      operator: op,
-      left: l,
-      right: r,
+      operator,
+      left,
+      right,
     };
   }
 
-  getter(g: ast.Expression, n: string): ast.Getter {
+  getter(receiver: ast.Expression, name: string): ast.Getter {
     return {
       type: 'Getter',
-      receiver: g,
-      name: n,
+      receiver,
+      name,
     };
   }
 
   invoke(receiver: ast.Expression, method: string|null, args: Array<ast.Expression|null>|null):
       ast.Invoke {
+    // TODO(justinfagnani): do this assertion in the parser
     if (args == null) {
       throw new Error('args');
     }
     return {
       type: 'Invoke',
-      receiver: receiver,
-      method: method,
+      receiver,
+      method,
       arguments: args,
     };
   }
 
-  paren(e: ast.Expression): ast.Paren {
+  paren(child: ast.Expression): ast.Paren {
     return {
       type: 'Paren',
-      child: e,
+      child,
     };
   }
 
-  index(e: ast.Expression, a: ast.Expression): ast.Index {
+  index(receiver: ast.Expression, argument: ast.Expression): ast.Index {
     return {
       type: 'Index',
-      receiver: e,
-      argument: a,
+      receiver,
+      argument,
     };
   }
 
-  ternary(c: ast.Expression, t: ast.Expression, f: ast.Expression): ast.Ternary {
+  ternary(condition: ast.Expression, trueExpr: ast.Expression, falseExpr: ast.Expression): ast.Ternary {
     return {
       type: 'Ternary',
-      condition: c,
-      trueExpr: t,
-      falseExpr: f,
+      condition,
+      trueExpr,
+      falseExpr,
     };
   }
 
-  map(entries: {[key: string]: ast.Expression | null}|null): ast.Map {
+  map(entries: {[key: string]: ast.Expression}|null): ast.Map {
     return {
       type: 'Map',
-      entries: entries,
+      entries,
     };
   }
 
-  list(l: Array<ast.Expression|null>|null): ast.List {
+  list(items: Array<ast.Expression>|null): ast.List {
     return {
       type: 'List',
-      items: l,
+      items,
     };
   }
 }
