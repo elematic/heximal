@@ -1,5 +1,3 @@
-'use strict';
-
 import {AstFactory} from './ast_factory';
 
 const _BINARY_OPERATORS = {
@@ -171,7 +169,7 @@ export class EvalAstFactory implements AstFactory<Node> {
   }
 
   unary(op: string, expr: Node): Unary {
-    let f = _UNARY_OPERATORS[op];
+    const f = _UNARY_OPERATORS[op];
     return {
       type: 'Unary',
       operator: op,
@@ -186,7 +184,7 @@ export class EvalAstFactory implements AstFactory<Node> {
   }
 
   binary(l: Node, op: string, r: Node): Binary {
-    let f = _BINARY_OPERATORS[op];
+    const f = _BINARY_OPERATORS[op];
     return {
       type: 'Binary',
       operator: op,
@@ -228,14 +226,14 @@ export class EvalAstFactory implements AstFactory<Node> {
       method: method,
       arguments: args,
       evaluate: function(scope) {
-        let receiver = this.receiver.evaluate(scope);
+        const receiver = this.receiver.evaluate(scope);
         // TODO(justinfagnani): this might be wrong in cases where we're
         // invoking a top-level function rather than a method. If method is
         // defined on a nested scope, then we should probably set _this to null.
-        let _this = this.method ? receiver : scope['this'] || scope;
+        const _this = this.method ? receiver : scope['this'] || scope;
         const f = this.method ? receiver[method] : receiver;
         const args = this.arguments || [];
-        let argValues = args.map((a) => (a && a.evaluate(scope)));
+        const argValues = args.map((a) => (a && a.evaluate(scope)));
         return f.apply(_this, argValues);
       },
       getIds(idents) {
@@ -274,7 +272,7 @@ export class EvalAstFactory implements AstFactory<Node> {
       trueExpr: t,
       falseExpr: f,
       evaluate: function(scope) {
-        let c = this.condition.evaluate(scope);
+        const c = this.condition.evaluate(scope);
         if (c) {
           return this.trueExpr.evaluate(scope);
         } else {
@@ -295,9 +293,9 @@ export class EvalAstFactory implements AstFactory<Node> {
       type: 'Map',
       entries: entries,
       evaluate: function(scope) {
-        let map = {};
+        const map = {};
         if (entries && this.entries) {
-          for (let key in entries) {
+          for (const key in entries) {
             const val = this.entries[key];
             if (val) {
               map[key] = val.evaluate(scope);
@@ -308,7 +306,7 @@ export class EvalAstFactory implements AstFactory<Node> {
       },
       getIds(idents) {
         if (entries && this.entries) {
-          for (let key in entries) {
+          for (const key in entries) {
             const val = this.entries[key];
             if (val) {
               val.getIds(idents);

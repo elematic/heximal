@@ -1,5 +1,3 @@
-'use strict';
-
 export type Node = Literal | Empty | ID | Unary | Binary | Getter | Invoke |
     Paren | Index | Ternary | Map | List;
 export interface Literal {
@@ -58,7 +56,7 @@ export interface List {
 }
 
 
-export interface AstFactory<N> {
+export interface AstFactory<N extends Node> {
   empty(): N;
   literal(rawValue: string|number|boolean|RegExp|null): N;
   id(name: string): N;
