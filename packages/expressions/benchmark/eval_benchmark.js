@@ -1,21 +1,21 @@
 'use strict';
 
-var evaluate = require('../lib/eval.js');
-let parser = require('../lib/parser');
+const Benchmark = require('benchmark');
+const evaluate = require('../lib/eval.js');
+const parser = require('../lib/parser');
 
-var Benchmark = require('benchmark');
-let Parser = parser.Parser;
+const suite = new Benchmark.Suite();
 
-var suite = new Benchmark.Suite;
-
-let astFactory = new evaluate.EvalAstFactory();
+const Parser = parser.Parser;
+const astFactory = new evaluate.EvalAstFactory();
+const identifierExpr = new Parser('foo', astFactory).parse();
+const complexExpr = new Parser('(a + b([1, 2, 3]) * c)', astFactory).parse();
 
 suite
     .add(
         'eval identifier',
         function() {
-          var expr = new Parser('foo', astFactory).parse();
-          var result = expr.evaluate({foo: 'bar'});
+          var result = identifierExpr.evaluate({foo: 'bar'});
           return result;
         })
     .add(
@@ -30,8 +30,7 @@ suite
     .add(
         'eval complex',
         function() {
-          var expr = new Parser('(a + b([1, 2, 3]) * c)', astFactory).parse();
-          var result = expr.evaluate({
+          var result = complexExpr.evaluate({
             a: 42,
             b: function(o) {
               return o.length;
@@ -56,13 +55,3 @@ suite
           console.log(String(event.target));
         })
     .run({'async': true});
-
-// (function f() {
-//   var expr = new Parser('(a + b([1, 2, 3]) * c)', astFactory).parse();
-//   var result = expr.evaluate({
-//     a: 42,
-//     b: function(o) { return o.length; },
-//     c: 2,
-//   });
-//   return result;
-// })();
