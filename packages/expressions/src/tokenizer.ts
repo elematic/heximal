@@ -1,6 +1,5 @@
-import {Kind, POSTFIX_PRECEDENCE, PRECEDENCE} from './constants';
+import {Kind, KEYWORDS, POSTFIX_PRECEDENCE, PRECEDENCE} from './constants';
 
-const _KEYWORDS = ['this'];
 const _TWO_CHAR_OPS = ['==', '!=', '<=', '>=', '||', '&&'];
 const _THREE_CHAR_OPS = ['===', '!=='];
 
@@ -37,7 +36,7 @@ function _isIdentifier(ch: number) {
 }
 
 function _isKeyword(str: string) {
-  return _KEYWORDS.indexOf(str) !== -1;
+  return KEYWORDS.indexOf(str) !== -1;
 }
 
 function _isQuote(ch: number) {
