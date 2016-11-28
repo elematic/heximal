@@ -63,17 +63,4 @@ export const PRECEDENCE = {
   '{': 11,  // not sure this is correct
 };
 
-export enum Kind {
-  STRING = 1,
-  IDENTIFIER = 2,
-  DOT = 3,
-  COMMA = 4,
-  COLON = 5,
-  INTEGER = 6,
-  DECIMAL = 7,
-  OPERATOR = 8,
-  GROUPER = 9,
-  KEYWORD = 10,
-}
-
 export const POSTFIX_PRECEDENCE = 11;

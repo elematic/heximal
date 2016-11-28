@@ -1,4 +1,4 @@
-import {Kind, KEYWORDS, POSTFIX_PRECEDENCE, PRECEDENCE} from './constants';
+import {KEYWORDS, POSTFIX_PRECEDENCE, PRECEDENCE} from './constants';
 
 const _TWO_CHAR_OPS = ['==', '!=', '<=', '>=', '||', '&&'];
 const _THREE_CHAR_OPS = ['===', '!=='];
@@ -7,6 +7,19 @@ export interface Token {
   kind: Kind;
   value: string;
   precedence: number;
+}
+
+export enum Kind {
+  STRING = 1,
+  IDENTIFIER = 2,
+  DOT = 3,
+  COMMA = 4,
+  COLON = 5,
+  INTEGER = 6,
+  DECIMAL = 7,
+  OPERATOR = 8,
+  GROUPER = 9,
+  KEYWORD = 10,
 }
 
 export function token(kind: Kind, value: string, precedence?: number) {

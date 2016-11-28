@@ -1,40 +1,39 @@
 import {assert} from 'chai';
 
 import * as constants from '../constants';
-import * as tokenizer from '../tokenizer';
+import {Kind, token as makeToken, Token, Tokenizer} from '../tokenizer';
 
-const Tokenizer = tokenizer.Tokenizer;
-const STRING = constants.Kind.STRING;
-const IDENTIFIER = constants.Kind.IDENTIFIER;
-const DOT = constants.Kind.DOT;
-const COMMA = constants.Kind.COMMA;
-const COLON = constants.Kind.COLON;
-const INTEGER = constants.Kind.INTEGER;
-const DECIMAL = constants.Kind.DECIMAL;
-const OPERATOR = constants.Kind.OPERATOR;
-const GROUPER = constants.Kind.GROUPER;
-const KEYWORD = constants.Kind.KEYWORD;
+const STRING = Kind.STRING;
+const IDENTIFIER = Kind.IDENTIFIER;
+const DOT = Kind.DOT;
+const COMMA = Kind.COMMA;
+const COLON = Kind.COLON;
+const INTEGER = Kind.INTEGER;
+const DECIMAL = Kind.DECIMAL;
+const OPERATOR = Kind.OPERATOR;
+const GROUPER = Kind.GROUPER;
+const KEYWORD = Kind.KEYWORD;
 const POSTFIX_PRECEDENCE = constants.POSTFIX_PRECEDENCE;
 const PRECEDENCE = constants.PRECEDENCE;
 
 function tokenize(s: string) {
   const tokenizer = new Tokenizer(s);
-  const tokens: tokenizer.Token[] = [];
-  let token: tokenizer.Token;
+  const tokens: Token[] = [];
+  let token: Token;
   while ((token = tokenizer.nextToken()) != null) {
     tokens.push(token);
   }
   return tokens;
 }
 
-function expectTokens(s: string, expected: tokenizer.Token[]) {
+function expectTokens(s: string, expected: Token[]) {
   const tokens = tokenize(s);
   assert.deepEqual(tokens, expected);
 }
 
 function t(
-    kind: constants.Kind, value: string, precedence?: number): tokenizer.Token {
-  return tokenizer.token(kind, value, precedence);
+    kind: Kind, value: string, precedence?: number): Token {
+  return makeToken(kind, value, precedence);
 }
 
 suite('tokenizer', function() {

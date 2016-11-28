@@ -1,7 +1,7 @@
 import {ID, Invoke, Expression} from './ast';
 import {AstFactory} from './ast_factory';
-import {BINARY_OPERATORS, KEYWORDS, Kind, POSTFIX_PRECEDENCE, UNARY_OPERATORS} from './constants';
-import {Token, Tokenizer} from './tokenizer';
+import {BINARY_OPERATORS, KEYWORDS, POSTFIX_PRECEDENCE, UNARY_OPERATORS} from './constants';
+import {Kind, Token, Tokenizer} from './tokenizer';
 
 export function parse(expr: string, astFactory: AstFactory<Expression>): Expression|null {
   return new Parser(expr, astFactory).parse();
