@@ -1,7 +1,7 @@
 {
     "compilerOptions": {
         "target": "es6",
-        "module": "commonjs",
+        "module": "amd",
         "moduleResolution": "node",
         "isolatedModules": false,
         "noImplicitAny": true,
@@ -15,15 +15,18 @@
         "lib": [
             "es2017"
         ],
-        "outDir": "./lib",
+        "outFile": "./polymer-expressions.js",
         "declaration": true,
         "sourceMap": true,
-        "pretty": true
+        "pretty": false,
+        "rootDirs": [
+            "./src"
+        ]
     },
     "include": [
         "src/**/*.ts"
     ],
     "exclude": [
-        "node_modules"
+        "src/test/**"
     ]
 }

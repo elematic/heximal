@@ -1,6 +1,6 @@
 {
   "name": "polymer-expressions",
-  "version": "2.0.0-pre.1",
+  "version": "2.0.0-pre.2",
   "description": "README.md",
   "repository": {
     "type": "git",
@@ -8,6 +8,7 @@
   },
   "scripts": {
     "build": "tsc",
+    "build:bower": "tsc -p tsconfig.bower.json",
     "pretest": "npm run build",
     "test": "mocha",
     "prepublish": "npm test",
@@ -25,5 +26,6 @@
     "tslint": "^4.0.1",
     "typescript": "^2.0.10",
     "watchy": "^0.6.6"
-  }
+  },
+  "typings": "./lib/polymer-expressions.d.ts"
 }
