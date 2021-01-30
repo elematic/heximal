@@ -1,9 +1,10 @@
 {
     "compilerOptions": {
-        "target": "es6",
+        "target": "es2020",
         "module": "esnext",
         "moduleResolution": "node",
         "isolatedModules": false,
+        "strict": true,
         "noImplicitAny": true,
         "noUnusedLocals": true,
         "noUnusedParameters": true,
@@ -12,9 +13,6 @@
         "removeComments": false,
         "preserveConstEnums": true,
         "suppressImplicitAnyIndexErrors": true,
-        "lib": [
-            "es2017"
-        ],
         "outDir": ".",
         "declaration": true,
         "sourceMap": true,
@@ -24,7 +22,5 @@
     "include": [
         "src/**/*.ts"
     ],
-    "exclude": [
-        "node_modules"
-    ]
+    "exclude": []
 }

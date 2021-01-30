@@ -7,8 +7,8 @@ const _BINARY_OPERATORS = {
   '*': (a: any, b: any) => a * b,
   '/': (a: any, b: any) => a / b,
   '%': (a: any, b: any) => a % b,
-  '==': (a: any, b: any) => a == b,  // tslint:disable-line: triple-equals
-  '!=': (a: any, b: any) => a != b,  // tslint:disable-line: triple-equals
+  '==': (a: any, b: any) => a == b,
+  '!=': (a: any, b: any) => a != b,
   '===': (a: any, b: any) => a === b,
   '!==': (a: any, b: any) => a !== b,
   '>': (a: any, b: any) => a > b,
@@ -29,8 +29,8 @@ const _UNARY_OPERATORS = {
 export interface Scope { [key: string]: any; }
 
 export interface Evaluatable {
-  evaluate(this: this, scope: Scope): any;
-  getIds(this: this, idents: string[]): string[];
+  evaluate(scope: Scope): any;
+  getIds(idents: string[]): string[];
 }
 
 export type Expression = Literal | Empty | ID | Unary | Binary | Getter | Invoke |
