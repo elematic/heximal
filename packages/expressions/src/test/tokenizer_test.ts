@@ -1,7 +1,9 @@
-import { assert } from 'chai';
+import chai from 'chai';
 
-import * as constants from '../polymer-expressions/constants';
-import { Kind, token as makeToken, Token, Tokenizer } from '../polymer-expressions/tokenizer';
+import * as constants from '../lib/constants.js';
+import { Kind, token as makeToken, Token, Tokenizer } from '../lib/tokenizer.js';
+
+const { assert } = chai;
 
 const STRING = Kind.STRING;
 const IDENTIFIER = Kind.IDENTIFIER;

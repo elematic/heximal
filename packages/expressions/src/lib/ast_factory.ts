@@ -1,4 +1,4 @@
-import * as ast from './ast';
+import * as ast from './ast.js';
 
 export interface AstFactory<E extends ast.Expression> {
   empty(): E;
@@ -7,17 +7,17 @@ export interface AstFactory<E extends ast.Expression> {
   unary(operator: string, expression: E): E;
   binary(left: E, op: string, right: E): E;
   getter(receiver: E, name: string): E;
-  invoke(receiver: E, method: string|null, args: Array<E>|null): E;
+  invoke(receiver: E, method: string | null, args: Array<E> | null): E;
   paren(child: E): E;
   index(receiver: E, argument: E): E;
   ternary(condition: E, trueExpr: E, falseExpr: E): E;
-  map(entries: {[key: string]: E }|null): E;
-  list(items: Array<E>|null): E;
+  map(entries: { [key: string]: E } | null): E;
+  list(items: Array<E> | null): E;
 }
 
 export class DefaultAstFactory implements AstFactory<ast.Expression> {
   empty(): ast.Empty {
-    return {type: 'Empty'};
+    return { type: 'Empty' };
   }
 
   // TODO(justinfagnani): just use a JS literal?
@@ -60,8 +60,8 @@ export class DefaultAstFactory implements AstFactory<ast.Expression> {
     };
   }
 
-  invoke(receiver: ast.Expression, method: string|null, args: Array<ast.Expression|null>|null):
-      ast.Invoke {
+  invoke(receiver: ast.Expression, method: string | null, args: Array<ast.Expression | null> | null):
+    ast.Invoke {
     // TODO(justinfagnani): do this assertion in the parser
     if (args == null) {
       throw new Error('args');
@@ -98,14 +98,14 @@ export class DefaultAstFactory implements AstFactory<ast.Expression> {
     };
   }
 
-  map(entries: {[key: string]: ast.Expression}|null): ast.Map {
+  map(entries: { [key: string]: ast.Expression } | null): ast.Map {
     return {
       type: 'Map',
       entries,
     };
   }
 
-  list(items: Array<ast.Expression>|null): ast.List {
+  list(items: Array<ast.Expression> | null): ast.List {
     return {
       type: 'List',
       items,

@@ -1,7 +1,7 @@
 {
     "compilerOptions": {
         "target": "es6",
-        "module": "commonjs",
+        "module": "esnext",
         "moduleResolution": "node",
         "isolatedModules": false,
         "noImplicitAny": true,
@@ -15,10 +15,11 @@
         "lib": [
             "es2017"
         ],
-        "outDir": "./lib",
+        "outDir": ".",
         "declaration": true,
         "sourceMap": true,
-        "pretty": true
+        "pretty": true,
+        "allowSyntheticDefaultImports": true,
     },
     "include": [
         "src/**/*.ts"

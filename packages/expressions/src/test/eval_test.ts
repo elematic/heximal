@@ -1,7 +1,9 @@
-import { assert } from 'chai';
+import chai from 'chai';
 
-import * as evaluate from '../polymer-expressions/eval';
-import * as parser from '../polymer-expressions/parser';
+import * as evaluate from '../lib/eval.js';
+import * as parser from '../lib/parser.js';
+
+const { assert } = chai;
 
 const Parser = parser.Parser;
 

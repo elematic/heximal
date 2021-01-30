@@ -1,4 +1,4 @@
-import {KEYWORDS, POSTFIX_PRECEDENCE, PRECEDENCE} from './constants';
+import { KEYWORDS, POSTFIX_PRECEDENCE, PRECEDENCE } from './constants.js';
 
 const _TWO_CHAR_OPS = ['==', '!=', '<=', '>=', '||', '&&'];
 const _THREE_CHAR_OPS = ['===', '!=='];
@@ -31,10 +31,10 @@ export function token(kind: Kind, value: string, precedence?: number) {
 }
 
 function _isWhitespace(ch: number) {
-  return ch === 9  /* \t */  ||
-         ch === 10 /* \n */  ||
-         ch === 13 /* \r */  ||
-         ch === 32 /* space */;
+  return ch === 9  /* \t */ ||
+    ch === 10 /* \n */ ||
+    ch === 13 /* \r */ ||
+    ch === 32 /* space */;
 }
 
 // TODO(justinfagnani): allow code points > 127
@@ -62,31 +62,31 @@ function _isNumber(ch: number) {
 
 function _isOperator(ch: number) {
   return ch === 43 /* + */ ||
-         ch === 45 /* - */ ||
-         ch === 42 /* * */ ||
-         ch === 47 /* / */ ||
-         ch === 33 /* ! */ ||
-         ch === 38 /* & */ ||
-         ch === 37 /* % */ ||
-         ch === 60 /* < */ ||
-         ch === 61 /* = */ ||
-         ch === 62 /* > */ ||
-         ch === 63 /* ? */ ||
-         ch === 94 /* ^ */ ||
-         ch === 124 /* | */;
+    ch === 45 /* - */ ||
+    ch === 42 /* * */ ||
+    ch === 47 /* / */ ||
+    ch === 33 /* ! */ ||
+    ch === 38 /* & */ ||
+    ch === 37 /* % */ ||
+    ch === 60 /* < */ ||
+    ch === 61 /* = */ ||
+    ch === 62 /* > */ ||
+    ch === 63 /* ? */ ||
+    ch === 94 /* ^ */ ||
+    ch === 124 /* | */;
 }
 
 function _isGrouper(ch: number) {
   return ch === 40  /* ( */ ||
-         ch === 41 /* ) */ ||
-         ch === 91 /* [ */ ||
-         ch === 93 /* ] */ ||
-         ch === 123 /* { */ ||
-         ch === 125 /* } */;
+    ch === 41 /* ) */ ||
+    ch === 91 /* [ */ ||
+    ch === 93 /* ] */ ||
+    ch === 123 /* { */ ||
+    ch === 125 /* } */;
 }
 
 function _escapeString(str: string) {
-  return str.replace(/\\(.)/g, function(_match, group) {
+  return str.replace(/\\(.)/g, function (_match, group) {
     switch (group) {
       case 'n':
         return '\n';
@@ -108,7 +108,7 @@ export class Tokenizer {
   private _input: string;
   private _index = -1;
   private _tokenStart = 0;
-  private _next: number|null = null;
+  private _next: number | null = null;
 
   constructor(input: string) {
     this._input = input;
@@ -158,7 +158,7 @@ export class Tokenizer {
 
   private _getValue(lookahead?: number) {
     const v =
-        this._input.substring(this._tokenStart, this._index + (lookahead || 0));
+      this._input.substring(this._tokenStart, this._index + (lookahead || 0));
     if (!lookahead)
       this._clearValue();
     return v;

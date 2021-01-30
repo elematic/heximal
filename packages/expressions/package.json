@@ -6,10 +6,12 @@
     "type": "git",
     "url": "https://github.com/Polymer/polymer-expressions.git"
   },
+  "type": "module",
+  "main": "index.js",
   "scripts": {
     "build": "tsc",
     "pretest": "npm run build",
-    "test": "mocha",
+    "test": "mocha --ui tdd test/*.js",
     "prepublish": "npm test",
     "benchmark": "node benchmark/eval_benchmark",
     "test:watch": "watchy -w src/ -- npm test --loglevel=silent"
@@ -25,6 +27,5 @@
     "tslint": "^4.0.1",
     "typescript": "^2.0.10",
     "watchy": "^0.6.6"
-  },
-  "typings": "./lib/polymer-expressions.d.ts"
+  }
 }

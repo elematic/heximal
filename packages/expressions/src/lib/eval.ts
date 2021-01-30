@@ -1,5 +1,5 @@
-import * as ast from './ast';
-import {AstFactory} from './ast_factory';
+import * as ast from './ast.js';
+import { AstFactory } from './ast_factory.js';
 
 const _BINARY_OPERATORS = {
   '+': (a: any, b: any) => a + b,
@@ -34,7 +34,7 @@ export interface Evaluatable {
 }
 
 export type Expression = Literal | Empty | ID | Unary | Binary | Getter | Invoke |
-    Index | Ternary | Map | List;
+  Index | Ternary | Map | List;
 
 export interface Literal extends Evaluatable {
   type: 'Literal';
@@ -64,8 +64,8 @@ export interface Getter extends Evaluatable {
 export interface Invoke extends Evaluatable {
   type: 'Invoke';
   receiver: Expression;
-  method: string|null;
-  arguments: Array<Expression>|null;
+  method: string | null;
+  arguments: Array<Expression> | null;
 }
 export interface Index extends Evaluatable {
   type: 'Index';
@@ -80,11 +80,11 @@ export interface Ternary extends Evaluatable {
 }
 export interface Map extends Evaluatable {
   type: 'Map';
-  entries: {[key: string]: Expression | null}|null;
+  entries: { [key: string]: Expression | null } | null;
 }
 export interface List extends Evaluatable {
   type: 'List';
-  items: Array<Expression>|null;
+  items: Array<Expression> | null;
 }
 
 export class EvalAstFactory implements AstFactory<Expression> {
@@ -250,7 +250,7 @@ export class EvalAstFactory implements AstFactory<Expression> {
     };
   }
 
-  map(entries: {[key: string]: Expression}|null): Map {
+  map(entries: { [key: string]: Expression } | null): Map {
     return {
       type: 'Map',
       entries: entries,
@@ -281,7 +281,7 @@ export class EvalAstFactory implements AstFactory<Expression> {
   }
 
   // TODO(justinfagnani): if the list is deeply literal
-  list(l: Array<Expression>|null): List {
+  list(l: Array<Expression> | null): List {
     return {
       type: 'List',
       items: l,

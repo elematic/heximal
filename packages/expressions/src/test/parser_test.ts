@@ -1,7 +1,9 @@
-import { assert } from 'chai';
+import chai from 'chai';
 
-import * as ast_factory from '../polymer-expressions/ast_factory';
-import * as parser from '../polymer-expressions/parser';
+import * as ast_factory from '../lib/ast_factory.js';
+import * as parser from '../lib/parser.js';
+
+const { assert } = chai;
 
 const Parser = parser.Parser;
 const astFactory = new ast_factory.DefaultAstFactory();

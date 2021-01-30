@@ -1,25 +1,25 @@
-import {ID, Invoke, Expression} from './ast';
-import {AstFactory} from './ast_factory';
-import {BINARY_OPERATORS, KEYWORDS, POSTFIX_PRECEDENCE, UNARY_OPERATORS} from './constants';
-import {Kind, Token, Tokenizer} from './tokenizer';
+import { ID, Invoke, Expression } from './ast.js';
+import { AstFactory } from './ast_factory.js';
+import { BINARY_OPERATORS, KEYWORDS, POSTFIX_PRECEDENCE, UNARY_OPERATORS } from './constants.js';
+import { Kind, Token, Tokenizer } from './tokenizer.js';
 
-export function parse(expr: string, astFactory: AstFactory<Expression>): Expression|null {
+export function parse(expr: string, astFactory: AstFactory<Expression>): Expression | null {
   return new Parser(expr, astFactory).parse();
 }
 
 export class Parser<N extends Expression> {
-  private _kind: Kind|null = null;
+  private _kind: Kind | null = null;
   private _tokenizer: Tokenizer;
   private _ast: AstFactory<N>;
-  private _token: Token|null = null;
-  private _value: string|null = null;
+  private _token: Token | null = null;
+  private _value: string | null = null;
 
   constructor(input: string, astFactory: AstFactory<N>) {
     this._tokenizer = new Tokenizer(input);
     this._ast = astFactory;
   }
 
-  parse(): N|null {
+  parse(): N | null {
     this._advance();
     return this._parseExpression();
   }
@@ -38,7 +38,7 @@ export class Parser<N extends Expression> {
     return !(kind && (this._kind !== kind) || value && (this._value !== value));
   }
 
-  private _parseExpression(): N|null {
+  private _parseExpression(): N | null {
     if (!this._token)
       return this._ast.empty();
     const expr = this._parseUnary();
@@ -66,10 +66,10 @@ export class Parser<N extends Expression> {
       } else if (this._matches(Kind.KEYWORD)) {
         break;
       } else if (
-          this._matches(Kind.OPERATOR) &&
-          this._token.precedence >= precedence) {
+        this._matches(Kind.OPERATOR) &&
+        this._token.precedence >= precedence) {
         left = this._value === '?' ? this._parseTernary(left) :
-                                     this._parseBinary(left, this._token);
+          this._parseBinary(left, this._token);
       } else {
         break;
       }
@@ -81,10 +81,10 @@ export class Parser<N extends Expression> {
     if (right.type === 'ID') {
       return this._ast.getter(left, (right as ID).value);
     } else if (
-        right.type === 'Invoke' && (right as Invoke).receiver.type === 'ID') {
+      right.type === 'Invoke' && (right as Invoke).receiver.type === 'ID') {
       const method = ((right as Invoke).receiver as ID);
       return this._ast.invoke(
-          left, method.value, (right as Invoke).arguments as any);
+        left, method.value, (right as Invoke).arguments as any);
     } else {
       throw new Error(`expected identifier: ${right}`);
     }
@@ -97,8 +97,8 @@ export class Parser<N extends Expression> {
     this._advance();
     let right = this._parseUnary();
     while ((this._kind === Kind.OPERATOR || this._kind === Kind.DOT ||
-            this._kind === Kind.GROUPER) &&
-           this._token.precedence > op.precedence) {
+      this._kind === Kind.GROUPER) &&
+      this._token.precedence > op.precedence) {
       right = this._parsePrecedence(right, this._token.precedence);
     }
     return this._ast.binary(left, op.value, right);
@@ -120,7 +120,7 @@ export class Parser<N extends Expression> {
       if (UNARY_OPERATORS.indexOf(value!) === -1)
         throw new Error(`unexpected token: ${value}`);
       const expr =
-          this._parsePrecedence(this._parsePrimary(), POSTFIX_PRECEDENCE);
+        this._parsePrecedence(this._parsePrimary(), POSTFIX_PRECEDENCE);
       return this._ast.unary(value, expr);
     }
     return this._parsePrimary();
@@ -171,7 +171,7 @@ export class Parser<N extends Expression> {
   }
 
   private _parseList() {
-    const items: (N|null)[] = [];
+    const items: (N | null)[] = [];
     do {
       this._advance();
       if (this._matches(Kind.GROUPER, ']'))
@@ -183,7 +183,7 @@ export class Parser<N extends Expression> {
   }
 
   private _parseMap() {
-    const entries: {[key: string]: N | null} = {};
+    const entries: { [key: string]: N | null } = {};
     do {
       this._advance();
       if (this._matches(Kind.GROUPER, '}'))
