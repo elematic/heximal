@@ -8,6 +8,10 @@
   },
   "type": "module",
   "main": "index.js",
+  "exports": {
+    ".": "./index.js",
+    "./lib/*": "./lib/*.js"
+  },
   "scripts": {
     "build": "tsc",
     "test": "mocha --ui tdd test/*.js",
