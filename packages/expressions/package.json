@@ -14,7 +14,8 @@
     "test": "mocha --ui tdd test/*.js",
     "prepublish": "npm test",
     "benchmark": "node benchmark/eval_benchmark",
-    "test:watch": "watchy -w src/ -- npm test --loglevel=silent"
+    "test:watch": "watchy -w src/ -- npm test --loglevel=silent",
+    "format": "prettier \"**/*.{json,md,ts}\" --write"
   },
   "author": "The Polymer Authors",
   "license": "Apache-2.0",
@@ -25,6 +26,7 @@
     "benchmark": "^2.1.4",
     "chai": "^4.2.0",
     "mocha": "^8.2.1",
+    "prettier": "^2.2.1",
     "typescript": "^4.2.0-beta",
     "watchy": "^0.9.9"
   }
