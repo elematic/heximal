@@ -19,12 +19,13 @@
   "author": "The Polymer Authors",
   "license": "Apache-2.0",
   "devDependencies": {
-    "@types/chai": "^3.4.34",
-    "@types/mocha": "^2.2.33",
-    "benchmark": "^1.0.0",
-    "chai": "^3.5.0",
-    "mocha": ">=1.9",
+    "@types/benchmark": "^2.1.0",
+    "@types/chai": "^4.2.14",
+    "@types/mocha": "^8.2.0",
+    "benchmark": "^2.1.4",
+    "chai": "^4.2.0",
+    "mocha": "^8.2.1",
     "typescript": "^4.2.0-beta",
-    "watchy": "^0.6.6"
+    "watchy": "^0.9.9"
   }
 }
