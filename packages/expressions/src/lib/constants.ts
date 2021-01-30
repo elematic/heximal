@@ -1,3 +1,8 @@
+/* 
+ * @license
+ * Portions Copyright (c) 2013, the Dart project authors.
+ */
+
 export const KEYWORDS = ['this'];
 export const UNARY_OPERATORS = ['+', '-', '!'];
 export const BINARY_OPERATORS = [

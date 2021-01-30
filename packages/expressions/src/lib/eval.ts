@@ -1,3 +1,8 @@
+/* 
+ * @license
+ * Portions Copyright (c) 2013, the Dart project authors.
+ */
+
 import * as ast from './ast.js';
 import {AstFactory} from './ast_factory.js';
 

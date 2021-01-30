@@ -1,3 +1,8 @@
+/* 
+ * @license
+ * Portions Copyright (c) 2013, the Dart project authors.
+ */
+
 import * as ast from './ast.js';
 
 export interface AstFactory<E extends ast.Expression> {

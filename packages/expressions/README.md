@@ -1,82 +1,67 @@
-# PolymerExpressions
-
-[![Build status](http://www.polymer-project.org/build/polymer-expressions/status.png 'Build status')](http://build.chromium.org/p/client.polymer/waterfall)
+# Jexpr
 
 ## Overview
 
-Polymer expressions are an expressive syntax that can be used in Polymer HTML
-templates.
+Jexpr is an expression syntax, parser, and evaluator for JS-like expressions.
 
-Polymer expressions allow you to write complex binding expressions, with
-property access, function invocation, list/map indexing, and two-way filtering
-like:
+Jexpr is designed for libraries that evaluate user-written expressions, such as
+HTML templating engines. Jexpr has a relatively rich syntax, supporting
+identifiers, operators, property access, method and function calls, and
+literals (including arrays and objects), and pipes.
 
-```html
-{{ person.title + " " + person.getFullName() | uppercase }}
+Example:
+```js
+person.title + " " + person.getFullName() | uppercase
 ```
 
 ## Usage
 
 ### Installation
 
-_TODO: Add npm instructions_
+```bash
+npm i jexpr
+```
 
 ### Usage
 
-Import `polymer-expressions.html` and add the `PolymerExpressions` behavior:
+```ts
+import {parse, EvalAstFactory} from 'jexpr';
 
-```html
-<link rel="import" href="../polymer-expressions/polymer-expressions.html" />
-<script>
-  Polymer({
-    is: 'my-element',
+// An EvalAstFactory produces an AST that can be evaluated
+const astFactory = new EvalAstFactory();
 
-    behaviors: [PolymerExpressions],
-  });
-</script>
+// parse() returns the AST
+const expr = parse('(a + b([1, 2, 3]) * c)', astFactory);
+
+// evaluate() with a scope object
+const result = expr.evaluate({
+  a: 42,
+  b: (o: Array<number>) => o.length,
+  c: 2,
+});
+
+console.log(result); // 48
 ```
 
 ## Features
 
-### Models and Scopes
+### Fast, small parser
 
-**_TBD_**
+Jexpr is a hand-written, recursive descent, precedence-climbing parser. It's
+simple, fast and small.
 
-### Assignable and Non-Assignable Expressions
+### Pluggable AST factories
 
-**_NOTE: Subject to Change_**
-
-Some expressions can be used in two-way binding contexts. For this to work,
-the expression must be "assignable". Only a subset of expressions are
-assignable.
-
-Assignable expressions cannot contain function calls, operators, and
-any index operator must have a literal argument. Assignable expressions can
-contain filter operators as long as all the filters are two-way transformers.
-
-Some restrictions may be relaxed further as allowed.
-
-Assignable Expressions:
-
-- `foo`
-- `foo.bar`
-- `items[0].description`
-- `people['john'].name`
-- `product.cost | convertCurrency('ZWD')` where `convertCurrency` evaluates to
-  a Transformer object.
-
-Non-Assignable Expressions:
-
-- `a + 1`
-- `!c`
-- `foo()`
-- `person.lastName | uppercase` where `uppercase` is a filter function.
+`parse()` takes an AST factory so that different strategies can be used to
+produce ASTs. The default factory creates an AST as defined in `lib/ast.js`.
+`lib/eval.js` exports an `EvalAstFactory` that produces evaluatable ASTs.
 
 ### Null-Safety
 
 Expressions are generally null-safe. If a subexpression yields `null` or
 `undefined`, subsequent property access will return null, rather than throwing
-an exception. Property access, method invocation and operators are null-safe. Passing null to a function that doesn't handle null will not be null safe.
+an exception. Property access, method invocation and operators are null-safe.
+Passing null to a function that doesn't handle null will not be null safe.
 
 ## Syntax
 
@@ -93,7 +78,7 @@ name, you can use `this` to refer to the model property.
 
 ### Literals
 
-Polymer Expressions support number, boolean, string, and map literals. Strings
+Jexpr supports number, boolean, string, and map literals. Strings
 can use either single or double quotes.
 
 - Numbers: `1`, `1.0`
@@ -117,7 +102,7 @@ Examples:
 
 ### Operators
 
-Polymer Expressions supports the following binary and unary operators:
+Jexpr supports the following binary and unary operators:
 
 - Arithmetic operators: `+`, `-`, `*`, `/`, `%`, unary `+` and `-`
 - Comparison operators: `==`, `!=`, `===`, `!==`, `<=`, `<`, `>`, `>=`
@@ -149,3 +134,10 @@ been registered, then `person.name | uppercase` will have the value `"JOHN"`.
 The pipe syntax is used rather than a regular function call so that we can
 support two-way bindings through transformers. A transformer is a filter that
 has an inverse function. Two-way transformers are not supported yet.
+
+## Acknowedgements
+
+Jexpr is forked from `polymer-expressions` which is no longer officially
+maintained by the Polymer team. The JavaScript version of that library was
+ported from the
+[Dart library](https://github.com/dart-archive/polymer-expressions) of the same name, originally used in Polymer.dart.

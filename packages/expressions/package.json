@@ -1,10 +1,10 @@
 {
-  "name": "polymer-expressions",
-  "version": "2.0.0-pre.3",
-  "description": "README.md",
+  "name": "jexpr",
+  "version": "1.0.0-pre.1",
+  "description": "A simple expression parser and evaluator",
   "repository": {
     "type": "git",
-    "url": "https://github.com/Polymer/polymer-expressions.git"
+    "url": "https://github.com/justinfagnani/jexpr.git"
   },
   "type": "module",
   "main": "index.js",
@@ -16,8 +16,8 @@
     "test:watch": "watchy -w src/ -- npm test --loglevel=silent",
     "format": "prettier \"**/*.{json,md,ts}\" --write"
   },
-  "author": "The Polymer Authors",
-  "license": "Apache-2.0",
+  "author": "Justin Fagnani",
+  "license": "BSD 3-Clause",
   "devDependencies": {
     "@types/benchmark": "^2.1.0",
     "@types/chai": "^4.2.14",

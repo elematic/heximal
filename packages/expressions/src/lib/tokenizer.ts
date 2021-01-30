@@ -1,3 +1,8 @@
+/* 
+ * @license
+ * Portions Copyright (c) 2013, the Dart project authors.
+ */
+
 import {KEYWORDS, POSTFIX_PRECEDENCE, PRECEDENCE} from './constants.js';
 
 const _TWO_CHAR_OPS = ['==', '!=', '<=', '>=', '||', '&&'];
