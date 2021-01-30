@@ -1,6 +1,6 @@
 import * as idom from 'incremental-dom';
-import { Parser } from 'polymer-expressions/parser';
-import { EvalAstFactory, EvalAstNode } from 'polymer-expressions/eval';
+import { Parser, EvalAstFactory } from 'jexpr';
+import type { Expression } from 'jexpr/lib/eval';
 
 let astFactory = new EvalAstFactory();
 
@@ -15,7 +15,7 @@ idom.attributes.__default = function(element: Element, name: string, value: any)
   }
 };
 
-let _expressionCache = new WeakMap<Node, EvalAstNode>();
+let _expressionCache = new WeakMap<Node, Expression>();
 
 export function getValue(node: Node, model: any) {
   let ast = _expressionCache.get(node);
@@ -25,7 +25,7 @@ export function getValue(node: Node, model: any) {
   let value = node.textContent;
   if (value.startsWith('{{') && value.endsWith('}}')) {
     let expression = value.substring(2, value.length - 2).trim();
-    ast = <EvalAstNode>(new Parser(expression, astFactory).parse());
+    ast = <Expression>(new Parser(expression, astFactory).parse());
     _expressionCache.set(node, ast);
     return ast.evaluate(model);
   }
@@ -243,7 +243,7 @@ export function renderNode(
         for (let i = 0; i < children.length; i++) {
           renderNode(children[i], model, renderers, handlers, attributeHandler);
         }
-        idom.elementClose(element.tagName);
+        idom.elementClose(element.tagName.toLowerCase());
       }
       break;
     case Node.TEXT_NODE:

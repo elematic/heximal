@@ -1,36 +1,20 @@
 {
     "compilerOptions": {
         "target": "es6",
-        "module": "commonjs",
+        "module": "esnext",
         "moduleResolution": "node",
+        "lib": ["es6", "DOM", "DOM.Iterable"],
         "isolatedModules": false,
         "experimentalDecorators": true,
         "emitDecoratorMetadata": true,
         "declaration": true,
         "noImplicitAny": true,
         "removeComments": false,
-        "noLib": true,
         "preserveConstEnums": true,
         "suppressImplicitAnyIndexErrors": true,
         "rootDir": "./src",
-        "outDir": "lib"
+        "outDir": "."
     },
-    "filesGlob": [
-        "!node_modules/**",
-        "node_modules/typescript/lib/lib.es6.d.ts",
-        "node_modules/polymer-expressions/polymer-expressions.d.ts",
-        "src/**/*.ts",
-        "custom_typings/*.d.ts"
-    ],
-    "compileOnSave": false,
-    "buildOnSave": false,
-    "files": [
-        "node_modules/typescript/lib/lib.es6.d.ts",
-        "node_modules/polymer-expressions/polymer-expressions.d.ts",
-        "src/stampino.ts",
-        "custom_typings/incremental-dom.d.ts"
-    ],
-    "atom": {
-        "rewriteTsconfig": true
-    }
+    "include": ["src/**/*.ts"],
+    "exclude": []
 }
