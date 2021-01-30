@@ -188,3 +188,4 @@ export function renderNode(node, model, renderers, handlers, attributeHandler) {
             console.warn('unhandled node type', node.nodeType);
     }
 }
+//# sourceMappingURL=stampino.js.map

@@ -1,13 +1,14 @@
 {
     "compilerOptions": {
-        "target": "es6",
+        "target": "es2020",
         "module": "esnext",
         "moduleResolution": "node",
-        "lib": ["es6", "DOM", "DOM.Iterable"],
+        "lib": ["es2020", "DOM", "DOM.Iterable"],
         "isolatedModules": false,
         "experimentalDecorators": true,
         "emitDecoratorMetadata": true,
         "declaration": true,
+        "sourceMap": true,
         "noImplicitAny": true,
         "removeComments": false,
         "preserveConstEnums": true,

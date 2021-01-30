@@ -1,8 +1,13 @@
 {
   "name": "stampino",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "type": "module",
-  "main": "stampino.js",
+  "main": "./stampino.js",
+  "exports": "./stampino.js",
+  "files": [
+    "stampino.{d.ts,js,js.map}",
+    "src/*"
+  ],
   "scripts": {
     "build": "tsc",
     "demo": "wds --node-resolve"
