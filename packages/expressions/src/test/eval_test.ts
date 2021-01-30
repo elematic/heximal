@@ -3,7 +3,7 @@ import chai from 'chai';
 import * as evaluate from '../lib/eval.js';
 import * as parser from '../lib/parser.js';
 
-const { assert } = chai;
+const {assert} = chai;
 
 const Parser = parser.Parser;
 
@@ -16,15 +16,14 @@ function expectEval(s: string, expected: any, scope?: evaluate.Scope) {
 }
 
 suite('eval', function () {
-
   test('should return the model for an empty expression', function () {
-    expectEval('', { foo: 'bar' }, { foo: 'bar' });
+    expectEval('', {foo: 'bar'}, {foo: 'bar'});
   });
 
   test('should handle the "this" keyword', function () {
-    expectEval('this', { foo: 'bar' }, { foo: 'bar' });
-    expectEval('this.name', 'foo', { name: 'foo' });
-    expectEval('this["a"]', 'x', { 'a': 'x' });
+    expectEval('this', {foo: 'bar'}, {foo: 'bar'});
+    expectEval('this.name', 'foo', {name: 'foo'});
+    expectEval('this["a"]', 'x', {a: 'x'});
   });
 
   test('should return a literal int', function () {
@@ -41,7 +40,7 @@ suite('eval', function () {
 
   test('should return a literal string', function () {
     expectEval('"hello"', 'hello');
-    expectEval('\'hello\'', 'hello');
+    expectEval("'hello'", 'hello');
   });
 
   test('should return a literal boolean', function () {
@@ -58,7 +57,7 @@ suite('eval', function () {
   });
 
   test('should return a literal map', function () {
-    expectEval('{"a": 1}', { 'a': 1 });
+    expectEval('{"a": 1}', {a: 1});
   });
 
   test('should access properties of a literal map', function () {
@@ -66,9 +65,9 @@ suite('eval', function () {
   });
 
   test('should evaluate unary operators', function () {
-    expectEval('+a', 2, { 'a': 2 });
-    expectEval('-a', -2, { 'a': 2 });
-    expectEval('!a', false, { 'a': true });
+    expectEval('+a', 2, {a: 2});
+    expectEval('-a', -2, {a: 2});
+    expectEval('!a', false, {a: true});
   });
 
   test('should evaluate binary operators', function () {
@@ -89,10 +88,10 @@ suite('eval', function () {
 
     const x = {};
     const y = {};
-    expectEval('x === y', true, { 'x': x, 'y': x });
-    expectEval('x !== y', false, { 'x': x, 'y': x });
-    expectEval('x === y', false, { 'x': x, 'y': y });
-    expectEval('x !== y', true, { 'x': x, 'y': y });
+    expectEval('x === y', true, {x: x, y: x});
+    expectEval('x !== y', false, {x: x, y: x});
+    expectEval('x === y', false, {x: x, y: y});
+    expectEval('x !== y', true, {x: x, y: y});
 
     expectEval('1 > 1', false);
     expectEval('1 > 2', false);
@@ -147,7 +146,7 @@ suite('eval', function () {
   test('should call functions with `this` as scope', function () {
     const o = {
       foo: 'bar',
-      checkThis(this: { foo: 'bar' }) {
+      checkThis(this: {foo: 'bar'}) {
         return this.foo === 'bar';
       },
     };
@@ -193,6 +192,4 @@ suite('eval', function () {
     expectEval('name.substring(2)', foo.name.substring(2), foo);
     expectEval('a()()', 1, foo);
   });
-
-
 });

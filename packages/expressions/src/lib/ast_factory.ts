@@ -11,13 +11,13 @@ export interface AstFactory<E extends ast.Expression> {
   paren(child: E): E;
   index(receiver: E, argument: E): E;
   ternary(condition: E, trueExpr: E, falseExpr: E): E;
-  map(entries: { [key: string]: E } | null): E;
+  map(entries: {[key: string]: E} | null): E;
   list(items: Array<E> | null): E;
 }
 
 export class DefaultAstFactory implements AstFactory<ast.Expression> {
   empty(): ast.Empty {
-    return { type: 'Empty' };
+    return {type: 'Empty'};
   }
 
   // TODO(justinfagnani): just use a JS literal?
@@ -43,7 +43,11 @@ export class DefaultAstFactory implements AstFactory<ast.Expression> {
     };
   }
 
-  binary(left: ast.Expression, operator: string, right: ast.Expression): ast.Binary {
+  binary(
+    left: ast.Expression,
+    operator: string,
+    right: ast.Expression
+  ): ast.Binary {
     return {
       type: 'Binary',
       operator,
@@ -60,8 +64,11 @@ export class DefaultAstFactory implements AstFactory<ast.Expression> {
     };
   }
 
-  invoke(receiver: ast.Expression, method: string | null, args: Array<ast.Expression | null> | null):
-    ast.Invoke {
+  invoke(
+    receiver: ast.Expression,
+    method: string | null,
+    args: Array<ast.Expression | null> | null
+  ): ast.Invoke {
     // TODO(justinfagnani): do this assertion in the parser
     if (args == null) {
       throw new Error('args');
@@ -89,7 +96,11 @@ export class DefaultAstFactory implements AstFactory<ast.Expression> {
     };
   }
 
-  ternary(condition: ast.Expression, trueExpr: ast.Expression, falseExpr: ast.Expression): ast.Ternary {
+  ternary(
+    condition: ast.Expression,
+    trueExpr: ast.Expression,
+    falseExpr: ast.Expression
+  ): ast.Ternary {
     return {
       type: 'Ternary',
       condition,
@@ -98,7 +109,7 @@ export class DefaultAstFactory implements AstFactory<ast.Expression> {
     };
   }
 
-  map(entries: { [key: string]: ast.Expression } | null): ast.Map {
+  map(entries: {[key: string]: ast.Expression} | null): ast.Map {
     return {
       type: 'Map',
       entries,

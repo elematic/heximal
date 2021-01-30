@@ -1,14 +1,27 @@
-export type Expression = Literal | Empty | ID | Unary | Binary | Getter | Invoke |
-    Paren | Index | Ternary | Map | List;
+export type Expression =
+  | Literal
+  | Empty
+  | ID
+  | Unary
+  | Binary
+  | Getter
+  | Invoke
+  | Paren
+  | Index
+  | Ternary
+  | Map
+  | List;
 
-export type LiteralValue = string|number|boolean|null;
+export type LiteralValue = string | number | boolean | null;
 
 export interface Literal {
   type: 'Literal';
   value: LiteralValue;
 }
 
-export interface Empty { type: 'Empty'; }
+export interface Empty {
+  type: 'Empty';
+}
 
 export interface ID {
   type: 'ID';
@@ -37,8 +50,8 @@ export interface Getter {
 export interface Invoke {
   type: 'Invoke';
   receiver: Expression;
-  method: string|null;
-  arguments: Array<Expression>|null;
+  method: string | null;
+  arguments: Array<Expression> | null;
 }
 
 export interface Paren {
@@ -61,10 +74,10 @@ export interface Ternary {
 
 export interface Map {
   type: 'Map';
-  entries: {[key: string]: Expression | null}|null;
+  entries: {[key: string]: Expression | null} | null;
 }
 
 export interface List {
   type: 'List';
-  items: Array<Expression>|null;
+  items: Array<Expression> | null;
 }

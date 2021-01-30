@@ -1,26 +1,24 @@
 {
-    "compilerOptions": {
-        "target": "es2020",
-        "module": "esnext",
-        "moduleResolution": "node",
-        "isolatedModules": false,
-        "strict": true,
-        "noImplicitAny": true,
-        "noUnusedLocals": true,
-        "noUnusedParameters": true,
-        "noImplicitThis": true,
-        "strictNullChecks": false,
-        "removeComments": false,
-        "preserveConstEnums": true,
-        "suppressImplicitAnyIndexErrors": true,
-        "outDir": ".",
-        "declaration": true,
-        "sourceMap": true,
-        "pretty": true,
-        "allowSyntheticDefaultImports": true,
-    },
-    "include": [
-        "src/**/*.ts"
-    ],
-    "exclude": []
+  "compilerOptions": {
+    "target": "es2020",
+    "module": "esnext",
+    "moduleResolution": "node",
+    "isolatedModules": false,
+    "strict": true,
+    "noImplicitAny": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noImplicitThis": true,
+    "strictNullChecks": false,
+    "removeComments": false,
+    "preserveConstEnums": true,
+    "suppressImplicitAnyIndexErrors": true,
+    "outDir": ".",
+    "declaration": true,
+    "sourceMap": true,
+    "pretty": true,
+    "allowSyntheticDefaultImports": true
+  },
+  "include": ["src/**/*.ts"],
+  "exclude": []
 }

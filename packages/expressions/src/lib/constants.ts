@@ -18,7 +18,7 @@ export const BINARY_OPERATORS = [
   '&',
   '===',
   '!==',
-  '|'
+  '|',
 ];
 
 export const PRECEDENCE = {
@@ -60,7 +60,7 @@ export const PRECEDENCE = {
   '(': 11,
   '[': 11,
   '.': 11,
-  '{': 11,  // not sure this is correct
+  '{': 11, // not sure this is correct
 };
 
 export const POSTFIX_PRECEDENCE = 11;

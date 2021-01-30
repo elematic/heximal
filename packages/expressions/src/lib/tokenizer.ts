@@ -1,4 +1,4 @@
-import { KEYWORDS, POSTFIX_PRECEDENCE, PRECEDENCE } from './constants.js';
+import {KEYWORDS, POSTFIX_PRECEDENCE, PRECEDENCE} from './constants.js';
 
 const _TWO_CHAR_OPS = ['==', '!=', '<=', '>=', '||', '&&'];
 const _THREE_CHAR_OPS = ['===', '!=='];
@@ -31,10 +31,12 @@ export function token(kind: Kind, value: string, precedence?: number) {
 }
 
 function _isWhitespace(ch: number) {
-  return ch === 9  /* \t */ ||
+  return (
+    ch === 9 /* \t */ ||
     ch === 10 /* \n */ ||
     ch === 13 /* \r */ ||
-    ch === 32 /* space */;
+    ch === 32 /* space */
+  );
 }
 
 // TODO(justinfagnani): allow code points > 127
@@ -61,7 +63,8 @@ function _isNumber(ch: number) {
 }
 
 function _isOperator(ch: number) {
-  return ch === 43 /* + */ ||
+  return (
+    ch === 43 /* + */ ||
     ch === 45 /* - */ ||
     ch === 42 /* * */ ||
     ch === 47 /* / */ ||
@@ -73,16 +76,19 @@ function _isOperator(ch: number) {
     ch === 62 /* > */ ||
     ch === 63 /* ? */ ||
     ch === 94 /* ^ */ ||
-    ch === 124 /* | */;
+    ch === 124 /* | */
+  );
 }
 
 function _isGrouper(ch: number) {
-  return ch === 40  /* ( */ ||
+  return (
+    ch === 40 /* ( */ ||
     ch === 41 /* ) */ ||
     ch === 91 /* [ */ ||
     ch === 93 /* ] */ ||
     ch === 123 /* { */ ||
-    ch === 125 /* } */;
+    ch === 125 /* } */
+  );
 }
 
 function _escapeString(str: string) {
@@ -115,27 +121,19 @@ export class Tokenizer {
   }
 
   nextToken() {
-    if (this._index === -1)
-      this._advance();
+    if (this._index === -1) this._advance();
     while (_isWhitespace(this._next!)) {
       this._advance(true);
     }
-    if (_isQuote(this._next!))
-      return this._tokenizeString();
+    if (_isQuote(this._next!)) return this._tokenizeString();
     if (_isIdentOrKeywordStart(this._next!))
       return this._tokenizeIdentOrKeyword();
-    if (_isNumber(this._next!))
-      return this._tokenizeNumber();
-    if (this._next === 46 /* . */)
-      return this._tokenizeDot();
-    if (this._next === 44 /* , */)
-      return this._tokenizeComma();
-    if (this._next === 58 /* : */)
-      return this._tokenizeColon();
-    if (_isOperator(this._next!))
-      return this._tokenizeOperator();
-    if (_isGrouper(this._next!))
-      return this._tokenizeGrouper();
+    if (_isNumber(this._next!)) return this._tokenizeNumber();
+    if (this._next === 46 /* . */) return this._tokenizeDot();
+    if (this._next === 44 /* , */) return this._tokenizeComma();
+    if (this._next === 58 /* : */) return this._tokenizeColon();
+    if (_isOperator(this._next!)) return this._tokenizeOperator();
+    if (_isGrouper(this._next!)) return this._tokenizeGrouper();
     // no match, should be end of input
     this._advance();
     if (this._next) {
@@ -157,10 +155,11 @@ export class Tokenizer {
   }
 
   private _getValue(lookahead?: number) {
-    const v =
-      this._input.substring(this._tokenStart, this._index + (lookahead || 0));
-    if (!lookahead)
-      this._clearValue();
+    const v = this._input.substring(
+      this._tokenStart,
+      this._index + (lookahead || 0)
+    );
+    if (!lookahead) this._clearValue();
     return v;
   }
 
@@ -173,12 +172,10 @@ export class Tokenizer {
     const quoteChar = this._next;
     this._advance(true);
     while (this._next !== quoteChar) {
-      if (!this._next)
-        throw new Error(_us);
+      if (!this._next) throw new Error(_us);
       if (this._next === 92 /* \ */) {
         this._advance();
-        if (!this._next)
-          throw new Error(_us);
+        if (!this._next) throw new Error(_us);
       }
       this._advance();
     }
@@ -200,15 +197,13 @@ export class Tokenizer {
     while (_isNumber(this._next!)) {
       this._advance();
     }
-    if (this._next === 46 /* . */)
-      return this._tokenizeDot();
+    if (this._next === 46 /* . */) return this._tokenizeDot();
     return token(Kind.INTEGER, this._getValue());
   }
 
   private _tokenizeDot() {
     this._advance();
-    if (_isNumber(this._next!))
-      return this._tokenizeFraction();
+    if (_isNumber(this._next!)) return this._tokenizeFraction();
     this._clearValue();
     return token(Kind.DOT, '.', POSTFIX_PRECEDENCE);
   }

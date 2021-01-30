@@ -1,9 +1,9 @@
 import chai from 'chai';
 
 import * as constants from '../lib/constants.js';
-import { Kind, token as makeToken, Token, Tokenizer } from '../lib/tokenizer.js';
+import {Kind, token as makeToken, Token, Tokenizer} from '../lib/tokenizer.js';
 
-const { assert } = chai;
+const {assert} = chai;
 
 const STRING = Kind.STRING;
 const IDENTIFIER = Kind.IDENTIFIER;
@@ -33,13 +33,11 @@ function expectTokens(s: string, expected: Token[]) {
   assert.deepEqual(tokens, expected);
 }
 
-function t(
-  kind: Kind, value: string, precedence?: number): Token {
+function t(kind: Kind, value: string, precedence?: number): Token {
   return makeToken(kind, value, precedence);
 }
 
 suite('tokenizer', function () {
-
   test('should tokenize an empty expression', function () {
     expectTokens('', []);
   });
@@ -57,7 +55,7 @@ suite('tokenizer', function () {
   });
 
   test('should tokenize a single quoted String', function () {
-    expectTokens('\'abc\'', [t(STRING, 'abc')]);
+    expectTokens("'abc'", [t(STRING, 'abc')]);
   });
 
   test('should tokenize a String with escaping', function () {
@@ -68,19 +66,19 @@ suite('tokenizer', function () {
     expectTokens('a.b', [
       t(IDENTIFIER, 'a'),
       t(DOT, '.', POSTFIX_PRECEDENCE),
-      t(IDENTIFIER, 'b')
+      t(IDENTIFIER, 'b'),
     ]);
     expectTokens('ab.cd', [
       t(IDENTIFIER, 'ab'),
       t(DOT, '.', POSTFIX_PRECEDENCE),
-      t(IDENTIFIER, 'cd')
+      t(IDENTIFIER, 'cd'),
     ]);
     expectTokens('ab.cd()', [
       t(IDENTIFIER, 'ab'),
       t(DOT, '.', POSTFIX_PRECEDENCE),
       t(IDENTIFIER, 'cd'),
       t(GROUPER, '(', PRECEDENCE['(']),
-      t(GROUPER, ')', PRECEDENCE[')'])
+      t(GROUPER, ')', PRECEDENCE[')']),
     ]);
     expectTokens('ab.cd(e)', [
       t(IDENTIFIER, 'ab'),
@@ -88,7 +86,7 @@ suite('tokenizer', function () {
       t(IDENTIFIER, 'cd'),
       t(GROUPER, '(', PRECEDENCE['(']),
       t(IDENTIFIER, 'e'),
-      t(GROUPER, ')', PRECEDENCE[')'])
+      t(GROUPER, ')', PRECEDENCE[')']),
     ]);
   });
 
@@ -100,7 +98,7 @@ suite('tokenizer', function () {
     expectTokens('a + b', [
       t(IDENTIFIER, 'a'),
       t(OPERATOR, '+', PRECEDENCE['+']),
-      t(IDENTIFIER, 'b')
+      t(IDENTIFIER, 'b'),
     ]);
   });
 
@@ -108,7 +106,7 @@ suite('tokenizer', function () {
     expectTokens('a && b', [
       t(IDENTIFIER, 'a'),
       t(OPERATOR, '&&', PRECEDENCE['&&']),
-      t(IDENTIFIER, 'b')
+      t(IDENTIFIER, 'b'),
     ]);
   });
 
@@ -116,10 +114,9 @@ suite('tokenizer', function () {
     expectTokens('a !== b', [
       t(IDENTIFIER, 'a'),
       t(OPERATOR, '!==', PRECEDENCE['!==']),
-      t(IDENTIFIER, 'b')
+      t(IDENTIFIER, 'b'),
     ]);
   });
-
 
   test('should tokenize a ternary operator', function () {
     expectTokens('a ? b : c', [
@@ -127,7 +124,7 @@ suite('tokenizer', function () {
       t(OPERATOR, '?', PRECEDENCE['?']),
       t(IDENTIFIER, 'b'),
       t(COLON, ':', PRECEDENCE[':']),
-      t(IDENTIFIER, 'c')
+      t(IDENTIFIER, 'c'),
     ]);
   });
 
@@ -144,7 +141,7 @@ suite('tokenizer', function () {
       t(GROUPER, '[', PRECEDENCE['[']),
       t(GROUPER, ']', PRECEDENCE[']']),
       t(GROUPER, '{', PRECEDENCE['{']),
-      t(GROUPER, '}', PRECEDENCE['}'])
+      t(GROUPER, '}', PRECEDENCE['}']),
     ]);
   });
 
@@ -154,7 +151,7 @@ suite('tokenizer', function () {
       t(IDENTIFIER, 'a'),
       t(COMMA, ',', PRECEDENCE[',']),
       t(IDENTIFIER, 'b'),
-      t(GROUPER, ')', PRECEDENCE[')'])
+      t(GROUPER, ')', PRECEDENCE[')']),
     ]);
   });
 
@@ -164,7 +161,7 @@ suite('tokenizer', function () {
       t(STRING, 'a'),
       t(COLON, ':', PRECEDENCE[':']),
       t(IDENTIFIER, 'b'),
-      t(GROUPER, '}', PRECEDENCE['}'])
+      t(GROUPER, '}', PRECEDENCE['}']),
     ]);
   });
 
@@ -176,24 +173,32 @@ suite('tokenizer', function () {
       t(STRING, 'a'),
       t(COMMA, ',', PRECEDENCE[',']),
       t(IDENTIFIER, 'b'),
-      t(GROUPER, ']', PRECEDENCE[']'])
+      t(GROUPER, ']', PRECEDENCE[']']),
     ]);
   });
 
   test('should tokenize integers', function () {
     expectTokens('123', [t(INTEGER, '123')]);
-    expectTokens(
-      '+123', [t(OPERATOR, '+', PRECEDENCE['+']), t(INTEGER, '123')]);
-    expectTokens(
-      '-123', [t(OPERATOR, '-', PRECEDENCE['-']), t(INTEGER, '123')]);
+    expectTokens('+123', [
+      t(OPERATOR, '+', PRECEDENCE['+']),
+      t(INTEGER, '123'),
+    ]);
+    expectTokens('-123', [
+      t(OPERATOR, '-', PRECEDENCE['-']),
+      t(INTEGER, '123'),
+    ]);
   });
 
   test('should tokenize decimals', function () {
     expectTokens('1.23', [t(DECIMAL, '1.23')]);
-    expectTokens(
-      '+1.23', [t(OPERATOR, '+', PRECEDENCE['+']), t(DECIMAL, '1.23')]);
-    expectTokens(
-      '-1.23', [t(OPERATOR, '-', PRECEDENCE['-']), t(DECIMAL, '1.23')]);
+    expectTokens('+1.23', [
+      t(OPERATOR, '+', PRECEDENCE['+']),
+      t(DECIMAL, '1.23'),
+    ]);
+    expectTokens('-1.23', [
+      t(OPERATOR, '-', PRECEDENCE['-']),
+      t(DECIMAL, '1.23'),
+    ]);
   });
 
   test('should tokenize booleans as identifiers', function () {

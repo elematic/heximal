@@ -1,9 +1,17 @@
-import { ID, Invoke, Expression } from './ast.js';
-import { AstFactory } from './ast_factory.js';
-import { BINARY_OPERATORS, KEYWORDS, POSTFIX_PRECEDENCE, UNARY_OPERATORS } from './constants.js';
-import { Kind, Token, Tokenizer } from './tokenizer.js';
+import {ID, Invoke, Expression} from './ast.js';
+import {AstFactory} from './ast_factory.js';
+import {
+  BINARY_OPERATORS,
+  KEYWORDS,
+  POSTFIX_PRECEDENCE,
+  UNARY_OPERATORS,
+} from './constants.js';
+import {Kind, Token, Tokenizer} from './tokenizer.js';
 
-export function parse(expr: string, astFactory: AstFactory<Expression>): Expression | null {
+export function parse(
+  expr: string,
+  astFactory: AstFactory<Expression>
+): Expression | null {
   return new Parser(expr, astFactory).parse();
 }
 
@@ -35,14 +43,13 @@ export class Parser<N extends Expression> {
   }
 
   _matches(kind?: Kind, value?: string) {
-    return !(kind && (this._kind !== kind) || value && (this._value !== value));
+    return !((kind && this._kind !== kind) || (value && this._value !== value));
   }
 
   private _parseExpression(): N | null {
-    if (!this._token)
-      return this._ast.empty();
+    if (!this._token) return this._ast.empty();
     const expr = this._parseUnary();
-    return (!expr) ? null : this._parsePrecedence(expr, 0);
+    return !expr ? null : this._parsePrecedence(expr, 0);
   }
 
   // _parsePrecedence and _parseBinary implement the precedence climbing
@@ -67,9 +74,12 @@ export class Parser<N extends Expression> {
         break;
       } else if (
         this._matches(Kind.OPERATOR) &&
-        this._token.precedence >= precedence) {
-        left = this._value === '?' ? this._parseTernary(left) :
-          this._parseBinary(left, this._token);
+        this._token.precedence >= precedence
+      ) {
+        left =
+          this._value === '?'
+            ? this._parseTernary(left)
+            : this._parseBinary(left, this._token);
       } else {
         break;
       }
@@ -81,10 +91,15 @@ export class Parser<N extends Expression> {
     if (right.type === 'ID') {
       return this._ast.getter(left, (right as ID).value);
     } else if (
-      right.type === 'Invoke' && (right as Invoke).receiver.type === 'ID') {
-      const method = ((right as Invoke).receiver as ID);
+      right.type === 'Invoke' &&
+      (right as Invoke).receiver.type === 'ID'
+    ) {
+      const method = (right as Invoke).receiver as ID;
       return this._ast.invoke(
-        left, method.value, (right as Invoke).arguments as any);
+        left,
+        method.value,
+        (right as Invoke).arguments as any
+      );
     } else {
       throw new Error(`expected identifier: ${right}`);
     }
@@ -96,9 +111,12 @@ export class Parser<N extends Expression> {
     }
     this._advance();
     let right = this._parseUnary();
-    while ((this._kind === Kind.OPERATOR || this._kind === Kind.DOT ||
-      this._kind === Kind.GROUPER) &&
-      this._token.precedence > op.precedence) {
+    while (
+      (this._kind === Kind.OPERATOR ||
+        this._kind === Kind.DOT ||
+        this._kind === Kind.GROUPER) &&
+      this._token.precedence > op.precedence
+    ) {
       right = this._parsePrecedence(right, this._token.precedence);
     }
     return this._ast.binary(left, op.value, right);
@@ -119,8 +137,10 @@ export class Parser<N extends Expression> {
       }
       if (UNARY_OPERATORS.indexOf(value!) === -1)
         throw new Error(`unexpected token: ${value}`);
-      const expr =
-        this._parsePrecedence(this._parsePrimary(), POSTFIX_PRECEDENCE);
+      const expr = this._parsePrecedence(
+        this._parsePrimary(),
+        POSTFIX_PRECEDENCE
+      );
       return this._ast.unary(value, expr);
     }
     return this._parsePrimary();
@@ -174,8 +194,7 @@ export class Parser<N extends Expression> {
     const items: (N | null)[] = [];
     do {
       this._advance();
-      if (this._matches(Kind.GROUPER, ']'))
-        break;
+      if (this._matches(Kind.GROUPER, ']')) break;
       items.push(this._parseExpression());
     } while (this._matches(Kind.COMMA));
     this._advance(Kind.GROUPER, ']');
@@ -183,11 +202,10 @@ export class Parser<N extends Expression> {
   }
 
   private _parseMap() {
-    const entries: { [key: string]: N | null } = {};
+    const entries: {[key: string]: N | null} = {};
     do {
       this._advance();
-      if (this._matches(Kind.GROUPER, '}'))
-        break;
+      if (this._matches(Kind.GROUPER, '}')) break;
       const key = this._value!;
       this._advance(Kind.STRING);
       this._advance(Kind.COLON);
@@ -213,7 +231,7 @@ export class Parser<N extends Expression> {
     }
     const identifier = this._parseIdentifier();
     const args = this._parseArguments();
-    return (!args) ? identifier : this._ast.invoke(identifier, null, args);
+    return !args ? identifier : this._ast.invoke(identifier, null, args);
   }
 
   private _parseIdentifier() {

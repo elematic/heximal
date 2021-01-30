@@ -1,7 +1,6 @@
-PolymerExpressions
-==================
+# PolymerExpressions
 
-[![Build status](http://www.polymer-project.org/build/polymer-expressions/status.png "Build status")](http://build.chromium.org/p/client.polymer/waterfall)
+[![Build status](http://www.polymer-project.org/build/polymer-expressions/status.png 'Build status')](http://build.chromium.org/p/client.polymer/waterfall)
 
 ## Overview
 
@@ -13,27 +12,26 @@ property access, function invocation, list/map indexing, and two-way filtering
 like:
 
 ```html
-    {{ person.title + " " + person.getFullName() | uppercase }}
+{{ person.title + " " + person.getFullName() | uppercase }}
 ```
 
 ## Usage
 
 ### Installation
 
-*TODO: Add npm instructions*
+_TODO: Add npm instructions_
 
 ### Usage
 
 Import `polymer-expressions.html` and add the `PolymerExpressions` behavior:
 
 ```html
-<link rel="import" href="../polymer-expressions/polymer-expressions.html">
+<link rel="import" href="../polymer-expressions/polymer-expressions.html" />
 <script>
   Polymer({
     is: 'my-element',
 
     behaviors: [PolymerExpressions],
-
   });
 </script>
 ```
@@ -42,11 +40,11 @@ Import `polymer-expressions.html` and add the `PolymerExpressions` behavior:
 
 ### Models and Scopes
 
-***TBD***
+**_TBD_**
 
 ### Assignable and Non-Assignable Expressions
 
-***NOTE: Subject to Change***
+**_NOTE: Subject to Change_**
 
 Some expressions can be used in two-way binding contexts. For this to work,
 the expression must be "assignable". Only a subset of expressions are
@@ -60,19 +58,19 @@ Some restrictions may be relaxed further as allowed.
 
 Assignable Expressions:
 
- * `foo`
- * `foo.bar`
- * `items[0].description`
- * `people['john'].name`
- * `product.cost | convertCurrency('ZWD')` where `convertCurrency` evaluates to
-   a Transformer object.
+- `foo`
+- `foo.bar`
+- `items[0].description`
+- `people['john'].name`
+- `product.cost | convertCurrency('ZWD')` where `convertCurrency` evaluates to
+  a Transformer object.
 
 Non-Assignable Expressions:
 
- * `a + 1`
- * `!c`
- * `foo()`
- * `person.lastName | uppercase` where `uppercase` is a filter function.
+- `a + 1`
+- `!c`
+- `foo()`
+- `person.lastName | uppercase` where `uppercase` is a filter function.
 
 ### Null-Safety
 
@@ -98,11 +96,11 @@ name, you can use `this` to refer to the model property.
 Polymer Expressions support number, boolean, string, and map literals. Strings
 can use either single or double quotes.
 
- * Numbers: `1`, `1.0`
- * Booleans: `true`, `false`
- * Strings: `'abc'`, `"xyz"`
- * Objects: `{ 'a': 1, 'b': 2 }`
- * Arrays: `[1, 2, 3]`
+- Numbers: `1`, `1.0`
+- Booleans: `true`, `false`
+- Strings: `'abc'`, `"xyz"`
+- Objects: `{ 'a': 1, 'b': 2 }`
+- Arrays: `[1, 2, 3]`
 
 ### Functions and methods
 
@@ -112,18 +110,18 @@ Methods can take arguments. Arguments can be literals or variables.
 
 Examples:
 
- * Top-level function: `myFunction()`
- * Top-level function with arguments: `myFunction(a, b, 42)`
- * Model method: `aMethod()`
- * Method on nested-property: `a.b.anotherMethod()`
+- Top-level function: `myFunction()`
+- Top-level function with arguments: `myFunction(a, b, 42)`
+- Model method: `aMethod()`
+- Method on nested-property: `a.b.anotherMethod()`
 
 ### Operators
 
 Polymer Expressions supports the following binary and unary operators:
 
- * Arithmetic operators: `+`, `-`, `*`, `/`, `%`, unary `+` and `-`
- * Comparison operators: `==`, `!=`, `===`, `!==`, `<=`, `<`, `>`, `>=`
- * Boolean operators: `&&`, `||`, unary `!`
+- Arithmetic operators: `+`, `-`, `*`, `/`, `%`, unary `+` and `-`
+- Comparison operators: `==`, `!=`, `===`, `!==`, `<=`, `<`, `>`, `>=`
+- Boolean operators: `&&`, `||`, unary `!`
 
 Expressions do not support bitwise operators such as `&`, `|`, `<<` and `>>`, or
 increment/decrement operators (`++` and `--`)
@@ -134,8 +132,8 @@ Arrays and objects can be accessed via the index operator: []
 
 Examples:
 
- * `items[2]`
- * `people['john']`
+- `items[2]`
+- `people['john']`
 
 ### Filters and transformers
 

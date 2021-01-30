@@ -1,5 +1,5 @@
 import * as ast from './ast.js';
-import { AstFactory } from './ast_factory.js';
+import {AstFactory} from './ast_factory.js';
 
 const _BINARY_OPERATORS = {
   '+': (a: any, b: any) => a + b,
@@ -26,21 +26,35 @@ const _UNARY_OPERATORS = {
   '!': (a: any) => !a,
 };
 
-export interface Scope { [key: string]: any; }
+export interface Scope {
+  [key: string]: any;
+}
 
 export interface Evaluatable {
   evaluate(scope: Scope): any;
   getIds(idents: string[]): string[];
 }
 
-export type Expression = Literal | Empty | ID | Unary | Binary | Getter | Invoke |
-  Index | Ternary | Map | List;
+export type Expression =
+  | Literal
+  | Empty
+  | ID
+  | Unary
+  | Binary
+  | Getter
+  | Invoke
+  | Index
+  | Ternary
+  | Map
+  | List;
 
 export interface Literal extends Evaluatable {
   type: 'Literal';
   value: ast.LiteralValue;
 }
-export interface Empty extends Evaluatable { type: 'Empty'; }
+export interface Empty extends Evaluatable {
+  type: 'Empty';
+}
 export interface ID extends Evaluatable {
   type: 'ID';
   value: string;
@@ -80,7 +94,7 @@ export interface Ternary extends Evaluatable {
 }
 export interface Map extends Evaluatable {
   type: 'Map';
-  entries: { [key: string]: Expression | null } | null;
+  entries: {[key: string]: Expression | null} | null;
 }
 export interface List extends Evaluatable {
   type: 'List';
@@ -121,8 +135,7 @@ export class EvalAstFactory implements AstFactory<Expression> {
       value: v,
       evaluate(scope) {
         // TODO(justinfagnani): this prevernts access to properties named 'this'
-        if (this.value === 'this')
-          return scope;
+        if (this.value === 'this') return scope;
         return scope[this.value];
       },
       getIds(idents) {
@@ -197,12 +210,12 @@ export class EvalAstFactory implements AstFactory<Expression> {
         const _this = this.method ? receiver : scope['this'] || scope;
         const f = this.method ? receiver[method] : receiver;
         const args = this.arguments || [];
-        const argValues = args.map((a) => (a && a.evaluate(scope)));
+        const argValues = args.map((a) => a && a.evaluate(scope));
         return f.apply(_this, argValues);
       },
       getIds(idents) {
         this.receiver.getIds(idents);
-        (this.arguments || []).forEach((a) => (a && a.getIds(idents)));
+        (this.arguments || []).forEach((a) => a && a.getIds(idents));
         return idents;
       },
     };
@@ -250,7 +263,7 @@ export class EvalAstFactory implements AstFactory<Expression> {
     };
   }
 
-  map(entries: { [key: string]: Expression } | null): Map {
+  map(entries: {[key: string]: Expression} | null): Map {
     return {
       type: 'Map',
       entries: entries,
@@ -286,10 +299,10 @@ export class EvalAstFactory implements AstFactory<Expression> {
       type: 'List',
       items: l,
       evaluate(scope) {
-        return (this.items || []).map((a) => (a && a.evaluate(scope)));
+        return (this.items || []).map((a) => a && a.evaluate(scope));
       },
       getIds(idents) {
-        (this.items || []).forEach((i) => (i && i.getIds(idents)));
+        (this.items || []).forEach((i) => i && i.getIds(idents));
         return idents;
       },
     };
