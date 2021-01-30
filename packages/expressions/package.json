@@ -8,7 +8,6 @@
   },
   "scripts": {
     "build": "tsc",
-    "build:bower": "tsc -p tsconfig.bower.json",
     "pretest": "npm run build",
     "test": "mocha",
     "prepublish": "npm test",

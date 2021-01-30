@@ -20,13 +20,7 @@ like:
 
 ### Installation
 
-Add the following to your `bower.json` file:
-
-```json
-"dependencies": {
-  "polymer-expressions": "Polymer/polymer-expressions#^2.0.0"
-}
-```
+*TODO: Add npm instructions*
 
 ### Usage
 
