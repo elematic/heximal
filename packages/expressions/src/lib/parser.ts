@@ -38,8 +38,8 @@ export class Parser<N extends Expression> {
     }
     const t = this._tokenizer.nextToken();
     this._token = t;
-    this._kind = t && t.kind;
-    this._value = t && t.value;
+    this._kind = t?.kind;
+    this._value = t?.value;
   }
 
   _matches(kind?: Kind, value?: string) {
@@ -283,15 +283,13 @@ export class Parser<N extends Expression> {
     return value;
   }
 
-  private _parseInteger(prefix?: string) {
-    prefix = prefix || '';
+  private _parseInteger(prefix: string = '') {
     const value = this._ast.literal(parseInt(`${prefix}${this._value}`, 10));
     this._advance();
     return value;
   }
 
-  private _parseDecimal(prefix?: string) {
-    prefix = prefix || '';
+  private _parseDecimal(prefix: string = '') {
     const value = this._ast.literal(parseFloat(`${prefix}${this._value}`));
     this._advance();
     return value;

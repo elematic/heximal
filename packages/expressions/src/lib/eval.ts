@@ -134,7 +134,7 @@ export class EvalAstFactory implements AstFactory<Expression> {
       type: 'ID',
       value: v,
       evaluate(scope) {
-        // TODO(justinfagnani): this prevernts access to properties named 'this'
+        // TODO(justinfagnani): this prevents access to properties named 'this'
         if (this.value === 'this') return scope;
         return scope[this.value];
       },
@@ -207,15 +207,15 @@ export class EvalAstFactory implements AstFactory<Expression> {
         // TODO(justinfagnani): this might be wrong in cases where we're
         // invoking a top-level function rather than a method. If method is
         // defined on a nested scope, then we should probably set _this to null.
-        const _this = this.method ? receiver : scope['this'] || scope;
+        const _this = this.method ? receiver : scope['this'] ?? scope;
         const f = this.method ? receiver[method] : receiver;
-        const args = this.arguments || [];
-        const argValues = args.map((a) => a && a.evaluate(scope));
+        const args = this.arguments ?? [];
+        const argValues = args.map((a) => a?.evaluate(scope));
         return f.apply(_this, argValues);
       },
       getIds(idents) {
         this.receiver.getIds(idents);
-        (this.arguments || []).forEach((a) => a && a.getIds(idents));
+        this.arguments?.forEach((a) => a?.getIds(idents));
         return idents;
       },
     };
@@ -299,10 +299,10 @@ export class EvalAstFactory implements AstFactory<Expression> {
       type: 'List',
       items: l,
       evaluate(scope) {
-        return (this.items || []).map((a) => a && a.evaluate(scope));
+        return this.items?.map((a) => a?.evaluate(scope));
       },
       getIds(idents) {
-        (this.items || []).forEach((i) => i && i.getIds(idents));
+        this.items?.forEach((i) => i?.getIds(idents));
         return idents;
       },
     };
