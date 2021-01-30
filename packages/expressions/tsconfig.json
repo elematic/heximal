@@ -9,7 +9,6 @@
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "noImplicitThis": true,
-    "strictNullChecks": false,
     "removeComments": false,
     "preserveConstEnums": true,
     "suppressImplicitAnyIndexErrors": true,

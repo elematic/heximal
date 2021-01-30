@@ -21,7 +21,7 @@ const PRECEDENCE = constants.PRECEDENCE;
 function tokenize(s: string) {
   const tokenizer = new Tokenizer(s);
   const tokens: Token[] = [];
-  let token: Token;
+  let token: Token | undefined;
   while ((token = tokenizer.nextToken()) != null) {
     tokens.push(token);
   }

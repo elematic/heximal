@@ -146,13 +146,13 @@ suite('Parser', function () {
   });
 
   test('should parse a function with no arguments', function () {
-    expectParse('a()', astFactory.invoke(astFactory.id('a'), null, []));
+    expectParse('a()', astFactory.invoke(astFactory.id('a'), undefined, []));
   });
 
   test('should parse a single function argument', function () {
     expectParse(
       'a(b)',
-      astFactory.invoke(astFactory.id('a'), null, [astFactory.id('b')])
+      astFactory.invoke(astFactory.id('a'), undefined, [astFactory.id('b')])
     );
   });
 
@@ -160,7 +160,7 @@ suite('Parser', function () {
     expectParse(
       'a() + 1',
       astFactory.binary(
-        astFactory.invoke(astFactory.id('a'), null, []),
+        astFactory.invoke(astFactory.id('a'), undefined, []),
         '+',
         astFactory.literal(1)
       )
@@ -170,7 +170,7 @@ suite('Parser', function () {
   test('should parse multiple function arguments', function () {
     expectParse(
       'a(b, c)',
-      astFactory.invoke(astFactory.id('a'), null, [
+      astFactory.invoke(astFactory.id('a'), undefined, [
         astFactory.id('b'),
         astFactory.id('c'),
       ])
@@ -180,8 +180,8 @@ suite('Parser', function () {
   test('should parse nested function calls', function () {
     expectParse(
       'a(b(c))',
-      astFactory.invoke(astFactory.id('a'), null, [
-        astFactory.invoke(astFactory.id('b'), null, [astFactory.id('c')]),
+      astFactory.invoke(astFactory.id('a'), undefined, [
+        astFactory.invoke(astFactory.id('b'), undefined, [astFactory.id('c')]),
       ])
     );
   });
@@ -218,8 +218,8 @@ suite('Parser', function () {
     expectParse(
       'a()()',
       astFactory.invoke(
-        astFactory.invoke(astFactory.id('a'), null, []),
-        null,
+        astFactory.invoke(astFactory.id('a'), undefined, []),
+        undefined,
         []
       )
     );
@@ -266,7 +266,10 @@ suite('Parser', function () {
   test('should parse chained index operators', function () {
     expectParse(
       'a[][]',
-      astFactory.index(astFactory.index(astFactory.id('a'), null), null)
+      astFactory.index(
+        astFactory.index(astFactory.id('a'), undefined),
+        undefined
+      )
     );
   });
 
@@ -348,13 +351,13 @@ suite('Parser', function () {
     expectParse(
       "{'a': foo()}",
       astFactory.map({
-        a: astFactory.invoke(astFactory.id('foo'), null, []),
+        a: astFactory.invoke(astFactory.id('foo'), undefined, []),
       })
     );
     expectParse(
       "{'a': foo('a')}",
       astFactory.map({
-        a: astFactory.invoke(astFactory.id('foo'), null, [
+        a: astFactory.invoke(astFactory.id('foo'), undefined, [
           astFactory.literal('a'),
         ]),
       })

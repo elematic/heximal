@@ -50,8 +50,8 @@ export interface Getter {
 export interface Invoke {
   type: 'Invoke';
   receiver: Expression;
-  method: string | null;
-  arguments: Array<Expression> | null;
+  method?: string;
+  arguments?: Array<Expression>;
 }
 
 export interface Paren {
@@ -62,7 +62,7 @@ export interface Paren {
 export interface Index {
   type: 'Index';
   receiver: Expression;
-  argument: Expression;
+  argument?: Expression;
 }
 
 export interface Ternary {
@@ -74,10 +74,10 @@ export interface Ternary {
 
 export interface Map {
   type: 'Map';
-  entries: {[key: string]: Expression | null} | null;
+  entries?: {[key: string]: Expression | undefined};
 }
 
 export interface List {
   type: 'List';
-  items: Array<Expression> | null;
+  items?: Array<Expression>;
 }

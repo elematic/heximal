@@ -11,23 +11,23 @@ import {Kind, Token, Tokenizer} from './tokenizer.js';
 export function parse(
   expr: string,
   astFactory: AstFactory<Expression>
-): Expression | null {
+): Expression | undefined {
   return new Parser(expr, astFactory).parse();
 }
 
 export class Parser<N extends Expression> {
-  private _kind: Kind | null = null;
+  private _kind?: Kind;
   private _tokenizer: Tokenizer;
   private _ast: AstFactory<N>;
-  private _token: Token | null = null;
-  private _value: string | null = null;
+  private _token?: Token;
+  private _value?: string;
 
   constructor(input: string, astFactory: AstFactory<N>) {
     this._tokenizer = new Tokenizer(input);
     this._ast = astFactory;
   }
 
-  parse(): N | null {
+  parse(): N | undefined {
     this._advance();
     return this._parseExpression();
   }
@@ -46,23 +46,23 @@ export class Parser<N extends Expression> {
     return !((kind && this._kind !== kind) || (value && this._value !== value));
   }
 
-  private _parseExpression(): N | null {
+  private _parseExpression(): N | undefined {
     if (!this._token) return this._ast.empty();
     const expr = this._parseUnary();
-    return !expr ? null : this._parsePrecedence(expr, 0);
+    return expr === undefined ? undefined : this._parsePrecedence(expr, 0);
   }
 
   // _parsePrecedence and _parseBinary implement the precedence climbing
   // algorithm as described in:
   // http://en.wikipedia.org/wiki/Operator-precedence_parser#Precedence_climbing_method
-  private _parsePrecedence(left: N, precedence: number) {
-    if (!left) {
-      throw new Error('Expected left not to be null.');
+  private _parsePrecedence(left: N | undefined, precedence: number) {
+    if (left === undefined) {
+      throw new Error('Expected left to be defined.');
     }
     while (this._token) {
       if (this._matches(Kind.GROUPER, '(')) {
         const args = this._parseArguments();
-        left = this._ast.invoke(left, null, args);
+        left = this._ast.invoke(left, undefined, args);
       } else if (this._matches(Kind.GROUPER, '[')) {
         const indexExpr = this._parseIndex();
         left = this._ast.index(left, indexExpr);
@@ -87,7 +87,10 @@ export class Parser<N extends Expression> {
     return left;
   }
 
-  private _makeInvokeOrGetter(left: N, right: N) {
+  private _makeInvokeOrGetter(left: N, right: N | undefined) {
+    if (right === undefined) {
+      throw new Error('expected identifier');
+    }
     if (right.type === 'ID') {
       return this._ast.getter(left, (right as ID).value);
     } else if (
@@ -115,14 +118,14 @@ export class Parser<N extends Expression> {
       (this._kind === Kind.OPERATOR ||
         this._kind === Kind.DOT ||
         this._kind === Kind.GROUPER) &&
-      this._token.precedence > op.precedence
+      this._token!.precedence > op.precedence
     ) {
-      right = this._parsePrecedence(right, this._token.precedence);
+      right = this._parsePrecedence(right, this._token!.precedence);
     }
     return this._ast.binary(left, op.value, right);
   }
 
-  private _parseUnary() {
+  private _parseUnary(): N | undefined {
     if (this._matches(Kind.OPERATOR)) {
       const value = this._value;
       this._advance();
@@ -141,7 +144,7 @@ export class Parser<N extends Expression> {
         this._parsePrimary(),
         POSTFIX_PRECEDENCE
       );
-      return this._ast.unary(value, expr);
+      return this._ast.unary(value!, expr);
     }
     return this._parsePrimary();
   }
@@ -157,7 +160,7 @@ export class Parser<N extends Expression> {
   private _parsePrimary() {
     switch (this._kind) {
       case Kind.KEYWORD:
-        const keyword = this._value;
+        const keyword = this._value!;
         if (keyword === 'this') {
           this._advance();
           // TODO(justin): return keyword node
@@ -182,16 +185,16 @@ export class Parser<N extends Expression> {
         } else if (this._value === '[') {
           return this._parseList();
         }
-        return null;
+        return undefined;
       case Kind.COLON:
         throw new Error('unexpected token ":"');
       default:
-        return null;
+        return undefined;
     }
   }
 
   private _parseList() {
-    const items: (N | null)[] = [];
+    const items: (N | undefined)[] = [];
     do {
       this._advance();
       if (this._matches(Kind.GROUPER, ']')) break;
@@ -202,7 +205,7 @@ export class Parser<N extends Expression> {
   }
 
   private _parseMap() {
-    const entries: {[key: string]: N | null} = {};
+    const entries: {[key: string]: N | undefined} = {};
     do {
       this._advance();
       if (this._matches(Kind.GROUPER, '}')) break;
@@ -231,7 +234,7 @@ export class Parser<N extends Expression> {
     }
     const identifier = this._parseIdentifier();
     const args = this._parseArguments();
-    return !args ? identifier : this._ast.invoke(identifier, null, args);
+    return !args ? identifier : this._ast.invoke(identifier, undefined, args);
   }
 
   private _parseIdentifier() {
@@ -240,34 +243,32 @@ export class Parser<N extends Expression> {
     }
     const value = this._value;
     this._advance();
-    return this._ast.id(value);
+    return this._ast.id(value!);
   }
 
   private _parseArguments() {
-    if (this._matches(Kind.GROUPER, '(')) {
-      const args: N[] = [];
-      do {
-        this._advance();
-        if (this._matches(Kind.GROUPER, ')')) {
-          break;
-        }
-        const expr = this._parseExpression();
-        args.push(expr);
-      } while (this._matches(Kind.COMMA));
-      this._advance(Kind.GROUPER, ')');
-      return args;
+    if (!this._matches(Kind.GROUPER, '(')) {
+      return undefined;
     }
-    return null;
+    const args: Array<N | undefined> = [];
+    do {
+      this._advance();
+      if (this._matches(Kind.GROUPER, ')')) {
+        break;
+      }
+      const expr = this._parseExpression();
+      args.push(expr);
+    } while (this._matches(Kind.COMMA));
+    this._advance(Kind.GROUPER, ')');
+    return args;
   }
 
   private _parseIndex() {
-    if (this._matches(Kind.GROUPER, '[')) {
-      this._advance();
-      const expr = this._parseExpression();
-      this._advance(Kind.GROUPER, ']');
-      return expr;
-    }
-    return null;
+    // console.assert(this._matches(Kind.GROUPER, '['));
+    this._advance();
+    const expr = this._parseExpression();
+    this._advance(Kind.GROUPER, ']');
+    return expr;
   }
 
   private _parseParen() {
@@ -278,7 +279,7 @@ export class Parser<N extends Expression> {
   }
 
   private _parseString() {
-    const value = this._ast.literal(this._value);
+    const value = this._ast.literal(this._value!);
     this._advance();
     return value;
   }

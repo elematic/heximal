@@ -10,7 +10,6 @@
   "main": "index.js",
   "scripts": {
     "build": "tsc",
-    "pretest": "npm run build",
     "test": "mocha --ui tdd test/*.js",
     "prepublish": "npm test",
     "benchmark": "node benchmark/eval_benchmark",

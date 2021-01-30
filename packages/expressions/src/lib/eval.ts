@@ -78,8 +78,8 @@ export interface Getter extends Evaluatable {
 export interface Invoke extends Evaluatable {
   type: 'Invoke';
   receiver: Expression;
-  method: string | null;
-  arguments: Array<Expression> | null;
+  method: string | undefined;
+  arguments: Array<Expression> | undefined;
 }
 export interface Index extends Evaluatable {
   type: 'Index';
@@ -94,11 +94,11 @@ export interface Ternary extends Evaluatable {
 }
 export interface Map extends Evaluatable {
   type: 'Map';
-  entries: {[key: string]: Expression | null} | null;
+  entries: {[key: string]: Expression | undefined} | undefined;
 }
 export interface List extends Evaluatable {
   type: 'List';
-  items: Array<Expression> | null;
+  items: Array<Expression> | undefined;
 }
 
 export class EvalAstFactory implements AstFactory<Expression> {
@@ -263,7 +263,7 @@ export class EvalAstFactory implements AstFactory<Expression> {
     };
   }
 
-  map(entries: {[key: string]: Expression} | null): Map {
+  map(entries: {[key: string]: Expression} | undefined): Map {
     return {
       type: 'Map',
       entries: entries,
@@ -294,7 +294,7 @@ export class EvalAstFactory implements AstFactory<Expression> {
   }
 
   // TODO(justinfagnani): if the list is deeply literal
-  list(l: Array<Expression> | null): List {
+  list(l: Array<Expression> | undefined): List {
     return {
       type: 'List',
       items: l,

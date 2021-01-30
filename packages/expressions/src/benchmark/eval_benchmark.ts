@@ -5,8 +5,8 @@ import {Parser} from '../lib/parser.js';
 const suite = new Benchmark.Suite();
 
 const astFactory = new EvalAstFactory();
-const identifierExpr = new Parser('foo', astFactory).parse();
-const complexExpr = new Parser('(a + b([1, 2, 3]) * c)', astFactory).parse();
+const identifierExpr = new Parser('foo', astFactory).parse()!;
+const complexExpr = new Parser('(a + b([1, 2, 3]) * c)', astFactory).parse()!;
 
 suite
   .add('eval identifier', function () {

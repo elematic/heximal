@@ -5,14 +5,18 @@ export interface AstFactory<E extends ast.Expression> {
   literal(value: ast.LiteralValue): E;
   id(name: string): E;
   unary(operator: string, expression: E): E;
-  binary(left: E, op: string, right: E): E;
+  binary(left: E, op: string, right: E | undefined): E;
   getter(receiver: E, name: string): E;
-  invoke(receiver: E, method: string | null, args: Array<E> | null): E;
-  paren(child: E): E;
-  index(receiver: E, argument: E): E;
-  ternary(condition: E, trueExpr: E, falseExpr: E): E;
-  map(entries: {[key: string]: E} | null): E;
-  list(items: Array<E> | null): E;
+  invoke(
+    receiver: E,
+    method: string | undefined,
+    args: Array<E | undefined> | undefined
+  ): E;
+  paren(child: E | undefined): E;
+  index(receiver: E, argument: E | undefined): E;
+  ternary(condition: E, trueExpr: E | undefined, falseExpr: E | undefined): E;
+  map(entries: {[key: string]: E | undefined} | undefined): E;
+  list(items: Array<E | undefined> | undefined): E;
 }
 
 export class DefaultAstFactory implements AstFactory<ast.Expression> {
@@ -66,11 +70,11 @@ export class DefaultAstFactory implements AstFactory<ast.Expression> {
 
   invoke(
     receiver: ast.Expression,
-    method: string | null,
-    args: Array<ast.Expression | null> | null
+    method: string | undefined,
+    args: Array<ast.Expression> | undefined
   ): ast.Invoke {
     // TODO(justinfagnani): do this assertion in the parser
-    if (args == null) {
+    if (args === undefined) {
       throw new Error('args');
     }
     return {
@@ -88,7 +92,10 @@ export class DefaultAstFactory implements AstFactory<ast.Expression> {
     };
   }
 
-  index(receiver: ast.Expression, argument: ast.Expression): ast.Index {
+  index(
+    receiver: ast.Expression,
+    argument: ast.Expression | undefined
+  ): ast.Index {
     return {
       type: 'Index',
       receiver,
@@ -109,14 +116,14 @@ export class DefaultAstFactory implements AstFactory<ast.Expression> {
     };
   }
 
-  map(entries: {[key: string]: ast.Expression} | null): ast.Map {
+  map(entries: {[key: string]: ast.Expression}): ast.Map {
     return {
       type: 'Map',
       entries,
     };
   }
 
-  list(items: Array<ast.Expression> | null): ast.List {
+  list(items: Array<ast.Expression>): ast.List {
     return {
       type: 'List',
       items,

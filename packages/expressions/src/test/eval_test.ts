@@ -11,7 +11,7 @@ const astFactory = new evaluate.EvalAstFactory();
 
 function expectEval(s: string, expected: any, scope?: evaluate.Scope) {
   const expr = new Parser(s, astFactory).parse();
-  const result = expr.evaluate(scope);
+  const result = expr!.evaluate(scope!);
   assert.deepEqual(result, expected);
 }
 

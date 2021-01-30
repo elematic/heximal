@@ -114,7 +114,7 @@ export class Tokenizer {
   private _input: string;
   private _index = -1;
   private _tokenStart = 0;
-  private _next: number | null = null;
+  private _next?: number;
 
   constructor(input: string) {
     this._input = input;
@@ -139,7 +139,7 @@ export class Tokenizer {
     if (this._next) {
       throw new Error(`Expected end of input, got ${this._next}`);
     }
-    return null;
+    return undefined;
   }
 
   private _advance(resetTokenStart?: boolean) {
@@ -150,7 +150,7 @@ export class Tokenizer {
         this._tokenStart = this._index;
       }
     } else {
-      this._next = null;
+      this._next = undefined;
     }
   }
 
