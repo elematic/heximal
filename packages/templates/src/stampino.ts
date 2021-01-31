@@ -74,7 +74,7 @@ const defaultHandlers = <Handlers>{
     let repeatAttribute = template.getAttributeNode('repeat');
 
     if (repeatAttribute) {
-      let items = getValue(repeatAttribute, model);
+      let items = getValue(repeatAttribute, model) ?? [];
       for (let index = 0; index < items.length; index++) {
         let item = items[index];
         // TODO: provide keys to incremental-dom
