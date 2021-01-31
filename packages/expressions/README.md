@@ -10,8 +10,9 @@ identifiers, operators, property access, method and function calls, and
 literals (including arrays and objects), and pipes.
 
 Example:
+
 ```js
-person.title + " " + person.getFullName() | uppercase
+(person.title + ' ' + person.getFullName()) | uppercase;
 ```
 
 ## Usage

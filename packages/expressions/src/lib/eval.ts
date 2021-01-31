@@ -1,4 +1,4 @@
-/* 
+/*
  * @license
  * Portions Copyright (c) 2013, the Dart project authors.
  */
@@ -189,7 +189,7 @@ export class EvalAstFactory implements AstFactory<Expression> {
       receiver: g,
       name: n,
       evaluate(scope) {
-        return this.receiver.evaluate(scope)[this.name];
+        return this.receiver.evaluate(scope)?.[this.name];
       },
       getIds(idents) {
         this.receiver.getIds(idents);
@@ -236,7 +236,7 @@ export class EvalAstFactory implements AstFactory<Expression> {
       receiver: e,
       argument: a,
       evaluate(scope) {
-        return this.receiver.evaluate(scope)[this.argument.evaluate(scope)];
+        return this.receiver.evaluate(scope)?.[this.argument.evaluate(scope)];
       },
       getIds(idents) {
         this.receiver.getIds(idents);

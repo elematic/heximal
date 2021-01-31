@@ -64,6 +64,17 @@ suite('eval', function () {
     expectEval('{"a": 1}.a', 1);
   });
 
+  test('should return undefined for deeply nil properties of the scope', function () {
+    expectEval('data.nullable', undefined, {});
+    expectEval('data.nullable', undefined, {data: null});
+    expectEval('data.nullable.nulled', undefined, {data: null});
+    expectEval('data.nullable.nulled.right', undefined, {data: null});
+    // test the opposite case
+    expectEval('data.nonnullable.nonnulled.right', true, {
+      data: {nonnullable: {nonnulled: {right: true}}},
+    });
+  });
+
   test('should evaluate unary operators', function () {
     expectEval('+a', 2, {a: 2});
     expectEval('-a', -2, {a: 2});
