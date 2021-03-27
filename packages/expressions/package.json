@@ -12,6 +12,12 @@
     ".": "./index.js",
     "./lib/*": "./lib/*.js"
   },
+  "files": [
+    "index.*",
+    "lib/*",
+    "src/*.ts",
+    "src/lib/*"
+  ],
   "scripts": {
     "build": "tsc",
     "test": "mocha --ui tdd test/*.js",
