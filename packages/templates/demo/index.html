@@ -34,11 +34,11 @@
 
     <template id="demo">
       <h1><template name="title">Title</template></h1>
-      <div class$="demo-body">
+      <div class="demo-body">
         <h2>Source:</h2>
-        <code class$="block"><template name="source"></template></code>
+        <code class="block"><template name="source"></template></code>
         <h2>Output:</h2>
-        <div class$="block"><template name="demo"></template></div>
+        <div class="block"><template name="render-demo"></template></div>
       </div>
     </template>
 
@@ -83,9 +83,11 @@
       <template name="title">Repeating</template>
       <template name="demo">
         <p>This template contains a repeater</p>
-        <template type="repeat" repeat="{{items}}">
-          <p>{{item}}</p>
-        </template>
+        <ul>
+          <template type="repeat" repeat="{{items}}">
+            <li>{{item}}</li>
+          </template>
+        </ul>
       </template>
     </template>
 
@@ -100,7 +102,7 @@
     </template>
 
     <template id="demo-6">
-      <template name="title">Template Composition</template>
+      <template name="title">Template Inheritance</template>
       <template name="demo" extends="demo-6-super">
         <template name="B">This is child content for block B</template>
       </template>

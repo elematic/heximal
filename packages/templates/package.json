@@ -10,16 +10,23 @@
   ],
   "scripts": {
     "build": "tsc",
+    "test": "wtr test/**/*_test.js --node-resolve --playwright --browsers chromium",
     "demo": "wds --node-resolve"
   },
   "dependencies": {
     "incremental-dom": "^0.7.0",
-    "jexpr": "^1.0.0-pre.1"
+    "jexpr": "^1.0.0-pre.1",
+    "lit-html": "^2.0.0-pre.7"
   },
   "devDependencies": {
+    "@esm-bundle/chai": "^4.3.4",
     "@rollup/plugin-commonjs": "^18.0.0",
+    "@types/mocha": "^8.2.2",
     "@web/dev-server": "^0.1.5",
     "@web/dev-server-rollup": "^0.3.2",
+    "@web/test-runner": "^0.12.17",
+    "@web/test-runner-mocha": "^0.7.2",
+    "@web/test-runner-playwright": "^0.8.4",
     "typescript": "^4.2.0"
   },
   "keywords": [

@@ -1,22 +1,97 @@
 # stampino
 
-stampino is a fast and extremely powerful DOM template system based on incremental-dom and jexpr.
+Stampino is a fast and extremely powerful HTML template system, where you write templates in real HTML `<template>` tags:
+
+```html
+<template id="my-template">
+  <h1>Hello {{ name }}</h1>
+</template>
+```
 
 ## Overview
 
-*stampino* use HTML5 `<template>` tags to define templates, `incremental-dom` to efficiently render them, and `jexpr` for powerful binding expressions.
+Stampino use HTML [`<template>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/template) tags to define templates, [lit-html](https://lit-html.polymer-project.org/) for the inderlying template rendering, and [jexpr](https://www.npmjs.com/package/jexpr) for binding expressions.
 
-stampino is based on the idea that a template defines a function from data to DOM. From there it builds powerful features like template composition and extensibility on top of function composition.
+Stampino is based on the idea that a template defines a function from data to DOM, so it transforms `<template>` elements into lit-html render functions. Control flow, emplate composition, and extensibility are built on top of function composition.
 
-This approach leads to a low-cost for features like conditionals and repeating, while at the same time not hardcoding them into the core. Users can define their own template handlers just like if and repeat.
+This approach leads to a low-cost for features like conditionals and repeating, which are just `<template>`s themselves:
+
+```html
+<template id="my-template">
+  
+  <h2>Messages</h2>
+
+  <template type="if" if="{{ important }}">
+    <p class="important">These messages are important</p>
+  </template>
+
+  <template type="repeat" repeat="{{ messages }}">
+    <p>{{ item.text }}</p>
+  </template>
+
+</template>
+```
+
+`<template type="if">` and `<template type="repeat">` are not hard-coded into the core of Stampino. Instead they are registered _template handlers_ that are matched against the `"type"` attribute. Users can implement their own template handlers just like `if` and `repeat`.
+
+### Use cases
+
+Stampino is very useful for custom elements that want to allow custom rendering or user-extensibility.
+
+Consider an example of an `<npm-packages>` element that fetchs a list of npm packages and renders it, but want to let users override the default rendering. The element can accept a template as a child and render it with Stampino and the package data:
+
+```html
+<script type="module" src="/npm-packages.js"></script>
+<npm-packages query="router">
+  <template>
+    <h1>{{ package.name }}</h1>
+    <h2>{{ package.description }}</h2>
+    <p>Version: {{ package.version }}</p>
+  </template>
+</npm-packages>
+```
+
+When Stampino processes a template, it creates a lit-html template function:
+
+```html
+<template id="my-template">
+  <h1>Hello {{ name }}</h1>
+</template>
+```
+
+```ts
+import * as stampino from 'stampino';
+import {render} from 'lit';
+
+const templateElement = document.querySelector('#my-template');
+
+// Returns a lit-html template function that accepts data and
+// returns a renderable TemplateResult
+const myTemplate = stampino.prepareTemplate(templateElement);
+
+render(myTemplate({name: 'World'}), document.body);
+```
+
+## Features
+
+### Control flow
+
+Stampino control flow is based on nested `<template>` elements:
+
+```html
+<template id="my-template">
+</template>
+```
 
 ### Simple
 
-The core of stampino is less than 200 lines of code.
+The core of Stampino (on top of lit-html and jexpr) is less than 200 lines of code.
 
-stampino keeps things simple by relying on standard HTML `<template>` tags, using `incremental-dom` and `jexpr`, only supporting one-way data-binding, and letting the developers be responsible for when to re-render. stampino doesn't concern itself with custom elements, DOM and style encapsulation, or any of the other amazing features of Web Components, because that's what Web Components are for! It's great for implementing the shadow DOM rendering for custom elements.
+Stampino keeps things simple by relying on standard HTML `<template>` tags, using `lit-html` and `jexpr`, only supporting one-way data-binding, and letting the developers be responsible for when to re-render.
 
-By using HTML `<template>` tags, stampino templates can be defined right inline with your HTML. Browsers will not render template contents, run script, or apply CSS.
+Stampino doesn't concern itself with custom elements, DOM and style encapsulation, or any of the other amazing features of web components, because that's what web components are for! It's great for implementing the shadow DOM rendering for custom elements.
+
+By using HTML `<template>` tags, Stampino templates can be defined right inline with your HTML. Browsers will not render template contents, run script, or apply CSS.
 
 ```html
 <template id="my-template">
@@ -24,14 +99,14 @@ By using HTML `<template>` tags, stampino templates can be defined right inline 
 </template>
 ```
 
-stampino doesn't find and render templates automatically, because it's so easy to do with standard DOM APIs:
+Stampino doesn't find and render templates automatically, because it's so easy to do with standard DOM APIs:
 
 ```javascript
 import * as stampino from 'stampino';
 
-let template = document.querySelector('#my-template');
-let container = document.querySelector('#container');
-let model = getModel();
+const template = document.querySelector('#my-template');
+const container = document.querySelector('#container');
+const model = getModel();
 
 // initial render
 stampino.render(template, container, model);
@@ -43,11 +118,9 @@ stampino.render(template, container, model);
 
 ### Fast
 
-stampino uses increment-dom to update DOM in place when re-rendered with new data. incremental-dom only updates the parts of the DOM that need updating, much like virtual-dom approaches, but without extra trees of virtual DOM nodes in memory.
+Stampino uses lit-html to update DOM in place when re-rendered with new data. lit-html only updates the parts of the DOM that need updating, much like virtual-dom approaches, but without extra trees of virtual DOM nodes in memory.
 
-stampino "interprets" a `<template>` tag by walking its content and calling incremental-dom APIs to mutate the DOM. This is both fast and flexible. If the template is modified, new calls to `render` will pick up the changes.
-
-In the future, it will be very easy to transform a template into a list of incremental-dom instructions for even faster rendering, or pre-compile a template directly into code that calls incremental-dom for fastest rendering.
+Stampino creates a lit-html template function from a `<template>` tag by walking its content and creating a lit-html "template part" for each expression.
 
 ### Powerful
 
