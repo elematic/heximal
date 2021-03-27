@@ -3,7 +3,7 @@
  * Portions Copyright (c) 2013, the Dart project authors.
  */
 
-import {ID, Invoke, Expression, Literal} from './ast.js';
+import {ID, Invoke, Expression} from './ast.js';
 import {AstFactory} from './ast_factory.js';
 import {
   BINARY_OPERATORS,
