@@ -22,12 +22,12 @@ export interface Handlers {
  * @returns {Function} a render function that can be passed to incremental-dom's
  * patch() function.
  */
-export declare function prepareTemplate(template: HTMLTemplateElement, renderers: Renderers, handlers: Handlers, attributeHandler: AttributeHandler, superTemplate: HTMLTemplateElement): TemplateUpdater;
+export declare function prepareTemplate(template: HTMLTemplateElement, renderers?: Renderers, handlers?: Handlers, attributeHandler?: AttributeHandler, superTemplate?: HTMLTemplateElement): TemplateUpdater;
 export interface RenderOptions {
-    attributeHandler: AttributeHandler;
-    renderers: Renderers;
-    handlers: Handlers;
-    extends: HTMLTemplateElement;
+    attributeHandler?: AttributeHandler;
+    renderers?: Renderers;
+    handlers?: Handlers;
+    extends?: HTMLTemplateElement;
 }
 /**
  * Renders a template element containing a Stampino template.
@@ -40,5 +40,5 @@ export interface RenderOptions {
  * directly translate to incremental-dom calls, and includes pre-parsed
  * expressions. We won't optimize until we have benchmarks in place however.
  */
-export declare function render(template: HTMLTemplateElement, container: Element, model: any, opts: RenderOptions): void;
+export declare function render(template: HTMLTemplateElement, container: Element | DocumentFragment, model: any, opts?: RenderOptions): void;
 export declare function renderNode(node: Node, model: any, renderers: Renderers, handlers: Handlers, attributeHandler: AttributeHandler): void;

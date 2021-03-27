@@ -109,10 +109,10 @@ function getRenderers(template: HTMLTemplateElement): Renderers {
  */
 export function prepareTemplate(
     template: HTMLTemplateElement,
-    renderers: Renderers,
-    handlers: Handlers,
-    attributeHandler: AttributeHandler,
-    superTemplate: HTMLTemplateElement): TemplateUpdater {
+    renderers?: Renderers,
+    handlers?: Handlers,
+    attributeHandler?: AttributeHandler,
+    superTemplate?: HTMLTemplateElement): TemplateUpdater {
   handlers = handlers || defaultHandlers;
   renderers = renderers || {};
 
@@ -142,10 +142,10 @@ export function prepareTemplate(
 }
 
 export interface RenderOptions {
-  attributeHandler: AttributeHandler;
-  renderers: Renderers;
-  handlers: Handlers;
-  extends: HTMLTemplateElement;
+  attributeHandler?: AttributeHandler;
+  renderers?: Renderers;
+  handlers?: Handlers;
+  extends?: HTMLTemplateElement;
 }
 
 /**
@@ -161,11 +161,11 @@ export interface RenderOptions {
  */
 export function render(
     template: HTMLTemplateElement,
-    container: Element,
+    container: Element|DocumentFragment,
     model: any,
-    opts: RenderOptions) {
-  let _render = prepareTemplate(template, opts.renderers, opts.handlers,
-      opts.attributeHandler, opts.extends);
+    opts?: RenderOptions) {
+  let _render = prepareTemplate(template, opts?.renderers, opts?.handlers,
+      opts?.attributeHandler, opts?.extends);
   idom.patch(container, _render, model);
 }
 

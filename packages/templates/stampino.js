@@ -39,7 +39,7 @@ const defaultHandlers = {
     'repeat': function (template, model, renderers, handlers, attributeHandler) {
         let repeatAttribute = template.getAttributeNode('repeat');
         if (repeatAttribute) {
-            let items = getValue(repeatAttribute, model);
+            let items = getValue(repeatAttribute, model) ?? [];
             for (let index = 0; index < items.length; index++) {
                 let item = items[index];
                 // TODO: provide keys to incremental-dom
@@ -104,7 +104,7 @@ export function prepareTemplate(template, renderers, handlers, attributeHandler,
  * expressions. We won't optimize until we have benchmarks in place however.
  */
 export function render(template, container, model, opts) {
-    let _render = prepareTemplate(template, opts.renderers, opts.handlers, opts.attributeHandler, opts.extends);
+    let _render = prepareTemplate(template, opts?.renderers, opts?.handlers, opts?.attributeHandler, opts?.extends);
     idom.patch(container, _render, model);
 }
 export function renderNode(node, model, renderers, handlers, attributeHandler) {
