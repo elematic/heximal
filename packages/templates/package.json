@@ -17,10 +17,10 @@
     "jexpr": "^1.0.0-pre.1"
   },
   "devDependencies": {
-    "@rollup/plugin-commonjs": "^17.1.0",
+    "@rollup/plugin-commonjs": "^18.0.0",
     "@web/dev-server": "^0.1.5",
     "@web/dev-server-rollup": "^0.3.2",
-    "typescript": "^4.2.0-beta"
+    "typescript": "^4.2.0"
   },
   "keywords": [
     "html",
