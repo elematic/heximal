@@ -37,16 +37,20 @@ const defaultHandlers = {
         }
     },
     'repeat': function (template, model, renderers, handlers, attributeHandler) {
-        let repeatAttribute = template.getAttributeNode('repeat');
+        const repeatAttribute = template.getAttributeNode('repeat');
         if (repeatAttribute) {
-            let items = getValue(repeatAttribute, model) ?? [];
-            for (let index = 0; index < items.length; index++) {
-                let item = items[index];
+            const items = getValue(repeatAttribute, model);
+            if (!items[Symbol.iterator]) {
+                return;
+            }
+            let index = -1;
+            for (const item of items) {
+                index++;
                 // TODO: provide keys to incremental-dom
-                let itemModel = Object.create(model);
+                const itemModel = Object.create(model);
                 itemModel.item = item;
                 itemModel.index = index;
-                itemModel['this'] = model['this'] || model;
+                itemModel['this'] = model['this'] ?? model;
                 renderNode(template.content, itemModel, renderers, handlers, attributeHandler);
             }
         }
