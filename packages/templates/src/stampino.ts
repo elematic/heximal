@@ -230,8 +230,9 @@ export function renderNode(
           if (attributeHandler && attributeHandler.matches(attr.name)) {
             handledAttributes.push(attr);
           } else {
+            const propertyName = attr.name === 'class' ? 'className' : attr.name;
             // TODO: if attribute is a literal, add it to statics instead
-            propertyValuePairs.push(attr.name);
+            propertyValuePairs.push(propertyName);
             propertyValuePairs.push(getValue(attr, model));
           }
         }
