@@ -1,10 +1,10 @@
 # stampino
 
-stampino is a fast and extremely powerful DOM template system based on incremental-dom and polymer-expressions.
+stampino is a fast and extremely powerful DOM template system based on incremental-dom and jexpr.
 
 ## Overview
 
-*stampino* use HTML5 `<template>` tags to define templates, `incremental-dom` to efficiently render them, and `polymer-expressions` for powerful binding expressions.
+*stampino* use HTML5 `<template>` tags to define templates, `incremental-dom` to efficiently render them, and `jexpr` for powerful binding expressions.
 
 stampino is based on the idea that a template defines a function from data to DOM. From there it builds powerful features like template composition and extensibility on top of function composition.
 
@@ -14,7 +14,7 @@ This approach leads to a low-cost for features like conditionals and repeating, 
 
 The core of stampino is less than 200 lines of code.
 
-stampino keeps things simple by relying on standard HTML `<template>` tags, using `incremental-dom` and `polymer-expressions`, only supporting one-way data-binding, and letting the developers be responsible for when to re-render. stampino doesn't concern itself with custom elements, DOM and style encapsulation, or any of the other amazing features of Web Components, because that's what Web Components are for! It's great for implementing the shadow DOM rendering for custom elements.
+stampino keeps things simple by relying on standard HTML `<template>` tags, using `incremental-dom` and `jexpr`, only supporting one-way data-binding, and letting the developers be responsible for when to re-render. stampino doesn't concern itself with custom elements, DOM and style encapsulation, or any of the other amazing features of Web Components, because that's what Web Components are for! It's great for implementing the shadow DOM rendering for custom elements.
 
 By using HTML `<template>` tags, stampino templates can be defined right inline with your HTML. Browsers will not render template contents, run script, or apply CSS.
 
@@ -101,7 +101,7 @@ Templates can explicitly include their super template like this:
 
 #### Binding Expressions
 
-`polymer-expressions` provides a fast and expressive expression evaluator, which is a subset of JavaScript expressions. Like incremental-dom, `polymer-expressions` has been engineered to reduce memory allocations and garbage collection.
+`jexpr` provides a fast and expressive expression evaluator, which is a subset of JavaScript expressions. Like incremental-dom, `jexpr` has been engineered to reduce memory allocations and garbage collection.
 
 Expressions can include variables, property access, arithmetic, function and method calls, lists, maps and filters.
 
