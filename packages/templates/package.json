@@ -11,6 +11,7 @@
   "scripts": {
     "build": "tsc",
     "test": "wtr test/**/*_test.js --node-resolve --playwright --browsers chromium",
+    "format": "prettier \"src/**/*.ts\" --write",
     "demo": "wds --node-resolve"
   },
   "dependencies": {
@@ -27,6 +28,7 @@
     "@web/test-runner": "^0.12.17",
     "@web/test-runner-mocha": "^0.7.2",
     "@web/test-runner-playwright": "^0.8.4",
+    "prettier": "^2.2.1",
     "typescript": "^4.2.0"
   },
   "keywords": [
