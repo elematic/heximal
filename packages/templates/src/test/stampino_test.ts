@@ -105,6 +105,36 @@ suite('lit-html', () => {
     assert.instanceOf(lastEvent, Event);
   });
 
+  test('Event binding w/ dashed names', () => {
+    const template = document.createElement('template');
+    template.innerHTML = `<p @foo--bar="{{ handleClick }}">`;
+    let lastEvent: Event | undefined = undefined;
+    render(template, container, {
+      handleClick: (e: Event) => {
+        lastEvent = e;
+      },
+    });
+    const p = container.querySelector('p')!;
+    p.dispatchEvent(new Event('foo-bar'));
+    assert.equal(stripExpressionMarkers(container.innerHTML), `<p></p>`);
+    assert.instanceOf(lastEvent, Event);
+  });
+
+  test('Event binding w/ camelCase names', () => {
+    const template = document.createElement('template');
+    template.innerHTML = `<p @foo-bar="{{ handleClick }}">`;
+    let lastEvent: Event | undefined = undefined;
+    render(template, container, {
+      handleClick: (e: Event) => {
+        lastEvent = e;
+      },
+    });
+    const p = container.querySelector('p')!;
+    p.dispatchEvent(new Event('fooBar'));
+    assert.equal(stripExpressionMarkers(container.innerHTML), `<p></p>`);
+    assert.instanceOf(lastEvent, Event);
+  });
+
   test('if template, true', () => {
     const template = document.createElement('template');
     template.innerHTML = `<template type="if" if="{{true}}">{{s}}</template>`;

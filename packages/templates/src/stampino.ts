@@ -11,7 +11,7 @@ const astFactory = new EvalAstFactory();
 const expressionCache = new Map<string, Expression | undefined>();
 
 const toCamelCase = (s: string) =>
-  s.replace(/-(\w)/g, (_, p1: string) => p1.toUpperCase());
+  s.replace(/-(-|\w)/g, (_, p1: string) => p1.toUpperCase());
 
 /**
  * Gets the value from a string that contains a delimted expression: {{ ... }}
@@ -377,6 +377,8 @@ const makeLitTemplate = (template: HTMLTemplateElement): StampinoTemplate => {
         const attributeNames = element.getAttributeNames();
         for (const attributeName of attributeNames) {
           const attributeValue = element.getAttribute(attributeName)!;
+          // TODO: use alternative to negative lookbehind
+          // (but it's so convenient!)
           const splitValue = attributeValue.split(
             /(?<!\\){{(.*?)(?:(?<!\\)}})/g
           );
@@ -394,7 +396,7 @@ const makeLitTemplate = (template: HTMLTemplateElement): StampinoTemplate => {
             name = attributeName.substring(1);
             ctor = BooleanAttributePart;
           } else if (prefix === '@') {
-            name = attributeName.substring(1);
+            name = toCamelCase(attributeName.substring(1));
             ctor = EventPart;
           }
 
