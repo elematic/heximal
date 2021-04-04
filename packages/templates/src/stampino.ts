@@ -32,14 +32,6 @@ const getSingleValue = (s: string, model: any) => {
   return ast?.evaluate(model);
 };
 
-const getExpr = (value: string): Expression | undefined => {
-  if (value.startsWith('{{') && value.endsWith('}}')) {
-    const expression = value.substring(2, value.length - 2).trim();
-    return parse(expression, astFactory) as Expression;
-  }
-  return;
-};
-
 export interface TemplateFunction {
   (model: object): unknown;
 }
@@ -80,16 +72,7 @@ export const ifHandler: TemplateHandler = (
 ) => {
   const ifAttribute = template.getAttribute('if');
   if (ifAttribute !== null && getSingleValue(ifAttribute, model)) {
-    // TODO: return a template result
-    const litTemplate = getLitTemplate(template);
-    const values = litTemplate.parts.map((part) =>
-      part.update(model, handlers, renderers)
-    );
-    const templateResult: CompiledTemplateResult = {
-      _$litType$: litTemplate,
-      values,
-    };
-    return templateResult;
+    return evaluateTemplate(template, model, handlers, renderers);
   }
   return undefined;
 };
@@ -248,9 +231,15 @@ export const evaluateTemplate = (
   renderers: Renderers = {}
 ) => {
   const litTemplate = getLitTemplate(template);
-  const values = litTemplate.parts.map((part) =>
-    part.update(model, handlers, renderers)
-  );
+  const values: Array<unknown> = [];
+  for (const part of litTemplate.parts) {
+    const value = part.update(model, handlers, renderers);
+    if (part.type === 1) {
+      values.push(...(value as Iterable<unknown>));
+    } else {
+      values.push(value);
+    }
+  }
   const templateResult: CompiledTemplateResult = {
     _$litType$: litTemplate,
     values,
@@ -388,32 +377,49 @@ const makeLitTemplate = (template: HTMLTemplateElement): StampinoTemplate => {
         const attributeNames = element.getAttributeNames();
         for (const attributeName of attributeNames) {
           const attributeValue = element.getAttribute(attributeName)!;
-          const expr = getExpr(attributeValue);
-          if (expr !== undefined) {
-            element.removeAttribute(attributeName);
-            let name = attributeName;
-            let ctor = AttributePart;
-            const prefix = attributeName[0];
-            if (prefix === '.') {
-              name = toCamelCase(attributeName.substring(1));
-              ctor = PropertyPart;
-            } else if (prefix === '?') {
-              name = attributeName.substring(1);
-              ctor = BooleanAttributePart;
-            } else if (prefix === '@') {
-              name = attributeName.substring(1);
-              ctor = EventPart;
-            }
-            litTemplate.parts.push({
-              type: 1, // attribute binding
-              index: nodeIndex,
-              name,
-              strings: ['', ''],
-              ctor,
-              update: (model: object, _handlers: TemplateHandlers, _renderers: Renderers) =>
-                expr.evaluate(model),
-            });
+          const splitValue = attributeValue.split(
+            /(?<!\\){{(.*?)(?:(?<!\\)}})/g
+          );
+          if (splitValue.length === 1) {
+            continue;
           }
+          element.removeAttribute(attributeName);
+          let name = attributeName;
+          let ctor = AttributePart;
+          const prefix = attributeName[0];
+          if (prefix === '.') {
+            name = toCamelCase(attributeName.substring(1));
+            ctor = PropertyPart;
+          } else if (prefix === '?') {
+            name = attributeName.substring(1);
+            ctor = BooleanAttributePart;
+          } else if (prefix === '@') {
+            name = attributeName.substring(1);
+            ctor = EventPart;
+          }
+
+          const strings = [splitValue[0]];
+          const exprs: Array<Expression> = [];
+          for (let i = 1; i < splitValue.length; i += 2) {
+            const exprText = splitValue[i];
+            exprs.push(parse(exprText, astFactory) as Expression);
+            strings.push(splitValue[i + 1]);
+          }
+
+          litTemplate.parts.push({
+            type: 1, // attribute binding
+            index: nodeIndex,
+            name,
+            strings,
+            ctor,
+            update: (
+              model: object,
+              _handlers: TemplateHandlers,
+              _renderers: Renderers
+            ) => {
+              return exprs.map((expr) => expr.evaluate(model));
+            },
+          });
         }
       }
     } else if (node.nodeType === Node.TEXT_NODE) {

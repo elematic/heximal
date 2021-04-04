@@ -57,13 +57,15 @@ suite('lit-html', () => {
     );
   });
 
-  // TODO:
-  // test('Multiple attribute bindings', () => {
-  //   const template = document.createElement('template');
-  //   template.innerHTML = `<p class="A {{ b }} C {{ D }}">`;
-  //   render(template, container, {b: 'B', d: 'D'});
-  //   assert.equal(stripExpressionMarkers(container.innerHTML), `<p class="A B C D"></p>`);
-  // });
+  test('Multiple attribute bindings', () => {
+    const template = document.createElement('template');
+    template.innerHTML = `<p class="A {{ b }} C {{ d }}">`;
+    render(template, container, {b: 'B', d: 'D'});
+    assert.equal(
+      stripExpressionMarkers(container.innerHTML),
+      `<p class="A B C D"></p>`
+    );
+  });
 
   test('Property binding', () => {
     const template = document.createElement('template');
