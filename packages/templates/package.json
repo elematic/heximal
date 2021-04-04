@@ -32,11 +32,11 @@
   },
   "keywords": [
     "html",
-    "template",
-    "binding"
+    "lit-html",
+    "template"
   ],
-  "author": "Jusitn Fagnani <justin@fagnani.com>",
-  "license": "Apache-2.0",
+  "author": "Justin Fagnani <justin@fagnani.com>",
+  "license": "MIT",
   "repository": "justinfagnani/stampino",
   "bugs": {
     "url": "https://github.com/justinfagnani/stampino/issues"
