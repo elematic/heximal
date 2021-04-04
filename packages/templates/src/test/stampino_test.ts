@@ -18,14 +18,14 @@ suite('lit-html', () => {
 
   test('Text binding', () => {
     const template = document.createElement('template');
-    template.innerHTML = `Hello {{name}}`;
+    template.innerHTML = `Hello {{ name }}`;
     render(template, container, {name: 'World'});
     assert.equal(stripExpressionMarkers(container.innerHTML), `Hello World`);
   });
 
   test('Text binding in element', () => {
     const template = document.createElement('template');
-    template.innerHTML = `<h1>Hello {{name.toUpperCase()}}</h1>`;
+    template.innerHTML = `<h1>Hello {{ name.toUpperCase() }}</h1>`;
     render(template, container, {name: 'World'});
     assert.equal(
       stripExpressionMarkers(container.innerHTML),
@@ -35,14 +35,14 @@ suite('lit-html', () => {
 
   test('Text binding after element', () => {
     const template = document.createElement('template');
-    template.innerHTML = `<p>A</p>{{x}}`;
+    template.innerHTML = `<p>A</p>{{ x }}`;
     render(template, container, {x: 'B'});
     assert.equal(stripExpressionMarkers(container.innerHTML), `<p>A</p>B`);
   });
 
   test('Text binding after element x 2', () => {
     const template = document.createElement('template');
-    template.innerHTML = `<p>A</p>{{x}}{{y}}`;
+    template.innerHTML = `<p>A</p>{{ x }}{{ y }}`;
     render(template, container, {x: 'B', y: 'C'});
     assert.equal(stripExpressionMarkers(container.innerHTML), `<p>A</p>BC`);
   });

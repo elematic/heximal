@@ -8,31 +8,28 @@ import {_Σ} from 'lit-html/private-ssr-support.js';
 const {AttributePart, PropertyPart, BooleanAttributePart, EventPart} = _Σ;
 
 const astFactory = new EvalAstFactory();
-const _expressionCache = new WeakMap<Node, Expression | undefined>();
+const expressionCache = new Map<string, Expression | undefined>();
 
 const toCamelCase = (s: string) =>
   s.replace(/-(\w)/g, (_, p1: string) => p1.toUpperCase());
 
-const getValue = (node: Node, model: any) => {
-  let ast = _expressionCache.get(node);
-  if (ast !== undefined) {
-    return ast.evaluate(model);
+/**
+ * Gets the value from a string that contains a delimted expression: {{ ... }}
+ */
+const getSingleValue = (s: string, model: any) => {
+  let ast = expressionCache.get(s);
+  if (ast === undefined) {
+    if (expressionCache.has(s)) {
+      return undefined;
+    }
+    s = s.trim();
+    if (s.startsWith('{{') && s.endsWith('}}')) {
+      const expression = s.substring(2, s.length - 2).trim();
+      ast = new Parser(expression, astFactory).parse();
+      expressionCache.set(s, ast);
+    }
   }
-  if (_expressionCache.has(node)) {
-    return undefined;
-  }
-  const value = node.textContent!;
-  // TODO: split to support multiple expressions
-  if (value.startsWith('{{') && value.endsWith('}}')) {
-    const expression = value.substring(2, value.length - 2).trim();
-    ast = new Parser(expression, astFactory).parse();
-    _expressionCache.set(node, ast);
-    return ast?.evaluate(model);
-  }
-  if (value.startsWith('\\{{')) {
-    return value.substring(1);
-  }
-  return value;
+  return ast?.evaluate(model);
 };
 
 const getExpr = (value: string): Expression | undefined => {
@@ -81,8 +78,8 @@ export const ifHandler: TemplateHandler = (
   handlers: TemplateHandlers,
   renderers: Renderers
 ) => {
-  const ifAttribute = template.getAttributeNode('if');
-  if (ifAttribute !== null && getValue(ifAttribute, model)) {
+  const ifAttribute = template.getAttribute('if');
+  if (ifAttribute !== null && getSingleValue(ifAttribute, model)) {
     // TODO: return a template result
     const litTemplate = getLitTemplate(template);
     const values = litTemplate.parts.map((part) =>
@@ -103,9 +100,9 @@ export const repeatHandler: TemplateHandler = (
   handlers: TemplateHandlers,
   renderers: Renderers
 ) => {
-  const repeatAttribute = template.getAttributeNode('repeat');
-  if (repeatAttribute) {
-    const items = getValue(repeatAttribute, model);
+  const repeatAttribute = template.getAttribute('repeat');
+  if (repeatAttribute !== null) {
+    const items = getSingleValue(repeatAttribute, model);
     if (!items[Symbol.iterator]) {
       return nothing;
     }
@@ -369,9 +366,9 @@ const makeLitTemplate = (template: HTMLTemplateElement): StampinoTemplate => {
                 );
               };
             }
-            // The updater runs when the template is evaluated and functions as a template
-            // _call_. It looks for a named renderer, which might be the renderer function
-            // above if the block is not overridden.
+            // The updater runs when the template is evaluated and functions as
+            // a template _call_. It looks for a named renderer, which might be
+            // the renderer function above if the block is not overridden.
             update = (
               model: object,
               handlers: TemplateHandlers,
@@ -382,7 +379,7 @@ const makeLitTemplate = (template: HTMLTemplateElement): StampinoTemplate => {
             };
           }
           litTemplate.parts.push({
-            type: 2, // ChildPart
+            type: 2, // text binding
             index: nodeIndex,
             update,
           });
@@ -408,12 +405,12 @@ const makeLitTemplate = (template: HTMLTemplateElement): StampinoTemplate => {
               ctor = EventPart;
             }
             litTemplate.parts.push({
-              type: 1,
+              type: 1, // attribute binding
               index: nodeIndex,
               name,
               strings: ['', ''],
               ctor,
-              update: (model: object, _handlers: TemplateHandlers) =>
+              update: (model: object, _handlers: TemplateHandlers, _renderers: Renderers) =>
                 expr.evaluate(model),
             });
           }
