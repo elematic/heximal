@@ -128,9 +128,9 @@ export const prepareTemplate = (
   renderers: Renderers = {},
   superTemplate?: HTMLTemplateElement
 ): TemplateFunction => {
+  const litTemplate = getLitTemplate(template);
+  const templateRenderers = litTemplate.renderers;
   if (superTemplate) {
-    const litTemplate = getLitTemplate(template);
-    const templateRenderers = litTemplate.renderers;
     const superLitTemplate = getLitTemplate(superTemplate);
     const superRenderers = superLitTemplate.renderers;
     const superCallRenderer = templateRenderers['super'];
@@ -184,8 +184,13 @@ export const prepareTemplate = (
       };
       template = superTemplate;
     }
+  } else {
+    // No super call
+    renderers = {
+      ...renderers,
+      ...templateRenderers,
+    };
   }
-
   return (model) => evaluateTemplate(template, model, handlers, renderers);
 };
 

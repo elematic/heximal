@@ -151,36 +151,53 @@ suite('lit-html', () => {
 
   test('repeat template', () => {
     const template = document.createElement('template');
-    template.innerHTML = `<template type="repeat" repeat="{{items}}"><p>{{item}}</p></template>`;
-    render(template, container, {items: [4, 5, 6]});
+    template.innerHTML = `<template type="repeat" repeat="{{ items }}"><p>{{ item }}{{ x }}</p></template>`;
+    render(template, container, {items: [4, 5, 6], x: 'X'});
     assert.equal(
       stripExpressionMarkers(container.innerHTML),
-      `<p>4</p><p>5</p><p>6</p>`
+      `<p>4X</p><p>5X</p><p>6X</p>`
     );
   });
 
   test('named blocks with fallback', () => {
     const template = document.createElement('template');
-    template.innerHTML = `<p>A</p><template name="B">B</template><template name="C">C</template>`;
-    template.id = 'sup';
+    template.innerHTML = `<p>A</p><template name="B">{{ b }}</template><template name="C">C</template>`;
 
-    const templateFn = prepareTemplate(
-      template,
-      undefined,
-      undefined,
-      template
-    );
-    litRender(templateFn({}), container);
+    const templateFn = prepareTemplate(template);
+    litRender(templateFn({b: 'B'}), container);
     assert.equal(stripExpressionMarkers(container.innerHTML), `<p>A</p>BC`);
+  });
+
+  // TODO: Need to figure out where passed-in renderers fit in the scope. Can
+  // they override block lookup, or do all declared blocks take precedence?
+  // If declared blocks take precedence and self-render, then do we need to
+  // make a separate <template call="name"> construct.
+  test.skip('named blocks with provided renderer', () => {
+    const bTemplate = document.createElement('template');
+    bTemplate.innerHTML = `<p>{{ b }}</p>`;
+    const bTemplateFn = prepareTemplate(bTemplate);
+
+    const template = document.createElement('template');
+    template.innerHTML = `<p>A</p><template name="B">{{ b }}</template><template name="C">C</template>`;
+
+    const templateFn = prepareTemplate(template, undefined, {
+      B: (model) => {
+        return bTemplateFn(model);
+      },
+    });
+    litRender(templateFn({b: 'B'}), container);
+    assert.equal(
+      stripExpressionMarkers(container.innerHTML),
+      `<p>A</p><p>B</p>C`
+    );
   });
 
   test('implicit super template call', () => {
     const superTemplate = document.createElement('template');
     superTemplate.innerHTML = `<p>A</p><template name="B">B</template><template name="C">C</template>`;
-    superTemplate.id = 'sup';
+
     const subTemplate = document.createElement('template');
     subTemplate.innerHTML = `<template name="C">Z</template>`;
-    subTemplate.id = 'sub';
 
     const subTemplateFn = prepareTemplate(
       subTemplate,
@@ -195,10 +212,9 @@ suite('lit-html', () => {
   test('explicit super template call', () => {
     const superTemplate = document.createElement('template');
     superTemplate.innerHTML = `<p>A</p><template name="B">B</template><template name="C">C</template>`;
-    superTemplate.id = 'sup';
+
     const subTemplate = document.createElement('template');
     subTemplate.innerHTML = `1<template name="super"><template name="C">Z</template></template>2`;
-    subTemplate.id = 'sub';
 
     const subTemplateFn = prepareTemplate(
       subTemplate,
@@ -209,10 +225,62 @@ suite('lit-html', () => {
     litRender(subTemplateFn({}), container);
     assert.equal(stripExpressionMarkers(container.innerHTML), `1<p>A</p>BZ2`);
   });
+
+  test('block inside if', () => {
+    const superTemplate = document.createElement('template');
+    superTemplate.innerHTML = `<template type="if" if="{{ true }}"><template name="A"></template></template>`;
+
+    const subTemplate = document.createElement('template');
+    subTemplate.innerHTML = `<template name="A">{{ a }}</template>`;
+
+    const subTemplateFn = prepareTemplate(
+      subTemplate,
+      undefined,
+      undefined,
+      superTemplate
+    );
+    litRender(subTemplateFn({a: 'A'}), container);
+    assert.equal(stripExpressionMarkers(container.innerHTML), `A`);
+  });
+
+  test('nested blocks, override inner', () => {
+    const superTemplate = document.createElement('template');
+    superTemplate.innerHTML = `<template name="A">A<template name="B">B</template>C</template>`;
+
+    const subTemplate = document.createElement('template');
+    subTemplate.innerHTML = `<template name="B">{{ b }}</template>`;
+
+    const subTemplateFn = prepareTemplate(
+      subTemplate,
+      undefined,
+      undefined,
+      superTemplate
+    );
+    litRender(subTemplateFn({b: 'Z'}), container);
+    assert.equal(stripExpressionMarkers(container.innerHTML), `AZC`);
+  });
+
+  // TODO: We need a way to render the super _block_ not just the super
+  // template. See how Jinja does this:
+  // https://jinja.palletsprojects.com/en/2.11.x/templates/#super-blocks
+  test('nested blocks, override outer', () => {
+    const superTemplate = document.createElement('template');
+    superTemplate.innerHTML = `<template name="A">A<template name="B">B</template>C</template>`;
+
+    const subTemplate = document.createElement('template');
+    subTemplate.innerHTML = `<template name="A">{{ a }}</template>`;
+
+    const subTemplateFn = prepareTemplate(
+      subTemplate,
+      undefined,
+      undefined,
+      superTemplate
+    );
+    litRender(subTemplateFn({a: 'Z'}), container);
+    assert.equal(stripExpressionMarkers(container.innerHTML), `Z`);
+  });
+
 });
 
-export const stripExpressionComments = (html: string) =>
-  html.replace(/<!--\?lit\$[0-9]+\$-->|<!--\??-->/g, '');
-
-export const stripExpressionMarkers = (html: string) =>
+const stripExpressionMarkers = (html: string) =>
   html.replace(/<!--\?lit\$[0-9]+\$-->|<!--\??-->|lit\$[0-9]+\$/g, '');
