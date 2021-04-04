@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+
+<script src="./benchmark.js" type="module"></script>
+
+<template>
+  <div>
+    <div>
+      <div>
+        <div>{{ foo }}</div>
+      </div>
+    </div>
+  </div>
+  <div>
+    <div>
+      <div>
+        <div>{{ x * x - 1 }}</div>
+      </div>
+    </div>
+  </div>
+  <div>
+    <div>
+      <div>
+        <div>{{ a.b.c.d }}</div>
+      </div>
+    </div>
+  </div>
+  <div>
+    <div>
+      <div>
+        <div>{{ a.b.c.d == a.b.c.e }}</div>
+      </div>
+    </div>
+  </div>
+</template>
+
+<script id="model" type="application/json">
+  {
+    "x": 24,
+    "foo": "foo",
+    "a": {"b": {"c": {"d": "1", "e": 1}}}
+  }
+</script>
+
+<output></output>

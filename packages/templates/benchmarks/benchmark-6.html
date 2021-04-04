@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+
+<script src="./benchmark.js" type="module"></script>
+
+<template>
+  <template type="repeat" repeat="{{items}}">
+    <div>
+      <div>
+        <div>
+          <template type="if" if="{{index % 2 == 0}}">
+            <div>{{ item }}</div>
+          </template>
+          <template type="if" if="{{index % 2 == 1}}">
+            <div>{{ index }}</div>
+          </template>
+        </div>
+      </div>
+    </div>
+  </template>
+</template>
+
+<script id="model" type="application/json">
+  {
+    "items": [
+      "zero",
+      "one",
+      "two",
+      "three",
+      "four",
+      "five",
+      "six",
+      "seven",
+      "eight",
+      "nine",
+      "ten",
+      "eleven",
+      "twelve"
+    ]
+  }
+</script>
+
+<output></output>

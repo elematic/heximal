@@ -94,10 +94,10 @@
     <template id="demo-6-super">
       <p>This is the parent template that defines blocks named A and B</p>
       <div>
-        <template name="A">The is default content for block A</template>
+        <template name="A">This is default content for block A</template>
       </div>
       <div>
-        <template name="B">The is default content for block B</template>
+        <template name="B">This is default content for block B</template>
       </div>
     </template>
 
@@ -116,6 +116,14 @@
             <template name="B">This is child content for block B</template>
           </template>
         <div>after super template</div>
+      </template>
+    </template>
+
+    <template id="demo-8">
+      <template name="title">Null Safe Expressions</template>
+      <template name="demo">
+        <p>This template contains deep access of a nullable object:</p>
+        <div><code>\{{nullable.missing.property || 'none'}}</code>: <span>{{nullable.missing.property || 'none'}}</span></div>
       </template>
     </template>
 

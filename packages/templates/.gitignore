@@ -3,3 +3,7 @@
 /stampino.*
 /demo/demo.*
 /test
+/logs
+/benchmarks/*.d.ts
+/benchmarks/*.js
+/benchmarks/*.js.map

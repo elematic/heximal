@@ -159,6 +159,23 @@ suite('lit-html', () => {
     );
   });
 
+  test('nullable model access', function () {
+    const template = document.createElement('template');
+    template.innerHTML = `{{nullable.missing.property || 'none'}}`;
+    render(template, container, {nullable: null});
+    assert.equal(
+      stripExpressionMarkers(container.innerHTML),
+      `none`,
+      'with null model property'
+    );
+    render(template, container, {nullable: {missing: {property: 'something'}}});
+    assert.equal(
+      stripExpressionMarkers(container.innerHTML),
+      `something`,
+      'with nonnull model property'
+    );
+  });
+
   test('named blocks with fallback', () => {
     const template = document.createElement('template');
     template.innerHTML = `<p>A</p><template name="B">{{ b }}</template><template name="C">C</template>`;

@@ -1,6 +1,6 @@
-# stampino
+# Stampino
 
-Stampino is a fast and extremely powerful HTML template system, where you write templates in real HTML `<template>` tags:
+Stampino is a fast and extremely powerful HTML template system, where you write dynamic templates using real HTML `<template>` tags:
 
 ```html
 <template id="my-template">
@@ -10,15 +10,14 @@ Stampino is a fast and extremely powerful HTML template system, where you write 
 
 ## Overview
 
-Stampino use HTML [`<template>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/template) tags to define templates, [lit-html](https://lit-html.polymer-project.org/) for the underlying template rendering, and [jexpr](https://www.npmjs.com/package/jexpr) for binding expressions.
+Stampino uses HTML [`<template>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/template) tags to define templates, [lit-html](https://lit-html.polymer-project.org/) for the underlying template rendering, and [jexpr](https://www.npmjs.com/package/jexpr) for binding expressions.
 
-Stampino is based on the idea that a template defines a function from data to DOM, so it transforms `<template>` elements into lit-html render functions. Control flow, emplate composition, and extensibility are built on top of function composition.
+Stampino is based on the idea that a template defines a function from data to DOM, so it transforms `<template>` elements into lit-html render functions. Control flow, template composition, and extensibility are built on top of function composition.
 
 This approach leads to a low-cost for features like conditionals and repeating, which are just `<template>`s themselves:
 
 ```html
 <template id="my-template">
-  
   <h2>Messages</h2>
 
   <template type="if" if="{{ important }}">
@@ -28,7 +27,6 @@ This approach leads to a low-cost for features like conditionals and repeating, 
   <template type="repeat" repeat="{{ messages }}">
     <p>{{ item.text }}</p>
   </template>
-
 </template>
 ```
 
@@ -38,7 +36,7 @@ This approach leads to a low-cost for features like conditionals and repeating, 
 
 Stampino is very useful for custom elements that want to allow custom rendering or user-extensibility.
 
-Consider an example of an `<npm-packages>` element that fetchs a list of npm packages and renders it, but want to let users override the default rendering. The element can accept a template as a child and render it with Stampino and the package data:
+Consider the example of an `<npm-packages>` element that fetches a list of npm packages and renders it, letting users override a default shadow-DOM template. The element may accept a template as a child and render it with Stampino and the package data:
 
 ```html
 <script type="module" src="/npm-packages.js"></script>
@@ -140,7 +138,7 @@ For repeated templates use `type="repeat"` and a `repeat` attribute. The repeat 
 
 ### Inheritance
 
-Stampino support template inheritance similar to how the popular Jinja library does.
+Stampino supports template inheritance similar to how the popular Jinja library does.
 
 Because Stampino does not automatically find templates in the DOM, even for simple rendering, specifying inheritance is done entirely out-of-band. Set up code must find the template and it's super template, then pass both to `prepareTemplate()`.
 
@@ -167,12 +165,12 @@ const baseEl = document.querySelector('#base-template');
 const templateEl = document.querySelector('#my-template');
 
 const myTemplate = prepareTemplate(
-  tempalteEl,
+  templateEl,
   undefined, // use default handlers
   undefined, // use default (empty) renderers
   baseEl); // super template
 
-// Note: teh above API isn't great. It'll change
+// Note: the above API isn't great. It'll change
 
 // Use lit-html to render:
 render(myTemplate(data), container);
@@ -198,8 +196,13 @@ Most template systems have built-in control-flow constructs like 'if' and 'repea
 
 Handlers are functions that implement this signature:
 
-```javascript
-function(template, model, handlers, renderers)
+```typescript
+function handler<Model>(
+  template: HTMLTemplateElement,
+  model: Model,
+  handlers: Handlers,
+  renderers: renderers,
+): TemplateResult|Directive|string|number|((string|number)[]);
 ```
 
 They can return any lit-html rendereable object, including strings, numbers, arrays, TemplateResults, or directives.
@@ -227,9 +230,7 @@ Handlers are referenced inside templates via the `type` attribute:
 ```html
 <template>
   <h1>Do I head an echo?</h1>
-  <template type="echo">
-    Yes, I hear an echo!
-  </template>
+  <template type="echo"> Yes, I hear an echo! </template>
 </template>
 ```
 
