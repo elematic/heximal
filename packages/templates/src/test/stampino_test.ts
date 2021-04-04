@@ -279,7 +279,6 @@ suite('lit-html', () => {
     litRender(subTemplateFn({a: 'Z'}), container);
     assert.equal(stripExpressionMarkers(container.innerHTML), `Z`);
   });
-
 });
 
 const stripExpressionMarkers = (html: string) =>

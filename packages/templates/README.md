@@ -97,6 +97,17 @@ Expressions can include variables, property access, arithmetic, function and met
 
 See the [jexpr README](https://www.npmjs.com/package/jexpr) for more expression features.
 
+### Property, event, and boolean attribute bindings
+
+Stampino uses lit-html's syntax for binding to properties, events, and boolean attributes.
+
+| Binding Type      | Prefix | Example                 |
+|-------------------|--------|-------------------------|
+| Attribute         | none   | `class=${c}`            |
+| Property          | `.`    | `.foo=${bar}`           |
+| Event             | `@`    | `@click=${handleClick}` |
+| Boolean Attribute | `?`    | `?disabled=${disabled}` |
+
 ### Control flow
 
 Stampino control flow is based on nested `<template>` elements with a `type` attribute. Stampino comes with two built-in template handlers, `if` and `repeat`
