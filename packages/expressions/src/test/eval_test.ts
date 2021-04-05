@@ -126,6 +126,9 @@ suite('eval', function () {
     expectEval('true && false', false);
     expectEval('false && true', false);
     expectEval('false && false', false);
+
+    expectEval('x ?? 2', 1, {x: 1});
+    expectEval('x ?? 2', 2);
   });
 
   test('should evaulate ternary operators', function () {

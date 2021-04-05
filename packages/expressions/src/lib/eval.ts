@@ -22,6 +22,7 @@ const _BINARY_OPERATORS = {
   '<=': (a: any, b: any) => a <= b,
   '||': (a: any, b: any) => a || b,
   '&&': (a: any, b: any) => a && b,
+  '??': (a: any, b: any) => a ?? b,
   '|': (a: any, f: (a: any) => any) => f(a),
 };
 
@@ -141,7 +142,7 @@ export class EvalAstFactory implements AstFactory<Expression> {
       evaluate(scope) {
         // TODO(justinfagnani): this prevents access to properties named 'this'
         if (this.value === 'this') return scope;
-        return scope[this.value];
+        return scope?.[this.value];
       },
       getIds(idents) {
         idents.push(this.value);

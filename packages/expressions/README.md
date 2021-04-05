@@ -108,6 +108,7 @@ Jexpr supports the following binary and unary operators:
 - Arithmetic operators: `+`, `-`, `*`, `/`, `%`, unary `+` and `-`
 - Comparison operators: `==`, `!=`, `===`, `!==`, `<=`, `<`, `>`, `>=`
 - Boolean operators: `&&`, `||`, unary `!`
+- Nullish coalescing: `??`
 
 Expressions do not support bitwise operators such as `&`, `|`, `<<` and `>>`, or
 increment/decrement operators (`++` and `--`)
