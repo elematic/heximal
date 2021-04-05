@@ -444,7 +444,7 @@ const makeLitTemplate = (template: HTMLTemplateElement): StampinoTemplate => {
         const expr = parse(exprText, astFactory) as Expression;
         litTemplate.parts.push({
           type: 2,
-          index: ++nodeIndex,
+          index: nodeIndex++,
           update: (model: unknown, _handlers: TemplateHandlers) =>
             expr.evaluate(model as Scope),
         });

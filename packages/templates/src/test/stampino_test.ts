@@ -2,7 +2,7 @@ import {assert} from '@esm-bundle/chai';
 import {render as litRender} from 'lit-html';
 import {prepareTemplate, render} from '../stampino.js';
 
-suite('lit-html', () => {
+suite('stampino', () => {
   let container: HTMLDivElement;
 
   setup(() => {
@@ -25,11 +25,11 @@ suite('lit-html', () => {
 
   test('Text binding in element', () => {
     const template = document.createElement('template');
-    template.innerHTML = `<h1>Hello {{ name.toUpperCase() }}</h1>`;
+    template.innerHTML = `<h1>Hello {{ name.toUpperCase() }}!</h1>`;
     render(template, container, {name: 'World'});
     assert.equal(
       stripExpressionMarkers(container.innerHTML),
-      `<h1>Hello WORLD</h1>`
+      `<h1>Hello WORLD!</h1>`
     );
   });
 
