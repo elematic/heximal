@@ -237,6 +237,10 @@ export class Parser<N extends Expression> {
       this._advance();
       return this._ast.literal(null);
     }
+    if (value === 'undefined') {
+      this._advance();
+      return this._ast.literal(undefined);
+    }
     const identifier = this._parseIdentifier();
     const args = this._parseArguments();
     return !args ? identifier : this._ast.invoke(identifier, undefined, args);

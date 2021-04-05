@@ -82,6 +82,7 @@ name, you can use `this` to refer to the model property.
 Jexpr supports number, boolean, string, and map literals. Strings
 can use either single or double quotes.
 
+- `null` and `undefined`
 - Numbers: `1`, `1.0`
 - Booleans: `true`, `false`
 - Strings: `'abc'`, `"xyz"`

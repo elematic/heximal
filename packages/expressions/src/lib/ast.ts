@@ -17,7 +17,7 @@ export type Expression =
   | Map
   | List;
 
-export type LiteralValue = string | number | boolean | null;
+export type LiteralValue = string | number | boolean | null | undefined;
 
 export interface Literal {
   type: 'Literal';

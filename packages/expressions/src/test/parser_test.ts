@@ -39,6 +39,10 @@ suite('Parser', function () {
     expectParse('null', astFactory.literal(null));
   });
 
+  test('should parse an undefined literal', function () {
+    expectParse('undefined', astFactory.literal(undefined));
+  });
+
   test('should parse an integer literal', function () {
     expectParse('123', astFactory.literal(123));
   });
