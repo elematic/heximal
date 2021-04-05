@@ -129,6 +129,15 @@ suite('eval', function () {
 
     expectEval('x ?? 2', 1, {x: 1});
     expectEval('x ?? 2', 2);
+
+    expectEval('x | f', 2, {x: 1, f: (x: number) => x * 2});
+    expectEval('x |> f', 2, {x: 1, f: (x: number) => x * 2});
+    expectEval('x |> a.f', 2, {x: 1, a: {f: (x: number) => x * 2}});
+    expectEval('x |> f |> g', 3, {
+      x: 1,
+      f: (x: number) => x * 2,
+      g: (x: number) => x + 1,
+    });
   });
 
   test('should evaulate ternary operators', function () {

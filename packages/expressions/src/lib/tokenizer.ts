@@ -5,7 +5,7 @@
 
 import {KEYWORDS, POSTFIX_PRECEDENCE, PRECEDENCE} from './constants.js';
 
-const _TWO_CHAR_OPS = ['==', '!=', '<=', '>=', '||', '&&', '??'];
+const _TWO_CHAR_OPS = ['==', '!=', '<=', '>=', '||', '&&', '??', '|>'];
 const _THREE_CHAR_OPS = ['===', '!=='];
 
 export interface Token {

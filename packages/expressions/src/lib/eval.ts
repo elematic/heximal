@@ -24,6 +24,7 @@ const _BINARY_OPERATORS = {
   '&&': (a: any, b: any) => a && b,
   '??': (a: any, b: any) => a ?? b,
   '|': (a: any, f: (a: any) => any) => f(a),
+  '|>': (a: any, f: (a: any) => any) => f(a),
 };
 
 const _UNARY_OPERATORS = {
