@@ -17,7 +17,12 @@ suite("stampino-element", () => {
   test("basic", async () => {
     container.innerHTML = `
       <stampino-element name="test-1" properties="name">
-        <template>
+          <style type="adopted-css">
+            :host {
+              color: blue;
+            }
+          </style>
+          <template>
           <h1>Hello {{ name }}!</h1>
         </template>
       </stampino-element>
@@ -30,6 +35,10 @@ suite("stampino-element", () => {
       stripExpressionMarkers(el.shadowRoot!.innerHTML).trim(),
       `<h1>Hello World!</h1>`
     );
+
+    const h1 = el.shadowRoot?.firstElementChild!;
+    const computedStyles = getComputedStyle(h1);
+    assert.equal(computedStyles.color, 'rgb(0, 0, 255)');
   });
 });
 
