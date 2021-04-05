@@ -1,0 +1,34 @@
+{
+  "name": "stampino-element",
+  "version": "0.0.1",
+  "type": "module",
+  "main": "./stampino-element.js",
+  "exports": "./stampino-element.js",
+  "dependencies": {
+    "lit": "^2.0.0-pre.2",
+    "stampino": "^0.6.1"
+  },
+  "scripts": {
+    "build": "tsc",
+    "test": "wtr test/**/*_test.js --node-resolve --playwright --browsers chromium",
+    "format": "prettier \"src/**/*.ts\" --write",
+    "demo": "wds --node-resolve"
+  },
+  "devDependencies": {
+    "@esm-bundle/chai": "^4.3.4",
+    "@types/mocha": "^8.2.2",
+    "@web/dev-server": "^0.1.10",
+    "@web/test-runner": "^0.12.18",
+    "@web/test-runner-mocha": "^0.7.2",
+    "@web/test-runner-playwright": "^0.8.4",
+    "prettier": "^2.2.1",
+    "typescript": "^4.2.3"
+  },
+  "author": "Justin Fagnani <justin@fagnani.com>",
+  "license": "MIT",
+  "repository": "justinfagnani/stampino-element",
+  "bugs": {
+    "url": "https://github.com/justinfagnani/stampino-element/issues"
+  },
+  "homepage": "https://github.com/justinfagnani/stampino-element#readme"
+}
