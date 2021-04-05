@@ -21,7 +21,6 @@
   },
   "devDependencies": {
     "@esm-bundle/chai": "^4.3.4",
-    "@rollup/plugin-commonjs": "^18.0.0",
     "@types/mocha": "^8.2.2",
     "@web/dev-server": "^0.1.5",
     "@web/dev-server-rollup": "^0.3.2",
