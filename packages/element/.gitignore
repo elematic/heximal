@@ -5,5 +5,5 @@ node_modules/
 # TypeScript cache
 *.tsbuildinfo
 
-stampino-element.*
-stampino-base-element.*
+/stampino-element.*
+/stampino-base-element.*
