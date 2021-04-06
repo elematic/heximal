@@ -69,6 +69,40 @@ suite('stampino-element', () => {
       `<h1>Hello World!</h1>`
     );
   });
+
+  test('inheritance', async () => {
+    container.innerHTML = `
+      <stampino-element name="test-3-a" properties="name">
+          <style type="adopted-css">
+            :host {
+              color: blue;
+            }
+          </style>
+          <template>
+          <h1>Hello {{ name }}!</h1>
+        </template>
+      </stampino-element>
+
+      <!-- Trivial subclass -->
+      <stampino-element name="test-3-b" extends="test-3-a">
+      </stampino-element>
+    `;
+    container.insertAdjacentHTML(
+      'beforeend',
+      `<test-3-b name="World"></test-3-b>`
+    );
+    const el = container.querySelector('test-3-b') as StampinoBaseElement;
+    assert.instanceOf(el, StampinoBaseElement);
+    await el.updateComplete;
+    assert.equal(
+      stripExpressionMarkers(el.shadowRoot!.innerHTML).trim(),
+      `<h1>Hello World!</h1>`
+    );
+
+    const h1 = el.shadowRoot?.firstElementChild!;
+    const computedStyles = getComputedStyle(h1);
+    assert.equal(computedStyles.color, 'rgb(0, 0, 255)');
+  });
 });
 
 const stripExpressionMarkers = (html: string) =>
