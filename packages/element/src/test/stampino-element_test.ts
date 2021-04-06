@@ -1,13 +1,13 @@
-import { assert } from "@esm-bundle/chai";
-import { StampinoBaseElement } from "../stampino-base-element.js";
-import "../stampino-element.js";
-import { StampinoElement } from "../stampino-element.js";
+import {assert} from '@esm-bundle/chai';
+import {StampinoBaseElement} from '../stampino-base-element.js';
+import '../stampino-element.js';
+import {StampinoElement} from '../stampino-element.js';
 
-suite("stampino-element", () => {
+suite('stampino-element', () => {
   let container: HTMLDivElement;
 
   setup(() => {
-    container = document.createElement("div");
+    container = document.createElement('div');
     document.body.append(container);
   });
 
@@ -15,7 +15,7 @@ suite("stampino-element", () => {
     container.remove();
   });
 
-  test("basic", async () => {
+  test('basic', async () => {
     container.innerHTML = `
       <stampino-element name="test-1" properties="name">
           <style type="adopted-css">
@@ -28,8 +28,8 @@ suite("stampino-element", () => {
         </template>
       </stampino-element>
     `;
-    container.insertAdjacentHTML("beforeend", `<test-1 name="World"></test-1>`);
-    const el = container.querySelector("test-1") as StampinoBaseElement;
+    container.insertAdjacentHTML('beforeend', `<test-1 name="World"></test-1>`);
+    const el = container.querySelector('test-1') as StampinoBaseElement;
     assert.instanceOf(el, StampinoBaseElement);
     await el.updateComplete;
     assert.equal(
@@ -42,7 +42,7 @@ suite("stampino-element", () => {
     assert.equal(computedStyles.color, 'rgb(0, 0, 255)');
   });
 
-  test("reconnecting", async () => {
+  test('reconnecting', async () => {
     container.innerHTML = `
       <stampino-element name="test-2" properties="name">
         <template>
@@ -50,7 +50,9 @@ suite("stampino-element", () => {
         </template>
       </stampino-element>
     `;
-    const definitionEl = container.querySelector("stampino-element") as StampinoElement;
+    const definitionEl = container.querySelector(
+      'stampino-element'
+    ) as StampinoElement;
 
     // Remove and reattach the element to check that it doesn't redo definition
     // time work:
@@ -58,8 +60,8 @@ suite("stampino-element", () => {
     container.append(definitionEl);
 
     // Make sure an element still works
-    container.insertAdjacentHTML("beforeend", `<test-1 name="World"></test-1>`);
-    const el = container.querySelector("test-1") as StampinoBaseElement;
+    container.insertAdjacentHTML('beforeend', `<test-1 name="World"></test-1>`);
+    const el = container.querySelector('test-1') as StampinoBaseElement;
     assert.instanceOf(el, StampinoBaseElement);
     await el.updateComplete;
     assert.equal(
@@ -70,4 +72,4 @@ suite("stampino-element", () => {
 });
 
 const stripExpressionMarkers = (html: string) =>
-  html.replace(/<!--\?lit\$[0-9]+\$-->|<!--\??-->|lit\$[0-9]+\$/g, "");
+  html.replace(/<!--\?lit\$[0-9]+\$-->|<!--\??-->|lit\$[0-9]+\$/g, '');
