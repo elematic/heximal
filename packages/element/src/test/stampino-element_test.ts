@@ -70,38 +70,71 @@ suite('stampino-element', () => {
     );
   });
 
-  test('inheritance', async () => {
-    container.innerHTML = `
-      <stampino-element name="test-3-a" properties="name">
-          <style type="adopted-css">
-            :host {
-              color: blue;
-            }
-          </style>
+  suite('inheritance', () => {
+    test('trivial subclass', async () => {
+      container.innerHTML = `
+        <stampino-element name="test-3-a" properties="name">
+            <style type="adopted-css">
+              :host {
+                color: blue;
+              }
+            </style>
+            <template>
+            <h1>Hello {{ name }}!</h1>
+          </template>
+        </stampino-element>
+  
+        <!-- Trivial subclass -->
+        <stampino-element name="test-3-b" extends="test-3-a">
+        </stampino-element>
+
+        <test-3-b name="World"></test-3-b>
+      `;
+      const el = container.querySelector('test-3-b') as StampinoBaseElement;
+      assert.instanceOf(el, StampinoBaseElement);
+      await el.updateComplete;
+      assert.equal(
+        stripExpressionMarkers(el.shadowRoot!.innerHTML).trim(),
+        `<h1>Hello World!</h1>`
+      );
+
+      const h1 = el.shadowRoot?.firstElementChild!;
+      const computedStyles = getComputedStyle(h1);
+      assert.equal(computedStyles.color, 'rgb(0, 0, 255)');
+    });
+
+    test('subclass with implicit super template', async () => {
+      container.innerHTML = `
+        <stampino-element name="test-4-a" properties="a b">
+            <style type="adopted-css">
+              :host {
+                color: blue;
+              }
+            </style>
+            <template>
+            <h1>{{ a }}</h1>
+            <template name="b"><h2>{{ b }}</h2></template>
+          </template>
+        </stampino-element>
+  
+        <stampino-element name="test-4-b" extends="test-4-a">
           <template>
-          <h1>Hello {{ name }}!</h1>
-        </template>
-      </stampino-element>
+            <template name="b"><h3>{{ b }}</h3></template>
+          </template>
+        </stampino-element>
 
-      <!-- Trivial subclass -->
-      <stampino-element name="test-3-b" extends="test-3-a">
-      </stampino-element>
-    `;
-    container.insertAdjacentHTML(
-      'beforeend',
-      `<test-3-b name="World"></test-3-b>`
-    );
-    const el = container.querySelector('test-3-b') as StampinoBaseElement;
-    assert.instanceOf(el, StampinoBaseElement);
-    await el.updateComplete;
-    assert.equal(
-      stripExpressionMarkers(el.shadowRoot!.innerHTML).trim(),
-      `<h1>Hello World!</h1>`
-    );
-
-    const h1 = el.shadowRoot?.firstElementChild!;
-    const computedStyles = getComputedStyle(h1);
-    assert.equal(computedStyles.color, 'rgb(0, 0, 255)');
+        <test-4-b a="AAA" b ="BBB"></test-4-b>
+      `;
+      const el = container.querySelector('test-4-b') as StampinoBaseElement;
+      assert.instanceOf(el, StampinoBaseElement);
+      await el.updateComplete;
+      assert.equal(
+        stripExpressionMarkers(el.shadowRoot!.innerHTML).trim(),
+        `<h1>AAA</h1>
+            
+          <h3>BBB</h3>`
+      );
+    });
   });
 });
 

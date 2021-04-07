@@ -7,6 +7,7 @@ export class StampinoElement extends HTMLElement {
   private declare _initialized: boolean;
 
   _class?: typeof StampinoBaseElement;
+  _template?: HTMLTemplateElement;
 
   constructor() {
     super();
@@ -19,12 +20,15 @@ export class StampinoElement extends HTMLElement {
       const extendsName = this.getAttribute('extends');
       const elementName = this.getAttribute('name');
       const properties = this.getAttribute('properties');
-      const template = this.querySelector<HTMLTemplateElement>('template');
+      this._template =
+        this.querySelector<HTMLTemplateElement>('template') ?? undefined;
       const style = this.querySelector<HTMLStyleElement>(
         "style[type='adopted-css']"
       );
 
       let superclass = StampinoBaseElement;
+      let superTemplate = undefined;
+
       if (extendsName !== null) {
         const superDefinition = ((this.getRootNode() as unknown) as ParentNode).querySelector(
           `stampino-element[name=${extendsName}]`
@@ -39,11 +43,15 @@ export class StampinoElement extends HTMLElement {
         if (foundSuperclass) {
           superclass = foundSuperclass;
         }
+        superTemplate = (superDefinition as StampinoElement)._template;
       }
 
       const C = (this._class = class extends superclass {});
-      if (template) {
-        C.template = template;
+      if (this._template) {
+        C.template = this._template;
+      }
+      if (superTemplate) {
+        C.superTemplate = superTemplate;
       }
 
       if (style) {
