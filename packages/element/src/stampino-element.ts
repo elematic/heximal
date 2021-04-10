@@ -1,5 +1,13 @@
 import {StampinoBaseElement} from './stampino-base-element.js';
-import {css, unsafeCSS} from 'lit';
+import {css, PropertyDeclaration, unsafeCSS} from 'lit';
+
+const typeHints = {
+  String: String,
+  Number: Number,
+  Boolean: Boolean,
+  Object: Object,
+  Array: Array,
+} as const;
 
 export class StampinoElement extends HTMLElement {
   static observedAttributes = ['name', 'properties'];
@@ -19,7 +27,8 @@ export class StampinoElement extends HTMLElement {
       this._initialized = true;
       const extendsName = this.getAttribute('extends');
       const elementName = this.getAttribute('name');
-      const properties = this.getAttribute('properties');
+      const propertiesAttr = this.getAttribute('properties');
+      const propertyChildren = this.querySelectorAll('st-prop');
       this._template =
         this.querySelector<HTMLTemplateElement>('template') ?? undefined;
       const style = this.querySelector<HTMLStyleElement>(
@@ -60,8 +69,29 @@ export class StampinoElement extends HTMLElement {
         `;
       }
 
-      for (const p of properties?.split(' ') ?? []) {
+      for (const p of propertiesAttr?.split(' ') ?? []) {
         C.createProperty(p);
+      }
+
+      for (const p of propertyChildren) {
+        const name = p.getAttribute('name');
+        const reflect = p.hasAttribute('reflect');
+        const noAttribute = p.hasAttribute('noattribute');
+        const attribute =
+          !noAttribute && (p.getAttribute('attribute') ?? undefined);
+        const typeHint = p.getAttribute('type');
+        const type =
+          typeHint === null
+            ? undefined
+            : typeHints[typeHint as keyof typeof typeHints];
+        const options: PropertyDeclaration = {
+          reflect,
+          attribute,
+          type,
+        };
+        if (name !== null) {
+          C.createProperty(name, options);
+        }
       }
 
       if (elementName) {
@@ -71,3 +101,14 @@ export class StampinoElement extends HTMLElement {
   }
 }
 customElements.define('stampino-element', StampinoElement);
+
+class StampinoProperty extends HTMLElement {
+  static observedAttributes = [
+    'name',
+    'type',
+    'noattribute',
+    'attribute',
+    'reflect',
+  ];
+}
+customElements.define('st-prop', StampinoProperty);

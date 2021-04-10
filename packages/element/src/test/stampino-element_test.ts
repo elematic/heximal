@@ -70,6 +70,112 @@ suite('stampino-element', () => {
     );
   });
 
+  suite('properties', () => {
+    test('single property', async () => {
+      container.innerHTML = `
+        <stampino-element name="test-prop-1" properties="name">
+          <template><h1>Hello {{ name }}!</h1></template>
+        </stampino-element>
+        <test-prop-1></test-prop-1>
+      `;
+      interface TestProp1Element extends StampinoBaseElement {
+        name?: string;
+      }
+      const el = container.querySelector('test-prop-1') as TestProp1Element;
+      assert.equal(el.name, undefined);
+      el.name = 'World';
+      await el.updateComplete;
+      assert.equal(
+        stripExpressionMarkers(el.shadowRoot!.innerHTML).trim(),
+        `<h1>Hello World!</h1>`
+      );
+    });
+
+    test('multiple properties', async () => {
+      container.innerHTML = `
+        <stampino-element name="test-prop-2" properties="a b">
+          <template><p>{{ a }}</p><p>{{ b }}</p></template>
+        </stampino-element>
+        <test-prop-2></test-prop-2>
+      `;
+      interface TestProp1Element extends StampinoBaseElement {
+        a?: string;
+        b?: string;
+      }
+      const el = container.querySelector('test-prop-2') as TestProp1Element;
+      assert.equal(el.a, undefined);
+      assert.equal(el.b, undefined);
+      el.b = 'BBB';
+      await el.updateComplete;
+      assert.equal(
+        stripExpressionMarkers(el.shadowRoot!.innerHTML).trim(),
+        `<p></p><p>BBB</p>`
+      );
+    });
+
+    test('property child declaration - type', async () => {
+      container.innerHTML = `
+        <stampino-element name="test-prop-3">
+          <st-prop name="a" type="Number"></st-prop>
+          <template><p>{{ a }}</p></template>
+        </stampino-element>
+        <test-prop-3 a="123"></test-prop-3>
+      `;
+      interface TestProp1Element extends StampinoBaseElement {
+        a?: number;
+      }
+      const el = container.querySelector('test-prop-3') as TestProp1Element;
+      assert.equal(el.a, 123);
+      await el.updateComplete;
+      assert.equal(
+        stripExpressionMarkers(el.shadowRoot!.innerHTML).trim(),
+        `<p>123</p>`
+      );
+    });
+
+    test('property child declaration - noattribute', async () => {
+      container.innerHTML = `
+        <stampino-element name="test-prop-4">
+          <st-prop name="a" noattribute></st-prop>
+          <template><p>{{ a }}</p></template>
+        </stampino-element>
+        <test-prop-4 a="AAA"></test-prop-4>
+      `;
+      interface TestProp1Element extends StampinoBaseElement {
+        a?: string;
+      }
+      const el = container.querySelector('test-prop-4') as TestProp1Element;
+      assert.equal(el.a, undefined);
+      await el.updateComplete;
+      assert.equal(
+        stripExpressionMarkers(el.shadowRoot!.innerHTML).trim(),
+        `<p></p>`
+      );
+    });
+
+    test('property child declaration - reflect', async () => {
+      container.innerHTML = `
+        <stampino-element name="test-prop-5">
+          <st-prop name="a" reflect></st-prop>
+          <template><p>{{ a }}</p></template>
+        </stampino-element>
+        <test-prop-5></test-prop-5>
+      `;
+      interface TestProp1Element extends StampinoBaseElement {
+        a?: string;
+      }
+      const el = container.querySelector('test-prop-5') as TestProp1Element;
+      assert.equal(el.a, undefined);
+      el.a = 'AAA';
+      await el.updateComplete;
+      assert.equal(
+        stripExpressionMarkers(el.shadowRoot!.innerHTML).trim(),
+        `<p>AAA</p>`
+      );
+      assert.equal(el.getAttribute('a'), 'AAA');
+    });
+  });
+
   suite('inheritance', () => {
     test('trivial subclass', async () => {
       container.innerHTML = `

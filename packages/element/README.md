@@ -33,11 +33,27 @@ The custom element name is declared with the required attribute `name`. The name
 
 ### Properties
 
-Properties are specified with the `properties` attribute. The attribute takes a space-separated list of property names.
+Properties are specified with either the `properties` attribute or child `<st-prop>` elements.
 
-There is currently have no way to specify the LitElement property options, so all properties get an associated attribute of the same name, using the String converter, with no reflection.
+The `properties` attribute takes a space-separated list of property names, all properties listed get an associated attribute of the same name, using the String type converter, with no reflection.
 
-_Note: Soon StampinoElement will support a `<stampino-property>` child element to declare properties with full options_
+If you need to set property options like `type`, `reflect`, `attribute`
+
+| Attribute | Meaning |
+| ----------|---------|
+| `name` | The name of the property. Case-sensitive |
+| `type` | The "type hint" for the property. Valid values are "String", "Number", "Boolean", "Object", or "Array" |
+| `reflect` | A boolean attribute. If present the property reflects to an attribute. |
+| `attribute` | The attribute name associated with the property |
+| `noattribute` | If present the property is not read from an attribute |
+
+Example:
+```html
+<stampino-element name="simple-greeter">
+  <st-prop name="name" reflect type="String"></st-prop>
+  <!-- ... -->
+</stampino-element>
+```
 
 ### Styling
 
