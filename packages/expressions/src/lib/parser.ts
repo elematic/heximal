@@ -13,12 +13,10 @@ import {
 } from './constants.js';
 import {Kind, Token, Tokenizer} from './tokenizer.js';
 
-export function parse<E extends Expression>(
+export const parse = <E extends Expression>(
   expr: string,
   astFactory: AstFactory<E>
-): E | undefined {
-  return new Parser<E>(expr, astFactory).parse();
-}
+): E | undefined => new Parser<E>(expr, astFactory).parse();
 
 export class Parser<N extends Expression> {
   private _kind?: Kind;

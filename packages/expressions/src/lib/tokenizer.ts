@@ -27,83 +27,62 @@ export enum Kind {
   KEYWORD = 10,
 }
 
-export function token(kind: Kind, value: string, precedence: number = 0) {
-  return {
-    kind,
-    value,
-    precedence,
-  };
-}
+export const token = (kind: Kind, value: string, precedence: number = 0) => ({
+  kind,
+  value,
+  precedence,
+});
 
-function _isWhitespace(ch: number) {
-  return (
-    ch === 9 /* \t */ ||
-    ch === 10 /* \n */ ||
-    ch === 13 /* \r */ ||
-    ch === 32 /* space */
-  );
-}
+const _isWhitespace = (ch: number) =>
+  ch === 9 /* \t */ ||
+  ch === 10 /* \n */ ||
+  ch === 13 /* \r */ ||
+  ch === 32; /* space */
 
 // TODO(justinfagnani): allow code points > 127
-function _isIdentOrKeywordStart(ch: number) {
+const _isIdentOrKeywordStart = (ch: number) =>
+  ch === 95 /* _ */ ||
+  ch === 36 /* $ */ ||
   // ch &= ~32 puts ch into the range [65,90] [A-Z] only if ch was already in
   // the that range or in the range [97,122] [a-z]. We must mutate ch only after
   // checking other characters, thus the comma operator.
-  return (
-    ch === 95 /* _ */ ||
-    ch === 36 /* $ */ ||
-    ((ch &= ~32), 65 /* A */ <= ch && ch <= 90) /* Z */
-  );
-}
+  ((ch &= ~32), 65 /* A */ <= ch && ch <= 90); /* Z */
 
 // TODO(justinfagnani): allow code points > 127
-function _isIdentifier(ch: number) {
-  return _isIdentOrKeywordStart(ch) || _isNumber(ch);
-}
+const _isIdentifier = (ch: number) =>
+  _isIdentOrKeywordStart(ch) || _isNumber(ch);
 
-function _isKeyword(str: string) {
-  return KEYWORDS.indexOf(str) !== -1;
-}
+const _isKeyword = (str: string) => KEYWORDS.indexOf(str) !== -1;
 
-function _isQuote(ch: number) {
-  return ch === 34 /* " */ || ch === 39 /* ' */;
-}
+const _isQuote = (ch: number) => ch === 34 /* " */ || ch === 39; /* ' */
 
-function _isNumber(ch: number) {
-  return 48 /* 0 */ <= ch && ch <= 57 /* 9 */;
-}
+const _isNumber = (ch: number) => 48 /* 0 */ <= ch && ch <= 57; /* 9 */
 
-function _isOperator(ch: number) {
-  return (
-    ch === 43 /* + */ ||
-    ch === 45 /* - */ ||
-    ch === 42 /* * */ ||
-    ch === 47 /* / */ ||
-    ch === 33 /* ! */ ||
-    ch === 38 /* & */ ||
-    ch === 37 /* % */ ||
-    ch === 60 /* < */ ||
-    ch === 61 /* = */ ||
-    ch === 62 /* > */ ||
-    ch === 63 /* ? */ ||
-    ch === 94 /* ^ */ ||
-    ch === 124 /* | */
-  );
-}
+const _isOperator = (ch: number) =>
+  ch === 43 /* + */ ||
+  ch === 45 /* - */ ||
+  ch === 42 /* * */ ||
+  ch === 47 /* / */ ||
+  ch === 33 /* ! */ ||
+  ch === 38 /* & */ ||
+  ch === 37 /* % */ ||
+  ch === 60 /* < */ ||
+  ch === 61 /* = */ ||
+  ch === 62 /* > */ ||
+  ch === 63 /* ? */ ||
+  ch === 94 /* ^ */ ||
+  ch === 124; /* | */
 
-function _isGrouper(ch: number) {
-  return (
-    ch === 40 /* ( */ ||
-    ch === 41 /* ) */ ||
-    ch === 91 /* [ */ ||
-    ch === 93 /* ] */ ||
-    ch === 123 /* { */ ||
-    ch === 125 /* } */
-  );
-}
+const _isGrouper = (ch: number) =>
+  ch === 40 /* ( */ ||
+  ch === 41 /* ) */ ||
+  ch === 91 /* [ */ ||
+  ch === 93 /* ] */ ||
+  ch === 123 /* { */ ||
+  ch === 125; /* } */
 
-function _escapeString(str: string) {
-  return str.replace(/\\(.)/g, function (_match, group) {
+const _escapeString = (str: string) =>
+  str.replace(/\\(.)/g, (_match, group) => {
     switch (group) {
       case 'n':
         return '\n';
@@ -119,7 +98,6 @@ function _escapeString(str: string) {
         return group;
     }
   });
-}
 
 export class Tokenizer {
   private _input: string;
