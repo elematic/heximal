@@ -27,11 +27,11 @@ export enum Kind {
   KEYWORD = 10,
 }
 
-export function token(kind: Kind, value: string, precedence?: number) {
+export function token(kind: Kind, value: string, precedence: number = 0) {
   return {
-    kind: kind,
-    value: value,
-    precedence: precedence || 0,
+    kind,
+    value,
+    precedence,
   };
 }
 
@@ -52,7 +52,7 @@ function _isIdentOrKeywordStart(ch: number) {
   return (
     ch === 95 /* _ */ ||
     ch === 36 /* $ */ ||
-    ((ch &= ~32), 65 /* A */ <= ch && ch <= /* Z */ 90)
+    ((ch &= ~32), 65 /* A */ <= ch && ch <= 90) /* Z */
   );
 }
 
@@ -129,10 +129,10 @@ export class Tokenizer {
 
   constructor(input: string) {
     this._input = input;
+    this._advance();
   }
 
   nextToken() {
-    if (this._index === -1) this._advance();
     while (_isWhitespace(this._next!)) {
       this._advance(true);
     }
@@ -148,17 +148,17 @@ export class Tokenizer {
     if (_isGrouper(this._next!)) return this._tokenizeGrouper();
     // no match, should be end of input
     this._advance();
-    if (this._next) {
+    if (this._next !== undefined) {
       throw new Error(`Expected end of input, got ${this._next}`);
     }
     return undefined;
   }
 
   private _advance(resetTokenStart?: boolean) {
+    this._index++;
     if (this._index < this._input.length) {
-      this._index++;
       this._next = this._input.charCodeAt(this._index);
-      if (resetTokenStart) {
+      if (resetTokenStart === true) {
         this._tokenStart = this._index;
       }
     } else {
@@ -166,12 +166,11 @@ export class Tokenizer {
     }
   }
 
-  private _getValue(lookahead?: number) {
-    const v = this._input.substring(
-      this._tokenStart,
-      this._index + (lookahead || 0)
-    );
-    if (!lookahead) this._clearValue();
+  private _getValue(lookahead: number = 0) {
+    const v = this._input.substring(this._tokenStart, this._index + lookahead);
+    if (lookahead === 0) {
+      this._clearValue();
+    }
     return v;
   }
 
@@ -184,10 +183,10 @@ export class Tokenizer {
     const quoteChar = this._next;
     this._advance(true);
     while (this._next !== quoteChar) {
-      if (!this._next) throw new Error(_us);
+      if (this._next === undefined) throw new Error(_us);
       if (this._next === 92 /* \ */) {
         this._advance();
-        if (!this._next) throw new Error(_us);
+        if (this._next === undefined) throw new Error(_us);
       }
       this._advance();
     }
@@ -208,9 +207,11 @@ export class Tokenizer {
   }
 
   private _tokenizeNumber() {
-    while (_isNumber(this._next!)) {
+    // This do/while loops assumes _isNumber(this._next!), so it must only
+    // be called if _isNumber(this._next!) has returned true.
+    do {
       this._advance();
-    }
+    } while (_isNumber(this._next!));
     if (this._next === 46 /* . */) return this._tokenizeDot();
     return token(Kind.INTEGER, this._getValue());
   }
@@ -233,9 +234,11 @@ export class Tokenizer {
   }
 
   private _tokenizeFraction() {
-    while (_isNumber(this._next!)) {
+    // This do/while loops assumes _isNumber(this._next!), so it must only
+    // be called if _isNumber(this._next!) has returned true.
+    do {
       this._advance();
-    }
+    } while (_isNumber(this._next!));
     return token(Kind.DECIMAL, this._getValue());
   }
 
