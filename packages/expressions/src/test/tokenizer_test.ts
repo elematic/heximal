@@ -44,6 +44,12 @@ suite('tokenizer', function () {
 
   test('should tokenize an identifier', function () {
     expectTokens('abc', [t(IDENTIFIER, 'abc')]);
+    expectTokens('ABC', [t(IDENTIFIER, 'ABC')]);
+    expectTokens('_abc', [t(IDENTIFIER, '_abc')]);
+    expectTokens('a_b', [t(IDENTIFIER, 'a_b')]);
+    expectTokens('$abc', [t(IDENTIFIER, '$abc')]);
+    expectTokens('a$', [t(IDENTIFIER, 'a$')]);
+    expectTokens('a1', [t(IDENTIFIER, 'a1')]);
   });
 
   test('should tokenize two identifiers', function () {
