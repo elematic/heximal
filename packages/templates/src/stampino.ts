@@ -430,7 +430,7 @@ const makeLitTemplate = (template: HTMLTemplateElement): StampinoTemplate => {
         }
       }
     } else if (node.nodeType === Node.TEXT_NODE) {
-      let textNode = node as Text;
+      const textNode = node as Text;
       const text = textNode.textContent!;
       const strings = text.split(/(?<!\\){{(.*?)(?:(?<!\\)}})/g);
       if (strings.length > 1) {
@@ -444,13 +444,14 @@ const makeLitTemplate = (template: HTMLTemplateElement): StampinoTemplate => {
         const expr = parse(exprText, astFactory) as Expression;
         litTemplate.parts.push({
           type: 2,
-          index: nodeIndex++,
+          index: nodeIndex,
           update: (model: unknown, _handlers: TemplateHandlers) =>
             expr.evaluate(model as Scope),
         });
         const newTextNode = new Text(strings[i + 1].replace('\\{{', '{{'));
+        nodeIndex++;
         textNode.parentNode!.insertBefore(newTextNode, textNode.nextSibling);
-        textNode = newTextNode;
+        walker.currentNode = newTextNode;
       }
     } else {
       console.warn(`unhandled nodeType: ${node.nodeType}`);
@@ -459,5 +460,6 @@ const makeLitTemplate = (template: HTMLTemplateElement): StampinoTemplate => {
   for (const e of elementsToRemove) {
     e.remove();
   }
+  // console.log('makeLitTemplate', litTemplate);
   return litTemplate;
 };

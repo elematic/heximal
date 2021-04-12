@@ -47,9 +47,20 @@ suite('stampino', () => {
     assert.equal(stripExpressionMarkers(container.innerHTML), `<p>A</p>BC`);
   });
 
+
+  test('Text bindings before and after element', () => {
+    const template = document.createElement('template');
+    template.innerHTML = `<div>{{ a }}<p>{{ b }}</p>{{ c }}</div>`;
+    render(template, container, {a: 'A', b: 'B', c: 'C'});
+    assert.equal(
+      stripExpressionMarkers(container.innerHTML),
+      `<div>A<p>B</p>C</div>`
+    );
+  });
+
   test('Attribute binding', () => {
     const template = document.createElement('template');
-    template.innerHTML = `<p class="{{ x }}">`;
+    template.innerHTML = `<p class="{{ x }}"></p>`;
     render(template, container, {x: 'foo'});
     assert.equal(
       stripExpressionMarkers(container.innerHTML),
@@ -59,7 +70,7 @@ suite('stampino', () => {
 
   test('Multiple attribute bindings', () => {
     const template = document.createElement('template');
-    template.innerHTML = `<p class="A {{ b }} C {{ d }}">`;
+    template.innerHTML = `<p class="A {{ b }} C {{ d }}"></p>`;
     render(template, container, {b: 'B', d: 'D'});
     assert.equal(
       stripExpressionMarkers(container.innerHTML),
