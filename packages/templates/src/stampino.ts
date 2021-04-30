@@ -283,7 +283,7 @@ export const getLitTemplate = (
 
 const makeLitTemplate = (template: HTMLTemplateElement): StampinoTemplate => {
   const litTemplate: StampinoTemplate = {
-    h: '',
+    h: (undefined as unknown) as TrustedHTML,
     el: template.cloneNode(true) as HTMLTemplateElement,
     parts: [],
     renderers: {},
@@ -297,8 +297,8 @@ const makeLitTemplate = (template: HTMLTemplateElement): StampinoTemplate => {
   const elementsToRemove = [];
 
   while ((node = walker.nextNode()) !== null) {
-    nodeIndex++;
     if (node.nodeType === Node.ELEMENT_NODE) {
+      nodeIndex++;
       const element = node as Element;
       if (element.tagName === 'TEMPLATE') {
         const type = element.getAttribute('type');
@@ -444,22 +444,26 @@ const makeLitTemplate = (template: HTMLTemplateElement): StampinoTemplate => {
         const expr = parse(exprText, astFactory) as Expression;
         litTemplate.parts.push({
           type: 2,
-          index: nodeIndex,
+          index: ++nodeIndex,
           update: (model: unknown, _handlers: TemplateHandlers) =>
             expr.evaluate(model as Scope),
         });
         const newTextNode = new Text(strings[i + 1].replace('\\{{', '{{'));
-        nodeIndex++;
         textNode.parentNode!.insertBefore(newTextNode, textNode.nextSibling);
+        textNode.parentNode!.insertBefore(
+          document.createComment(''),
+          textNode.nextSibling
+        );
+        // This TreeWalker isn't configured to walk comment nodes, but this
+        // node will be returned next time through the loop. This is the easiest
+        // way to get the walker to proceed to the next successor after the
+        // marker, even when the marker doesn't have a nextSibling
         walker.currentNode = newTextNode;
       }
-    } else {
-      console.warn(`unhandled nodeType: ${node.nodeType}`);
     }
   }
   for (const e of elementsToRemove) {
     e.remove();
   }
-  // console.log('makeLitTemplate', litTemplate);
   return litTemplate;
 };

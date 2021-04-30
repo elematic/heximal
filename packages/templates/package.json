@@ -17,7 +17,8 @@
   },
   "dependencies": {
     "jexpr": "^1.0.0-pre.2",
-    "lit-html": "^2.0.0-pre.7"
+    "lit-html": "^2.0.0-rc.2",
+    "trusted-types": "^2.0.0"
   },
   "devDependencies": {
     "@esm-bundle/chai": "^4.3.4",

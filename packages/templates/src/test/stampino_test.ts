@@ -47,7 +47,6 @@ suite('stampino', () => {
     assert.equal(stripExpressionMarkers(container.innerHTML), `<p>A</p>BC`);
   });
 
-
   test('Text bindings before and after element', () => {
     const template = document.createElement('template');
     template.innerHTML = `<div>{{ a }}<p>{{ b }}</p>{{ c }}</div>`;

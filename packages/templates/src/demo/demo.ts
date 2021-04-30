@@ -77,4 +77,4 @@ runDemo('demo-4');
 runDemo('demo-5', {items: ['a', 'b', 'c']});
 runDemo('demo-6', {});
 runDemo('demo-7', {});
-runDemo('demo-8', {nullable:null});
+runDemo('demo-8', {nullable: null});
