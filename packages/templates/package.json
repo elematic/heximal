@@ -25,7 +25,7 @@
     "@types/mocha": "^8.2.2",
     "@web/dev-server": "^0.1.5",
     "@web/dev-server-rollup": "^0.3.2",
-    "@web/test-runner": "^0.12.17",
+    "@web/test-runner": "^0.13.3",
     "@web/test-runner-mocha": "^0.7.2",
     "@web/test-runner-playwright": "^0.8.4",
     "prettier": "^2.2.1",
