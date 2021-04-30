@@ -12,7 +12,10 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      - uses: actions/setup-node@v2-beta
+      - uses: actions/setup-node@v2
+
+      - name: Install
+        run: npm ci
 
       - name: Build
         run: npm run build
