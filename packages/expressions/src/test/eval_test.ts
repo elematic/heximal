@@ -215,4 +215,14 @@ suite('eval', function () {
     expectEval('name.substring(2)', foo.name.substring(2), foo);
     expectEval('a()()', 1, foo);
   });
+
+  test('should not error on undefined methods', function () {
+    const foo = {
+      name: 'fred',
+    };
+    expectEval('x()', undefined, foo);
+    expectEval('x().toString()', undefined, foo);
+    expectEval('x(name)', undefined, foo);
+    expectEval('x()()', undefined, foo);
+  });
 });
