@@ -235,12 +235,12 @@ Handlers are referenced inside templates via the `type` attribute:
 
 ```html
 <template>
-  <h1>Do I head an echo?</h1>
+  <h1>Do I hear an echo?</h1>
   <template type="echo"> Yes, I hear an echo! </template>
 </template>
 ```
 
-You can think of this very much like `<templates type=` is syntax for a function call. Here's the entire implementation of the 'if' handler:
+You can think of this very much like `<template type=` is syntax for a function call. Here's the entire implementation of the 'if' handler:
 
 ```javascript
 handlers: {
