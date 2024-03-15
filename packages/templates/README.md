@@ -1,6 +1,6 @@
 # Stampino
 
-Stampino is a fast and extremely powerful HTML template system, where you write dynamic templates using real HTML `<template>` tags:
+Stampino is a fast and flexible HTML template system, where you write dynamic templates using real HTML `<template>` tags:
 
 ```html
 <template id="my-template">
@@ -10,7 +10,7 @@ Stampino is a fast and extremely powerful HTML template system, where you write 
 
 ## Overview
 
-Stampino uses HTML [`<template>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/template) tags to define templates, [lit-html](https://lit-html.polymer-project.org/) for the underlying template rendering, and [jexpr](https://www.npmjs.com/package/jexpr) for binding expressions.
+Stampino uses HTML [`<template>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/template) tags to define templates, [lit-html](https://lit.dev/docs/libraries/standalone-templates/) for the underlying template rendering, and [jexpr](https://www.npmjs.com/package/jexpr) for binding expressions.
 
 Stampino is based on the idea that a template defines a function from data to DOM, so it transforms `<template>` elements into lit-html render functions. Control flow, template composition, and extensibility are built on top of function composition.
 
@@ -31,6 +31,12 @@ This approach leads to a low-cost for features like conditionals and repeating, 
 ```
 
 `<template type="if">` and `<template type="repeat">` are not hard-coded into the core of Stampino. Instead they are just default _template handlers_ that are matched against the `"type"` attribute. Users can implement their own template handlers just like `if` and `repeat`.
+
+### A low-level template toolkit
+
+Stampino does not currently automatically enable templates within HTML. JavaScript is required to find and make `<template>` elements available as renderable lit-html templates, and requries lit-html `render()` calls to render them. Stampino also does not autoamtically wire up super templates, or sub tempalte calls.
+
+The low-level nature of Stampino is intended to allow frameworks and components to define how and what data, control flow handlers, and super- and sub-templates are available.
 
 ### Use cases
 
@@ -60,14 +66,14 @@ To render this template:
 
 Pass it to `prepareTemplate()` and use lit-html to render the returned function:
 ```ts
-import * as stampino from 'stampino';
+import {prepareTemplate} from 'stampino';
 import {render} from 'lit';
 
 const templateElement = document.querySelector('#my-template');
 
 // Returns a lit-html template function that accepts data and
 // returns a renderable TemplateResult
-const myTemplate = stampino.prepareTemplate(templateElement);
+const myTemplate = prepareTemplate(templateElement);
 
 render(myTemplate({name: 'World'}), document.body);
 ```
