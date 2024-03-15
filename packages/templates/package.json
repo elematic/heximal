@@ -9,11 +9,11 @@
     "src/*"
   ],
   "scripts": {
-    "build": "tsc",
-    "test": "wtr test/**/*_test.js --node-resolve --playwright --browsers chromium",
-    "benchmark": "tach --config tachometer.config.json",
+    "build": "wireit",
+    "test": "wireit",
+    "benchmark": "wireit",
     "format": "prettier \"src/**/*.ts\" --write",
-    "demo": "wds --node-resolve"
+    "demo": "wireit"
   },
   "dependencies": {
     "jexpr": "^1.0.0-pre.4",
@@ -30,7 +30,8 @@
     "@web/test-runner-playwright": "^0.11.0",
     "prettier": "^3.2.5",
     "tachometer": "^0.7.0",
-    "typescript": "^5.4.2"
+    "typescript": "^5.4.2",
+    "wireit": "^0.14.4"
   },
   "keywords": [
     "html",
@@ -43,5 +44,59 @@
   "bugs": {
     "url": "https://github.com/justinfagnani/stampino/issues"
   },
-  "homepage": "https://github.com/justinfagnani/stampino#readme"
+  "homepage": "https://github.com/justinfagnani/stampino#readme",
+  "wireit": {
+    "build": {
+      "command": "tsc",
+      "files": [
+        "src/**/*.ts",
+        "tsconfig.json"
+      ],
+      "output": [
+        "stampino.js",
+        "stampino.js.map",
+        "stampino.d.ts.map",
+        "stampino.d.ts"
+      ],
+      "clean": "if-file-deleted"
+    },
+    "test": {
+      "command": "wtr test/**/*_test.js --node-resolve --playwright --browsers chromium",
+      "dependencies": [
+        "build"
+      ],
+      "files": [
+        "web-test-runner.config.js"
+      ],
+      "output": []
+    },
+    "benchmark": {
+      "command": "tach --config tachometer.config.json",
+      "dependencies": [
+        "build"
+      ],
+      "files": [
+        "tachometer.config.json"
+      ],
+      "output": []
+    },
+    "demo": {
+      "command": "wds --node-resolve",
+      "service": {
+        "readyWhen": {
+          "lineMatches": "Web Dev Server started..."
+        }
+      },
+      "dependencies": [
+        {
+          "script": "build",
+          "cascade": false
+        }
+      ],
+      "files": [
+        "demo/index.html",
+        "web-dev-server.config.js"
+      ]
+    }
+  }
 }
