@@ -187,8 +187,10 @@ export const prepareTemplate = (
   } else {
     // No super call
     renderers = {
-      ...renderers,
+      // template's named blocks
       ...templateRenderers,
+      // passed-in renderers
+      ...renderers,
     };
   }
   return (model) => evaluateTemplate(template, model, handlers, renderers);

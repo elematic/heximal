@@ -8,7 +8,9 @@
         max-width: 800px;
         margin: 0 auto;
         padding: 32px;
-        font-family: Arial, sans serif;
+        font-family:
+          Arial,
+          sans serif;
       }
       h1 {
         font-size: 24px;
@@ -31,7 +33,6 @@
     </style>
   </head>
   <body>
-
     <template id="demo">
       <h1><template name="title">Title</template></h1>
       <div class="demo-body">
@@ -44,6 +45,7 @@
 
     <template id="demo-1">
       <template name="title">Static Template</template>
+      Hello
       <template name="demo">
         <p>This template has only static content</p>
       </template>
@@ -91,7 +93,19 @@
       </template>
     </template>
 
-    <template id="demo-6-super">
+    <template id="demo-6-sub-template">
+      <h2>This is the sub-template</h2>
+    </template>
+
+    <template id="demo-6">
+      <template name="title">Subtemplate calls</template>
+      <template name="demo">
+        <p>This template calls another template</p>
+        <template name="demo-6-sub-template"></template>
+      </template>
+    </template>
+
+    <template id="demo-7-super">
       <p>This is the parent template that defines blocks named A and B</p>
       <div>
         <template name="A">This is default content for block A</template>
@@ -101,20 +115,20 @@
       </div>
     </template>
 
-    <template id="demo-6">
+    <template id="demo-7">
       <template name="title">Template Inheritance</template>
-      <template name="demo" extends="demo-6-super">
+      <template name="demo" extends="demo-7-super">
         <template name="B">This is child content for block B</template>
       </template>
     </template>
 
     <template id="demo-7">
       <template name="title">Explicit Super Template</template>
-      <template name="demo" extends="demo-6-super">
+      <template name="demo" extends="demo-7-super">
         <div>before super template</div>
-          <template name="super">
-            <template name="B">This is child content for block B</template>
-          </template>
+        <template name="super">
+          <template name="B">This is child content for block B</template>
+        </template>
         <div>after super template</div>
       </template>
     </template>
@@ -123,9 +137,11 @@
       <template name="title">Null Safe Expressions</template>
       <template name="demo">
         <p>This template contains deep access of a nullable object:</p>
-        <div><code>\{{nullable.missing.property || 'none'}}</code>: <span>{{nullable.missing.property || 'none'}}</span></div>
+        <div>
+          <code>\{{nullable.missing.property ?? 'none'}}</code>:
+          <span>{{nullable.missing.property || 'none'}}</span>
+        </div>
       </template>
     </template>
-
   </body>
 </html>
