@@ -29,7 +29,7 @@ suite('stampino', () => {
     render(template, container, {name: 'World'});
     assert.equal(
       stripExpressionMarkers(container.innerHTML),
-      `<h1>Hello WORLD!</h1>`
+      `<h1>Hello WORLD!</h1>`,
     );
   });
 
@@ -53,7 +53,7 @@ suite('stampino', () => {
     render(template, container, {a: 'A', b: 'B', c: 'C'});
     assert.equal(
       stripExpressionMarkers(container.innerHTML),
-      `<div>A<p>B</p>C</div>`
+      `<div>A<p>B</p>C</div>`,
     );
   });
 
@@ -63,7 +63,7 @@ suite('stampino', () => {
     render(template, container, {x: 'foo'});
     assert.equal(
       stripExpressionMarkers(container.innerHTML),
-      `<p class="foo"></p>`
+      `<p class="foo"></p>`,
     );
   });
 
@@ -73,7 +73,7 @@ suite('stampino', () => {
     render(template, container, {b: 'B', d: 'D'});
     assert.equal(
       stripExpressionMarkers(container.innerHTML),
-      `<p class="A B C D"></p>`
+      `<p class="A B C D"></p>`,
     );
   });
 
@@ -83,7 +83,7 @@ suite('stampino', () => {
     render(template, container, {x: 'foo'});
     assert.equal(
       stripExpressionMarkers(container.innerHTML),
-      `<p class="foo"></p>`
+      `<p class="foo"></p>`,
     );
   });
 
@@ -96,7 +96,7 @@ suite('stampino', () => {
     render(template, container, {x: true});
     assert.equal(
       stripExpressionMarkers(container.innerHTML),
-      `<p disabled=""></p>`
+      `<p disabled=""></p>`,
     );
   });
 
@@ -165,7 +165,7 @@ suite('stampino', () => {
     render(template, container, {items: [4, 5, 6], x: 'X'});
     assert.equal(
       stripExpressionMarkers(container.innerHTML),
-      `<p>4X</p><p>5X</p><p>6X</p>`
+      `<p>4X</p><p>5X</p><p>6X</p>`,
     );
   });
 
@@ -176,13 +176,13 @@ suite('stampino', () => {
     assert.equal(
       stripExpressionMarkers(container.innerHTML),
       `none`,
-      'with null model property'
+      'with null model property',
     );
     render(template, container, {nullable: {missing: {property: 'something'}}});
     assert.equal(
       stripExpressionMarkers(container.innerHTML),
       `something`,
-      'with nonnull model property'
+      'with nonnull model property',
     );
   });
 
@@ -215,7 +215,7 @@ suite('stampino', () => {
     litRender(templateFn({b: 'B'}), container);
     assert.equal(
       stripExpressionMarkers(container.innerHTML),
-      `<p>A</p><p>B</p>C`
+      `<p>A</p><p>B</p>C`,
     );
   });
 
@@ -230,7 +230,7 @@ suite('stampino', () => {
       subTemplate,
       undefined,
       undefined,
-      superTemplate
+      superTemplate,
     );
     litRender(subTemplateFn({}), container);
     assert.equal(stripExpressionMarkers(container.innerHTML), `<p>A</p>BZ`);
@@ -247,7 +247,7 @@ suite('stampino', () => {
       subTemplate,
       undefined,
       undefined,
-      superTemplate
+      superTemplate,
     );
     litRender(subTemplateFn({}), container);
     assert.equal(stripExpressionMarkers(container.innerHTML), `1<p>A</p>BZ2`);
@@ -264,7 +264,7 @@ suite('stampino', () => {
       subTemplate,
       undefined,
       undefined,
-      superTemplate
+      superTemplate,
     );
     litRender(subTemplateFn({a: 'A'}), container);
     assert.equal(stripExpressionMarkers(container.innerHTML), `A`);
@@ -281,7 +281,7 @@ suite('stampino', () => {
       subTemplate,
       undefined,
       undefined,
-      superTemplate
+      superTemplate,
     );
     litRender(subTemplateFn({b: 'Z'}), container);
     assert.equal(stripExpressionMarkers(container.innerHTML), `AZC`);
@@ -301,7 +301,7 @@ suite('stampino', () => {
       subTemplate,
       undefined,
       undefined,
-      superTemplate
+      superTemplate,
     );
     litRender(subTemplateFn({a: 'Z'}), container);
     assert.equal(stripExpressionMarkers(container.innerHTML), `Z`);

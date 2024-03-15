@@ -22,16 +22,15 @@ function runDemo(id: string, model?: object) {
   let output = document.createElement('div');
   document.body.appendChild(output);
 
-  const sourceTemplate = template.content.querySelector<HTMLTemplateElement>(
-    '[name=demo]'
-  )!;
+  const sourceTemplate =
+    template.content.querySelector<HTMLTemplateElement>('[name=demo]')!;
   let source = formatOuterHtml(sourceTemplate.outerHTML);
 
   let superTemplate: HTMLTemplateElement | undefined;
   if (sourceTemplate.hasAttribute('extends')) {
     const extendsRef = sourceTemplate.getAttribute('extends');
     superTemplate = document.querySelector<HTMLTemplateElement>(
-      `#${extendsRef}`
+      `#${extendsRef}`,
     )!;
     console.log('has super', superTemplate);
     source += `\n\n` + formatOuterHtml(superTemplate.outerHTML);
@@ -41,7 +40,7 @@ function runDemo(id: string, model?: object) {
     sourceTemplate,
     undefined,
     undefined,
-    superTemplate
+    superTemplate,
   );
 
   const renderDemoOuter = prepareTemplate(
@@ -51,20 +50,20 @@ function runDemo(id: string, model?: object) {
       source: (
         _model: object,
         _handlers: TemplateHandlers,
-        _renderers: Renderers
+        _renderers: Renderers,
       ) => {
         return source;
       },
       'render-demo': (
         model: object,
         _handlers: TemplateHandlers,
-        _renderers: Renderers
+        _renderers: Renderers,
       ) => {
         console.log('render-demo renderer');
         return renderDemo(model);
       },
     },
-    demoTemplate
+    demoTemplate,
   );
 
   render(renderDemoOuter(model ?? {}), output);

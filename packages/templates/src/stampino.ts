@@ -57,7 +57,7 @@ export type TemplateHandler = (
   template: HTMLTemplateElement,
   model: object,
   handlers: TemplateHandlers,
-  renderers: Renderers
+  renderers: Renderers,
 ) => unknown;
 
 export interface TemplateHandlers {
@@ -68,7 +68,7 @@ export const ifHandler: TemplateHandler = (
   template: HTMLTemplateElement,
   model: object,
   handlers: TemplateHandlers,
-  renderers: Renderers
+  renderers: Renderers,
 ) => {
   const ifAttribute = template.getAttribute('if');
   if (ifAttribute !== null && getSingleValue(ifAttribute, model)) {
@@ -79,9 +79,9 @@ export const ifHandler: TemplateHandler = (
 
 export const repeatHandler: TemplateHandler = (
   template: HTMLTemplateElement,
-  model: object & {'this'?: unknown},
+  model: object & {this?: unknown},
   handlers: TemplateHandlers,
-  renderers: Renderers
+  renderers: Renderers,
 ) => {
   const repeatAttribute = template.getAttribute('repeat');
   if (repeatAttribute !== null) {
@@ -101,7 +101,7 @@ export const repeatHandler: TemplateHandler = (
       itemModel['this'] = model['this'] ?? model;
 
       const values = litTemplate.parts.map((part) =>
-        part.update(itemModel, handlers, renderers)
+        part.update(itemModel, handlers, renderers),
       );
       const templateResult: CompiledTemplateResult = {
         _$litType$: litTemplate,
@@ -126,7 +126,7 @@ export const prepareTemplate = (
   template: HTMLTemplateElement,
   handlers: TemplateHandlers = defaultHandlers,
   renderers: Renderers = {},
-  superTemplate?: HTMLTemplateElement
+  superTemplate?: HTMLTemplateElement,
 ): TemplateFunction => {
   const litTemplate = getLitTemplate(template);
   const templateRenderers = litTemplate.renderers;
@@ -161,7 +161,7 @@ export const prepareTemplate = (
                 superTemplate,
                 model,
                 handlers,
-                renderers
+                renderers,
               );
             },
           };
@@ -214,7 +214,7 @@ export const render = (
   template: HTMLTemplateElement,
   container: HTMLElement,
   model: any,
-  handlers: TemplateHandlers = defaultHandlers
+  handlers: TemplateHandlers = defaultHandlers,
 ) => {
   const litTemplate = prepareTemplate(template, handlers);
   renderLit(litTemplate(model), container);
@@ -233,7 +233,7 @@ export const evaluateTemplate = (
   template: HTMLTemplateElement,
   model: any,
   handlers: TemplateHandlers = defaultHandlers,
-  renderers: Renderers = {}
+  renderers: Renderers = {},
 ) => {
   const litTemplate = getLitTemplate(template);
   const values: Array<unknown> = [];
@@ -261,7 +261,7 @@ type StampinoTemplatePart = TemplatePart & {
 type PartUpdater = (
   model: object,
   handlers: TemplateHandlers,
-  blocks: Renderers
+  blocks: Renderers,
 ) => unknown;
 
 interface StampinoTemplate extends CompiledTemplate {
@@ -272,7 +272,7 @@ interface StampinoTemplate extends CompiledTemplate {
 const litTemplateCache = new Map<HTMLTemplateElement, StampinoTemplate>();
 
 export const getLitTemplate = (
-  template: HTMLTemplateElement
+  template: HTMLTemplateElement,
 ): StampinoTemplate => {
   let litTemplate = litTemplateCache.get(template);
   if (litTemplate === undefined) {
@@ -283,14 +283,14 @@ export const getLitTemplate = (
 
 const makeLitTemplate = (template: HTMLTemplateElement): StampinoTemplate => {
   const litTemplate: StampinoTemplate = {
-    h: (undefined as unknown) as TemplateStringsArray,
+    h: undefined as unknown as TemplateStringsArray,
     el: template.cloneNode(true) as HTMLTemplateElement,
     parts: [],
     renderers: {},
   };
   const walker = document.createTreeWalker(
     litTemplate.el!.content,
-    NodeFilter.SHOW_ELEMENT | NodeFilter.SHOW_TEXT | NodeFilter.SHOW_COMMENT
+    NodeFilter.SHOW_ELEMENT | NodeFilter.SHOW_TEXT | NodeFilter.SHOW_COMMENT,
   );
   let node: Node | null = walker.currentNode;
   let nodeIndex = -1;
@@ -313,14 +313,14 @@ const makeLitTemplate = (template: HTMLTemplateElement): StampinoTemplate => {
             update = (
               model: object,
               handlers: TemplateHandlers,
-              renderers: Renderers
+              renderers: Renderers,
             ) => {
               const handler = handlers[type];
               return handler?.(
                 element as HTMLTemplateElement,
                 model,
                 handlers,
-                renderers
+                renderers,
               );
             };
           } else {
@@ -329,7 +329,7 @@ const makeLitTemplate = (template: HTMLTemplateElement): StampinoTemplate => {
               litTemplate.renderers['super'] = (
                 model: any,
                 handlers: TemplateHandlers,
-                renderers: Renderers
+                renderers: Renderers,
               ) => {
                 // Instead of rendering this block, delegate to a passed in
                 // 'super' renderer which will actually render the late-bound
@@ -337,7 +337,7 @@ const makeLitTemplate = (template: HTMLTemplateElement): StampinoTemplate => {
                 // this block for block overrides.
                 const superRenderer = renderers['super'];
                 const superCallTemplate = getLitTemplate(
-                  element as HTMLTemplateElement
+                  element as HTMLTemplateElement,
                 );
                 renderers = {
                   ...renderers,
@@ -350,13 +350,13 @@ const makeLitTemplate = (template: HTMLTemplateElement): StampinoTemplate => {
               litTemplate.renderers[name!] = (
                 model: any,
                 handlers: TemplateHandlers,
-                renderers: Renderers
+                renderers: Renderers,
               ) => {
                 return evaluateTemplate(
                   element as HTMLTemplateElement,
                   model,
                   handlers,
-                  renderers
+                  renderers,
                 );
               };
             }
@@ -366,7 +366,7 @@ const makeLitTemplate = (template: HTMLTemplateElement): StampinoTemplate => {
             update = (
               model: object,
               handlers: TemplateHandlers,
-              renderers: Renderers
+              renderers: Renderers,
             ) => {
               const renderer = renderers[name!];
               return renderer?.(model, handlers, renderers);
@@ -385,7 +385,7 @@ const makeLitTemplate = (template: HTMLTemplateElement): StampinoTemplate => {
           // TODO: use alternative to negative lookbehind
           // (but it's so convenient!)
           const splitValue = attributeValue.split(
-            /(?<!\\){{(.*?)(?:(?<!\\)}})/g
+            /(?<!\\){{(.*?)(?:(?<!\\)}})/g,
           );
           if (splitValue.length === 1) {
             continue;
@@ -422,7 +422,7 @@ const makeLitTemplate = (template: HTMLTemplateElement): StampinoTemplate => {
             update: (
               model: object,
               _handlers: TemplateHandlers,
-              _renderers: Renderers
+              _renderers: Renderers,
             ) => {
               return exprs.map((expr) => expr.evaluate(model));
             },
@@ -452,7 +452,7 @@ const makeLitTemplate = (template: HTMLTemplateElement): StampinoTemplate => {
         textNode.parentNode!.insertBefore(newTextNode, textNode.nextSibling);
         textNode.parentNode!.insertBefore(
           document.createComment(''),
-          textNode.nextSibling
+          textNode.nextSibling,
         );
         // This TreeWalker isn't configured to walk comment nodes, but this
         // node will be returned next time through the loop. This is the easiest
