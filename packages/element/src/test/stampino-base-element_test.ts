@@ -25,7 +25,7 @@ suite('StampinoBaseElement', () => {
       static template = template;
 
       @property()
-      name?: string;
+      accessor name: string | undefined;
     }
     render(html`<test-element-1 name="World"></test-element-1>`, container);
     const el = container.firstElementChild as TestElement;

@@ -1,8 +1,7 @@
-npm-debug.log*
-node_modules/
+/node_modules
 /test
+/.wireit
 
-# TypeScript cache
 *.tsbuildinfo
 
 /stampino-element.*
