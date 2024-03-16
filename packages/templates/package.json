@@ -3,10 +3,18 @@
   "version": "0.6.2",
   "type": "module",
   "main": "./stampino.js",
-  "exports": "./stampino.js",
+  "exports": {
+    ".": {
+      "types": "./stampino.d.ts",
+      "default": "./stampino.js"
+    }
+  },
   "files": [
-    "stampino.{d.ts,js,js.map}",
-    "src/*"
+    "stampino.{d.ts,d.ts.map,js,js.map}",
+    "src/*",
+    "!src/benchmarks/*",
+    "!src/demo/*",
+    "!src/test/*"
   ],
   "scripts": {
     "build": "wireit",
