@@ -3,7 +3,19 @@
   "version": "0.0.5",
   "type": "module",
   "main": "./stampino-element.js",
-  "exports": "./stampino-element.js",
+  "exports": {
+    ".": {
+      "types": "./stampino-element.d.ts",
+      "default": "./stampino-element.js"
+    }
+  },
+  "files": [
+    "stampino-element.{d.ts,d.ts.map,js,js.map}",
+    "stampino-base-element.{d.ts,d.ts.map,js,js.map}",
+    "src/*",
+    "!src/demo/*",
+    "!src/test/*"
+  ],
   "dependencies": {
     "lit": "^3.1.2",
     "stampino": "^0.7.0"

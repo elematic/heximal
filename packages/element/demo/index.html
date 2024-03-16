@@ -1,0 +1,31 @@
+<!doctype html>
+
+<html>
+  <head>
+    <script type="module" src="/stampino-element.js"></script>
+    <style>
+      body {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 32px;
+        font-family:
+          Arial,
+          sans serif;
+      }
+    </style>
+  </head>
+  <body>
+    <stampino-element name="simple-greeter" properties="name">
+      <style type="adopted-css">
+        :host {
+          color: blue;
+        }
+      </style>
+      <template>
+        <h1>Hello {{ name }}!</h1>
+      </template>
+    </stampino-element>
+    
+    <simple-greeter name="World"></simple-greeter>
+  </body>
+</html>

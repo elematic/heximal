@@ -1,6 +1,9 @@
 import {LitElement} from 'lit';
 import {prepareTemplate} from 'stampino';
 
+/**
+ * The base class for elements declared with `<stampino-element>`.
+ */
 export class StampinoBaseElement extends LitElement {
   static superTemplate?: HTMLTemplateElement;
   static template?: HTMLTemplateElement;

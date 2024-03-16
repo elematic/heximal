@@ -9,6 +9,9 @@ const typeHints = {
   Array: Array,
 } as const;
 
+/**
+ * Declares a custom element with Stampino templating.
+ */
 export class StampinoElement extends HTMLElement {
   static observedAttributes = ['name', 'properties'];
 
