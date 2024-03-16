@@ -80,7 +80,7 @@ suite('stampino', () => {
     render(template, container, {x: 'foo'});
     assert.equal(
       stripExpressionMarkers(container.innerHTML),
-      `<p foo="{{ x }}" bar="foo {{ y }}"></p>`
+      `<p foo="{{ x }}" bar="foo {{ y }}"></p>`,
     );
   });
 
@@ -91,6 +91,26 @@ suite('stampino', () => {
     assert.equal(
       stripExpressionMarkers(container.innerHTML),
       `<p class="A B C D"></p>`,
+    );
+  });
+
+  test('Multiple attribute bindings inside a repeat', () => {
+    const template = document.createElement('template');
+    template.innerHTML = `<template type="repeat" repeat="{{ [1, 2] }}"><p foo="{{ x }} : {{ y }}"></p></template>`;
+    render(template, container, {x: 'X', y: 'Y'});
+    assert.equal(
+      stripExpressionMarkers(container.innerHTML),
+      `<p foo="X : Y"></p><p foo="X : Y"></p>`,
+    );
+  });
+
+  test('Multiple attribute bindings inside an if', () => {
+    const template = document.createElement('template');
+    template.innerHTML = `<template type="if" if="{{ true }}"><p foo="{{ x }} : {{ y }}"></p></template>`;
+    render(template, container, {x: 'X', y: 'Y'});
+    assert.equal(
+      stripExpressionMarkers(container.innerHTML),
+      `<p foo="X : Y"></p>`,
     );
   });
 

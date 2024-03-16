@@ -79,8 +79,7 @@ export const ifHandler: TemplateHandler = (
 
 const bindingRegex = /(?<!\\){{(.*?)(?:(?<!\\)}})/g;
 
-const hasEscapedBindingMarkers = (s: string) =>
-  /(?:\\{{)|(?:\\}})/g.test(s);
+const hasEscapedBindingMarkers = (s: string) => /(?:\\{{)|(?:\\}})/g.test(s);
 
 const unescapeBindingMarkers = (s: string) =>
   s.replaceAll(/\\{{/g, '{{').replace(/\\}}/g, '}}');
@@ -108,9 +107,15 @@ export const repeatHandler: TemplateHandler = (
       itemModel.index = index;
       itemModel['this'] = model['this'] ?? model;
 
-      const values = litTemplate.parts.map((part) =>
-        part.update(itemModel, handlers, renderers),
-      );
+      const values = [];
+      for (const part of litTemplate.parts) {
+        const value = part.update(itemModel, handlers, renderers);
+        if (part.type === 1) {
+          values.push(...(value as Iterable<unknown>));
+        } else {
+          values.push(value);
+        }
+      }
       const templateResult: CompiledTemplateResult = {
         _$litType$: litTemplate,
         values,

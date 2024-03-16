@@ -24,6 +24,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Fixed a bug with multiple text bindings in a single text node (fixes [#32](https://github.com/justinfagnani/stampino/issues/32))
 - Added better unescaping of escaped binding markers
+- Fixed a bug with attribute bindings inside of repeat templates (fixes [#27](https://github.com/justinfagnani/stampino/issues/27))
 
 ### Security
 
