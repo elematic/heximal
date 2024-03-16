@@ -5,8 +5,8 @@
   "main": "./stampino-element.js",
   "exports": "./stampino-element.js",
   "dependencies": {
-    "lit": "^2.0.0-pre.2",
-    "stampino": "^0.6.1"
+    "lit": "^3.1.2",
+    "stampino": "^0.7.0"
   },
   "scripts": {
     "build": "tsc",
@@ -15,14 +15,14 @@
     "demo": "wds --node-resolve"
   },
   "devDependencies": {
-    "@esm-bundle/chai": "^4.3.4",
-    "@types/mocha": "^8.2.2",
-    "@web/dev-server": "^0.1.10",
-    "@web/test-runner": "^0.12.18",
-    "@web/test-runner-mocha": "^0.7.2",
-    "@web/test-runner-playwright": "^0.8.4",
-    "prettier": "^2.2.1",
-    "typescript": "^4.2.3"
+    "@esm-bundle/chai": "^4.3.4-fix.0",
+    "@types/mocha": "^10.0.6",
+    "@web/dev-server": "^0.4.3",
+    "@web/test-runner": "^0.18.1",
+    "@web/test-runner-mocha": "^0.9.0",
+    "@web/test-runner-playwright": "^0.11.0",
+    "prettier": "^3.2.5",
+    "typescript": "^5.4.2"
   },
   "author": "Justin Fagnani <justin@fagnani.com>",
   "license": "MIT",

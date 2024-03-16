@@ -234,11 +234,9 @@ suite('stampino-element', () => {
       const el = container.querySelector('test-4-b') as StampinoBaseElement;
       assert.instanceOf(el, StampinoBaseElement);
       await el.updateComplete;
-      assert.equal(
-        stripExpressionMarkers(el.shadowRoot!.innerHTML).trim(),
-        `<h1>AAA</h1>
-            
-          <h3>BBB</h3>`
+      assert.match(
+        stripExpressionMarkers(el.shadowRoot!.innerHTML),
+        /^\s*<h1>AAA<\/h1>\s*<h3>BBB<\/h3>\s*/,
       );
     });
   });
