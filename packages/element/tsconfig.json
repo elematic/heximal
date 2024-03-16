@@ -1,8 +1,9 @@
 {
   "compilerOptions": {
     "incremental": true,
-    "target": "es2019", 
-    "module": "esnext", 
+    "target": "es2022", 
+    "module": "NodeNext", 
+    "moduleResolution": "NodeNext",
     "lib": ["DOM", "es2020", "DOM.Iterable"], 
     "declaration": true,
     "declarationMap": true,
@@ -16,7 +17,6 @@
     "noFallthroughCasesInSwitch": true,
     "noUncheckedIndexedAccess": true,
     "noPropertyAccessFromIndexSignature": true,
-    "moduleResolution": "node", 
     // "allowSyntheticDefaultImports": true,
     "esModuleInterop": true,
     "experimentalDecorators": true,
