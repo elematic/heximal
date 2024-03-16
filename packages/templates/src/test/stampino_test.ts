@@ -67,6 +67,16 @@ suite('stampino', () => {
     );
   });
 
+  test('Attribute with binding-like separator', () => {
+    const template = document.createElement('template');
+    template.innerHTML = `<p foo="\\{{ x \\}}" bar="{{ x }} \\{{ y \\}}"></p>`;
+    render(template, container, {x: 'foo'});
+    assert.equal(
+      stripExpressionMarkers(container.innerHTML),
+      `<p foo="{{ x }}" bar="foo {{ y }}"></p>`
+    );
+  });
+
   test('Multiple attribute bindings', () => {
     const template = document.createElement('template');
     template.innerHTML = `<p class="A {{ b }} C {{ d }}"></p>`;

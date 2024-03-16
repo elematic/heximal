@@ -77,6 +77,14 @@ export const ifHandler: TemplateHandler = (
   return undefined;
 };
 
+const bindingRegex = /(?<!\\){{(.*?)(?:(?<!\\)}})/g;
+
+const hasEscapedBindingMarkers = (s: string) =>
+  /(?:\\{{)|(?:\\}})/g.test(s);
+
+const unescapeBindingMarkers = (s: string) =>
+  s.replaceAll(/\\{{/g, '{{').replace(/\\}}/g, '}}');
+
 export const repeatHandler: TemplateHandler = (
   template: HTMLTemplateElement,
   model: object & {this?: unknown},
@@ -386,10 +394,14 @@ const makeLitTemplate = (template: HTMLTemplateElement): StampinoTemplate => {
           const attributeValue = element.getAttribute(attributeName)!;
           // TODO: use alternative to negative lookbehind
           // (but it's so convenient!)
-          const splitValue = attributeValue.split(
-            /(?<!\\){{(.*?)(?:(?<!\\)}})/g,
-          );
+          const splitValue = attributeValue.split(bindingRegex);
           if (splitValue.length === 1) {
+            if (hasEscapedBindingMarkers(attributeValue)) {
+              element.setAttribute(
+                attributeName,
+                unescapeBindingMarkers(attributeValue),
+              );
+            }
             continue;
           }
           element.removeAttribute(attributeName);
@@ -407,12 +419,12 @@ const makeLitTemplate = (template: HTMLTemplateElement): StampinoTemplate => {
             ctor = EventPart;
           }
 
-          const strings = [splitValue[0]];
+          const strings = [unescapeBindingMarkers(splitValue[0])];
           const exprs: Array<Expression> = [];
           for (let i = 1; i < splitValue.length; i += 2) {
             const exprText = splitValue[i];
             exprs.push(parse(exprText, astFactory) as Expression);
-            strings.push(splitValue[i + 1]);
+            strings.push(unescapeBindingMarkers(splitValue[i + 1]));
           }
 
           litTemplate.parts.push({
@@ -434,12 +446,11 @@ const makeLitTemplate = (template: HTMLTemplateElement): StampinoTemplate => {
     } else if (node.nodeType === Node.TEXT_NODE) {
       const textNode = node as Text;
       const text = textNode.textContent!;
-      const strings = text.split(/(?<!\\){{(.*?)(?:(?<!\\)}})/g);
+      const strings = text.split(bindingRegex);
       if (strings.length > 1) {
-        textNode.textContent = strings[0].replace('\\{{', '{{');
-      } else {
-        // TODO: do this better
-        textNode.textContent = text.replace('\\{{', '{{');
+        textNode.textContent = unescapeBindingMarkers(strings[0]);
+      } else if (hasEscapedBindingMarkers(text)) {
+        textNode.textContent = unescapeBindingMarkers(text);
       }
       for (let i = 1; i < strings.length; i += 2) {
         const exprText = strings[i];
