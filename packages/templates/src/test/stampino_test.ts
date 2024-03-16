@@ -23,6 +23,13 @@ suite('stampino', () => {
     assert.equal(stripExpressionMarkers(container.innerHTML), `Hello World`);
   });
 
+  test('Multiple text bindings', () => {
+    const template = document.createElement('template');
+    template.innerHTML = `{{ x }} : {{ y }}`;
+    render(template, container, {x: 'X', y: 'Y'});
+    assert.equal(stripExpressionMarkers(container.innerHTML), `X : Y`);
+  });
+
   test('Text binding in element', () => {
     const template = document.createElement('template');
     template.innerHTML = `<h1>Hello {{ name.toUpperCase() }}!</h1>`;
