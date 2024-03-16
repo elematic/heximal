@@ -33,7 +33,7 @@ suite('StampinoBaseElement', () => {
     await el.updateComplete;
     assert.equal(
       stripExpressionMarkers(el.shadowRoot!.innerHTML).trim(),
-      `<h1>Hello World!</h1>`
+      `<h1>Hello World!</h1>`,
     );
   });
 });

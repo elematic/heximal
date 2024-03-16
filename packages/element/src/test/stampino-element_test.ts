@@ -34,7 +34,7 @@ suite('stampino-element', () => {
     await el.updateComplete;
     assert.equal(
       stripExpressionMarkers(el.shadowRoot!.innerHTML).trim(),
-      `<h1>Hello World!</h1>`
+      `<h1>Hello World!</h1>`,
     );
 
     const h1 = el.shadowRoot?.firstElementChild!;
@@ -51,7 +51,7 @@ suite('stampino-element', () => {
       </stampino-element>
     `;
     const definitionEl = container.querySelector(
-      'stampino-element'
+      'stampino-element',
     ) as StampinoElement;
 
     // Remove and reattach the element to check that it doesn't redo definition
@@ -66,7 +66,7 @@ suite('stampino-element', () => {
     await el.updateComplete;
     assert.equal(
       stripExpressionMarkers(el.shadowRoot!.innerHTML).trim(),
-      `<h1>Hello World!</h1>`
+      `<h1>Hello World!</h1>`,
     );
   });
 
@@ -87,7 +87,7 @@ suite('stampino-element', () => {
       await el.updateComplete;
       assert.equal(
         stripExpressionMarkers(el.shadowRoot!.innerHTML).trim(),
-        `<h1>Hello World!</h1>`
+        `<h1>Hello World!</h1>`,
       );
     });
 
@@ -109,7 +109,7 @@ suite('stampino-element', () => {
       await el.updateComplete;
       assert.equal(
         stripExpressionMarkers(el.shadowRoot!.innerHTML).trim(),
-        `<p></p><p>BBB</p>`
+        `<p></p><p>BBB</p>`,
       );
     });
 
@@ -129,7 +129,7 @@ suite('stampino-element', () => {
       await el.updateComplete;
       assert.equal(
         stripExpressionMarkers(el.shadowRoot!.innerHTML).trim(),
-        `<p>123</p>`
+        `<p>123</p>`,
       );
     });
 
@@ -149,7 +149,7 @@ suite('stampino-element', () => {
       await el.updateComplete;
       assert.equal(
         stripExpressionMarkers(el.shadowRoot!.innerHTML).trim(),
-        `<p></p>`
+        `<p></p>`,
       );
     });
 
@@ -170,7 +170,7 @@ suite('stampino-element', () => {
       await el.updateComplete;
       assert.equal(
         stripExpressionMarkers(el.shadowRoot!.innerHTML).trim(),
-        `<p>AAA</p>`
+        `<p>AAA</p>`,
       );
       assert.equal(el.getAttribute('a'), 'AAA');
     });
@@ -201,7 +201,7 @@ suite('stampino-element', () => {
       await el.updateComplete;
       assert.equal(
         stripExpressionMarkers(el.shadowRoot!.innerHTML).trim(),
-        `<h1>Hello World!</h1>`
+        `<h1>Hello World!</h1>`,
       );
 
       const h1 = el.shadowRoot?.firstElementChild!;

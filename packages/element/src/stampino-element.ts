@@ -32,19 +32,19 @@ export class StampinoElement extends HTMLElement {
       this._template =
         this.querySelector<HTMLTemplateElement>('template') ?? undefined;
       const style = this.querySelector<HTMLStyleElement>(
-        "style[type='adopted-css']"
+        "style[type='adopted-css']",
       );
 
       let superclass = StampinoBaseElement;
       let superTemplate = undefined;
 
       if (extendsName !== null) {
-        const superDefinition = ((this.getRootNode() as unknown) as ParentNode).querySelector(
-          `stampino-element[name=${extendsName}]`
-        );
+        const superDefinition = (
+          this.getRootNode() as unknown as ParentNode
+        ).querySelector(`stampino-element[name=${extendsName}]`);
         if (superDefinition === null) {
           console.warn(
-            `Could not find superclass definition for ${extendsName}`
+            `Could not find superclass definition for ${extendsName}`,
           );
           return;
         }

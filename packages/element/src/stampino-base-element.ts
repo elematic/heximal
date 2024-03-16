@@ -15,14 +15,14 @@ export class StampinoBaseElement extends LitElement {
             ctor.template,
             undefined,
             undefined,
-            ctor.superTemplate
+            ctor.superTemplate,
           );
     super.connectedCallback();
   }
 
   render() {
     return (this.constructor as typeof StampinoBaseElement)._preparedTemplate?.(
-      this
+      this,
     );
   }
 }
