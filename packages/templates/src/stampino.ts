@@ -318,12 +318,34 @@ const makeLitTemplate = (template: HTMLTemplateElement): StampinoTemplate => {
       if (element.tagName === 'TEMPLATE') {
         const type = element.getAttribute('type');
         const name = element.getAttribute('name');
+        const call = element.getAttribute('call');
 
-        if (type !== null || name !== null) {
+        if (call !== null || type !== null || name !== null) {
           element.parentNode!.insertBefore(document.createComment(''), element);
           elementsToRemove.push(element);
           let update: PartUpdater;
-          if (type !== null) {
+
+          if (call !== null) {
+            // This is a sub-template call, like <template call="foo">
+            const templateName = call.trim();
+            const templateNameIsExpression =
+              templateName.startsWith('{{') && templateName.endsWith('}}');
+
+            update = (
+              model: object,
+              handlers: TemplateHandlers,
+              renderers: Renderers,
+            ) => {
+              const dataAttr = element.getAttribute('data');
+              const data =
+                dataAttr === null ? undefined : getSingleValue(dataAttr, model);
+
+              const renderer = templateNameIsExpression
+                ? getSingleValue(templateName, model)
+                : renderers[call];
+              return renderer?.(data, handlers, renderers);
+            };
+          } else if (type !== null) {
             // This is a control-flow call, like if/repeat
             update = (
               model: object,
@@ -392,61 +414,63 @@ const makeLitTemplate = (template: HTMLTemplateElement): StampinoTemplate => {
             index: nodeIndex,
             update,
           });
+          // Template with call, type, or name attributes are removed from the
+          // DOM, so they can't have attribute bindings.
+          continue;
         }
-      } else {
-        const attributeNames = element.getAttributeNames();
-        for (const attributeName of attributeNames) {
-          const attributeValue = element.getAttribute(attributeName)!;
-          // TODO: use alternative to negative lookbehind
-          // (but it's so convenient!)
-          const splitValue = attributeValue.split(bindingRegex);
-          if (splitValue.length === 1) {
-            if (hasEscapedBindingMarkers(attributeValue)) {
-              element.setAttribute(
-                attributeName,
-                unescapeBindingMarkers(attributeValue),
-              );
-            }
-            continue;
+      }
+      const attributeNames = element.getAttributeNames();
+      for (const attributeName of attributeNames) {
+        const attributeValue = element.getAttribute(attributeName)!;
+        // TODO: use alternative to negative lookbehind
+        // (but it's so convenient!)
+        const splitValue = attributeValue.split(bindingRegex);
+        if (splitValue.length === 1) {
+          if (hasEscapedBindingMarkers(attributeValue)) {
+            element.setAttribute(
+              attributeName,
+              unescapeBindingMarkers(attributeValue),
+            );
           }
-          element.removeAttribute(attributeName);
-          let name = attributeName;
-          let ctor = AttributePart;
-          const prefix = attributeName[0];
-          if (prefix === '.') {
-            name = toCamelCase(attributeName.substring(1));
-            ctor = PropertyPart;
-          } else if (prefix === '?') {
-            name = attributeName.substring(1);
-            ctor = BooleanAttributePart;
-          } else if (prefix === '@') {
-            name = toCamelCase(attributeName.substring(1));
-            ctor = EventPart;
-          }
-
-          const strings = [unescapeBindingMarkers(splitValue[0])];
-          const exprs: Array<Expression> = [];
-          for (let i = 1; i < splitValue.length; i += 2) {
-            const exprText = splitValue[i];
-            exprs.push(parse(exprText, astFactory) as Expression);
-            strings.push(unescapeBindingMarkers(splitValue[i + 1]));
-          }
-
-          litTemplate.parts.push({
-            type: 1, // attribute binding
-            index: nodeIndex,
-            name,
-            strings,
-            ctor,
-            update: (
-              model: object,
-              _handlers: TemplateHandlers,
-              _renderers: Renderers,
-            ) => {
-              return exprs.map((expr) => expr.evaluate(model));
-            },
-          });
+          continue;
         }
+        element.removeAttribute(attributeName);
+        let name = attributeName;
+        let ctor = AttributePart;
+        const prefix = attributeName[0];
+        if (prefix === '.') {
+          name = toCamelCase(attributeName.substring(1));
+          ctor = PropertyPart;
+        } else if (prefix === '?') {
+          name = attributeName.substring(1);
+          ctor = BooleanAttributePart;
+        } else if (prefix === '@') {
+          name = toCamelCase(attributeName.substring(1));
+          ctor = EventPart;
+        }
+
+        const strings = [unescapeBindingMarkers(splitValue[0])];
+        const exprs: Array<Expression> = [];
+        for (let i = 1; i < splitValue.length; i += 2) {
+          const exprText = splitValue[i];
+          exprs.push(parse(exprText, astFactory) as Expression);
+          strings.push(unescapeBindingMarkers(splitValue[i + 1]));
+        }
+
+        litTemplate.parts.push({
+          type: 1, // attribute binding
+          index: nodeIndex,
+          name,
+          strings,
+          ctor,
+          update: (
+            model: object,
+            _handlers: TemplateHandlers,
+            _renderers: Renderers,
+          ) => {
+            return exprs.map((expr) => expr.evaluate(model));
+          },
+        });
       }
     } else if (node.nodeType === Node.TEXT_NODE) {
       let textNode = node as Text;

@@ -17,6 +17,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+
+- Added _template calls_. A sub-template can be called with the
+  `<template call="...">` syntax.
+
 ### Changed
 ### Deprecated
 ### Removed

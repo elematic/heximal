@@ -142,9 +142,100 @@ For repeated templates use `type="repeat"` and a `repeat` attribute. The repeat 
 </template>
 ```
 
+### Template calls
+
+A template can call another template, either by name or by referece.
+
+The call is written as a `<template>` with `call` and optionally `data`
+attributes:
+
+```html
+<template call="..." data="..."></template>  
+```
+
+#### Calling by name
+
+If the `call` attribute is a plain string, the sub template is looked up in the
+renderers configuration. 
+
+```html
+<template id="main">
+  This the main template
+  <template call="A" data="{{ {'foo': 'abc'} }}"></template>  
+</template>
+
+<template id="a">
+  <p>foo is {{ foo }}</p>
+</template>
+```
+
+JavaScript is required to wire this together:
+
+```ts
+const main = document.querySelector('#main');
+const templateA = document.querySelector('#a');
+
+const mainTemplate = prepareTemplate(
+  main,
+  undefined,
+  {
+    // A sub-template is a Renderer:
+    A: (model, handlers, renderers) => {
+      evaluateTemplate(templateA, model, handlers, renderers);
+    }
+  });
+```
+
+#### Calling by reference
+
+If the `call` attribute is an expression, then the sub-template is looked up
+from the calling template's model by the `call` reference:
+
+```html
+<template id="main">
+  This the main template
+  <template call="{{ a.b }}" data="{{ {'foo': 'abc'} }}"></template>  
+</template>
+
+<template id="a">
+  <p>foo is {{ foo }}</p>
+</template>
+```
+
+JavaScript:
+
+```ts
+const main = document.querySelector('#main');
+const templateA = document.querySelector('#a');
+
+const mainTemplate = prepareTemplate(
+  main,
+  undefined,
+  undefined);
+
+const aRenderer = (model, handlers, renderers) =>
+  evaluateTemplate(templateA, model, handlers, renderers);
+
+render(mainTemplate({a: {b: aRenderer}}), container);
+```
+
+### Named blocks
+
+A template with a `name` attribute is a "named block". A named block is similar
+to a template call with fallback content that can be overriden by renderers.
+
+Named blocks are usually used with inheritance, where the sub-template can
+override the named blocks of the base template. They can also be used outside
+of inheritance by configuring the main template with renderers for the blocks
+that should be overridden.
+
+Besides fallback content, a difference between named blocks is template calls is
+that named blocks do not have a data attribute. They inherit the scope of the
+callsite.
+
 ### Inheritance
 
-Stampino supports template inheritance similar to how the popular Jinja library does.
+Stampino supports template inheritance similar to how the popular [Jinja](https://jinja.palletsprojects.com/) library does.
 
 Because Stampino does not automatically find templates in the DOM, even for simple rendering, specifying inheritance is done entirely out-of-band. Set up code must find the template and it's super template, then pass both to `prepareTemplate()`.
 

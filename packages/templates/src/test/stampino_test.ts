@@ -1,6 +1,11 @@
 import {assert} from '@esm-bundle/chai';
 import {render as litRender} from 'lit-html';
-import {prepareTemplate, render} from '../stampino.js';
+import {
+  Renderer,
+  evaluateTemplate,
+  prepareTemplate,
+  render,
+} from '../stampino.js';
 
 suite('stampino', () => {
   let container: HTMLDivElement;
@@ -232,11 +237,7 @@ suite('stampino', () => {
     assert.equal(stripExpressionMarkers(container.innerHTML), `<p>A</p>BC`);
   });
 
-  // TODO: Need to figure out where passed-in renderers fit in the scope. Can
-  // they override block lookup, or do all declared blocks take precedence?
-  // If declared blocks take precedence and self-render, then do we need to
-  // make a separate <template call="name"> construct.
-  test.skip('named blocks with provided renderer', () => {
+  test('named blocks with provided renderer', () => {
     const bTemplate = document.createElement('template');
     bTemplate.innerHTML = `<p>{{ b }}</p>`;
     const bTemplateFn = prepareTemplate(bTemplate);
@@ -253,6 +254,50 @@ suite('stampino', () => {
     assert.equal(
       stripExpressionMarkers(container.innerHTML),
       `<p>A</p><p>B</p>C`,
+    );
+  });
+
+  test('named template calls', () => {
+    const bTemplate = document.createElement('template');
+    bTemplate.innerHTML = `<p>{{ b }}</p>`;
+
+    const template = document.createElement('template');
+    template.innerHTML = `<p>A</p><template call="B" data="{{ {'b': 'X'} }}"></template><template call="C"></template>`;
+
+    const templateFn = prepareTemplate(template, undefined, {
+      B: (model, handlers, renderers) => {
+        return evaluateTemplate(bTemplate, model, handlers, renderers);
+      },
+    });
+
+    litRender(templateFn({b: 'B'}), container);
+    assert.equal(
+      stripExpressionMarkers(container.innerHTML),
+      `<p>A</p><p>X</p>`,
+    );
+  });
+
+  test('referenced template calls', () => {
+    const bTemplate = document.createElement('template');
+    bTemplate.innerHTML = `<p>{{ b }}</p>`;
+    const bRenderer: Renderer = (model, handlers, renderers) =>
+      evaluateTemplate(bTemplate, model, handlers, renderers);
+
+    const template = document.createElement('template');
+    template.innerHTML = `<p>A</p><template call="{{ bTemplate }}" data="{{ {'b': 'X'} }}"></template><template call="C"></template>`;
+
+    const templateFn = prepareTemplate(
+      template,
+      undefined,
+      undefined,
+      undefined,
+    );
+
+    litRender(templateFn({bTemplate: bRenderer}), container);
+
+    assert.equal(
+      stripExpressionMarkers(container.innerHTML),
+      `<p>A</p><p>X</p>`,
     );
   });
 
