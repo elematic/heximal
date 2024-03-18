@@ -14,23 +14,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 -->
 
-## [Unreleased]
+## 0.8.0
 
 ### Added
 
 - Added _template calls_. A sub-template can be called with the
   `<template call="...">` syntax.
 
-### Changed
-### Deprecated
-### Removed
 ### Fixed
 
 - Fixed a bug with multiple text bindings in a single text node (fixes [#32](https://github.com/justinfagnani/stampino/issues/32))
 - Added better unescaping of escaped binding markers
 - Fixed a bug with attribute bindings inside of repeat templates (fixes [#27](https://github.com/justinfagnani/stampino/issues/27))
-
-### Security
 
 ## 0.7.0
 
