@@ -175,6 +175,33 @@ export class EvalAstFactory implements AstFactory<Expression> {
       left: l,
       right: r,
       evaluate(scope) {
+        if (this.operator === '=') {
+          if (
+            this.left.type !== 'ID' &&
+            this.left.type !== 'Getter' &&
+            this.left.type !== 'Index'
+          ) {
+            throw new Error(`Invalid assignment target: ${this.left}`);
+          }
+          return () => {
+            const value = this.right.evaluate(scope);
+            let receiver: object;
+            let property: string;
+            if (this.left.type === 'Getter') {
+              receiver = this.left.receiver.evaluate(scope);
+              property = this.left.name;
+            } else if (this.left.type === 'Index') {
+              receiver = this.left.receiver.evaluate(scope);
+              property = this.left.argument.evaluate(scope);
+            } else if (this.left.type === 'ID') {
+              receiver = scope;
+              property = this.left.value;
+            } else {
+              throw new Error(`Invalid assignment target: ${this.left}`);
+            }
+            return receiver[property] = value;
+          };
+        }
         return f(this.left.evaluate(scope), this.right.evaluate(scope));
       },
       getIds(idents) {

@@ -66,6 +66,7 @@ suite('Parser', function () {
 
   test('should parse binary operators', function () {
     const operators = [
+      '=',
       '+',
       '-',
       '*',
@@ -85,6 +86,7 @@ suite('Parser', function () {
       '===',
       '!==',
       '|',
+      '??',
     ];
     for (const i in operators) {
       const op = operators[i];

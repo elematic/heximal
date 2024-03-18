@@ -6,6 +6,7 @@
 export const KEYWORDS = ['this'];
 export const UNARY_OPERATORS = ['+', '-', '!'];
 export const BINARY_OPERATORS = [
+  '=',
   '+',
   '-',
   '*',

@@ -15,6 +15,11 @@ function expectEval(s: string, expected: any, scope?: evaluate.Scope) {
   assert.deepEqual(result, expected);
 }
 
+function doEval(s: string, scope?: evaluate.Scope) {
+  const expr = new Parser(s, astFactory).parse();
+  return expr!.evaluate(scope!);
+}
+
 suite('eval', function () {
   test('should return the model for an empty expression', function () {
     expectEval('', {foo: 'bar'}, {foo: 'bar'});
@@ -79,6 +84,33 @@ suite('eval', function () {
     expectEval('+a', 2, {a: 2});
     expectEval('-a', -2, {a: 2});
     expectEval('!a', false, {a: true});
+  });
+
+  test('should evaluate ID assignment', function () {
+    const scope = {foo: 0};
+    const result = doEval('foo = 3', scope);
+    assert.typeOf(result, 'function');
+    const value = result();
+    assert.equal(value, 3);
+    assert.equal(scope.foo, 3);
+  });
+
+  test('should evaluate getter assignment', function () {
+    const scope = {foo: {bar: 0}};
+    const result = doEval('foo.bar = 3', scope);
+    assert.typeOf(result, 'function');
+    const value = result();
+    assert.equal(value, 3);
+    assert.equal(scope.foo.bar, 3);
+  });
+
+  test('should evaluate index assignment', function () {
+    const scope = {foo: {bar: 0}};
+    const result = doEval("foo['bar'] = 3", scope);
+    assert.typeOf(result, 'function');
+    const value = result();
+    assert.equal(value, 3);
+    assert.equal(scope.foo.bar, 3);
   });
 
   test('should evaluate binary operators', function () {
