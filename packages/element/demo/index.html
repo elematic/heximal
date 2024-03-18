@@ -15,6 +15,12 @@
     </style>
   </head>
   <body>
+
+    <template id="sub-template">
+      <h2>This is a sub-template</h2>
+      <h3>Foo is {{ foo ?? 'undefined' }}</h3>
+    </template>
+
     <stampino-element name="simple-greeter" properties="name">
       <style type="adopted-css">
         :host {
@@ -23,6 +29,7 @@
       </style>
       <template>
         <h1>Hello {{ name }}!</h1>
+        <template call="sub-template" data="{{ {'foo': 'FOO'} }}"></template>
       </template>
     </stampino-element>
     

@@ -1,5 +1,5 @@
 import {LitElement} from 'lit';
-import {prepareTemplate} from 'stampino';
+import {Renderers, prepareTemplate} from 'stampino';
 
 /**
  * The base class for elements declared with `<stampino-element>`.
@@ -7,6 +7,7 @@ import {prepareTemplate} from 'stampino';
 export class StampinoBaseElement extends LitElement {
   static superTemplate?: HTMLTemplateElement;
   static template?: HTMLTemplateElement;
+  static renderers?: Renderers;
   static _preparedTemplate?: (model: object) => unknown;
 
   connectedCallback() {
@@ -17,7 +18,7 @@ export class StampinoBaseElement extends LitElement {
         : prepareTemplate(
             ctor.template,
             undefined,
-            undefined,
+            ctor.renderers,
             ctor.superTemplate,
           );
     super.connectedCallback();

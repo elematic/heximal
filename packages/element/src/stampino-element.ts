@@ -1,3 +1,4 @@
+import {evaluateTemplate} from 'stampino';
 import {StampinoBaseElement} from './stampino-base-element.js';
 import {css, PropertyDeclaration, unsafeCSS} from 'lit';
 
@@ -96,6 +97,22 @@ export class StampinoElement extends HTMLElement {
           C.createProperty(name, options);
         }
       }
+
+      // Find all callable templates in the same scope
+      const root = this.getRootNode() as Document | ShadowRoot | Element;
+      const templates = root.querySelectorAll('template[id]');
+      C.renderers = Object.fromEntries(
+        [...templates].map((t) => [
+          t.id,
+          (model, handlers, renderers) =>
+            evaluateTemplate(
+              t as HTMLTemplateElement,
+              model,
+              handlers,
+              renderers,
+            ),
+        ]),
+      );
 
       if (elementName) {
         customElements.define(elementName, C);
