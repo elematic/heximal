@@ -1,6 +1,6 @@
 {
   "name": "stampino-element",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "type": "module",
   "main": "./stampino-element.js",
   "exports": {
@@ -18,7 +18,7 @@
   ],
   "dependencies": {
     "lit": "^3.1.2",
-    "stampino": "^0.7.0"
+    "stampino": "^0.8.0"
   },
   "scripts": {
     "build": "wireit",
