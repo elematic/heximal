@@ -1,6 +1,6 @@
 {
   "name": "stampino",
-  "version": "0.8.0",
+  "version": "0.8.1",
   "type": "module",
   "main": "./stampino.js",
   "exports": {
@@ -24,7 +24,7 @@
     "demo": "wireit"
   },
   "dependencies": {
-    "jexpr": "^1.0.0-pre.4",
+    "jexpr": "^1.0.0-pre.5",
     "lit-html": "^3.1.2",
     "trusted-types": "^2.0.0"
   },
