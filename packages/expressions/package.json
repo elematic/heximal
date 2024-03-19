@@ -1,6 +1,6 @@
 {
   "name": "jexpr",
-  "version": "1.0.0-pre.6",
+  "version": "1.0.0-pre.7",
   "description": "A simple expression parser and evaluator",
   "repository": {
     "type": "git",
