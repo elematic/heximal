@@ -53,7 +53,8 @@ export type Expression =
   | Index
   | Ternary
   | Map
-  | List;
+  | List
+  | ArrowFunction;
 
 export interface Literal extends Evaluatable {
   type: 'Literal';
@@ -106,6 +107,11 @@ export interface Map extends Evaluatable {
 export interface List extends Evaluatable {
   type: 'List';
   items: Array<Expression> | undefined;
+}
+export interface ArrowFunction extends Evaluatable {
+  type: 'ArrowFunction';
+  params: Array<string>;
+  body: Expression;
 }
 
 export class EvalAstFactory implements AstFactory<Expression> {
@@ -183,24 +189,23 @@ export class EvalAstFactory implements AstFactory<Expression> {
           ) {
             throw new Error(`Invalid assignment target: ${this.left}`);
           }
-          return () => {
-            const value = this.right.evaluate(scope);
-            let receiver: object;
-            let property: string;
-            if (this.left.type === 'Getter') {
-              receiver = this.left.receiver.evaluate(scope);
-              property = this.left.name;
-            } else if (this.left.type === 'Index') {
-              receiver = this.left.receiver.evaluate(scope);
-              property = this.left.argument.evaluate(scope);
-            } else if (this.left.type === 'ID') {
-              receiver = scope;
-              property = this.left.value;
-            } else {
-              throw new Error(`Invalid assignment target: ${this.left}`);
-            }
-            return receiver[property] = value;
-          };
+          const value = this.right.evaluate(scope);
+          let receiver: object | undefined = undefined;
+          let property!: string;
+          if (this.left.type === 'Getter') {
+            receiver = this.left.receiver.evaluate(scope);
+            property = this.left.name;
+          } else if (this.left.type === 'Index') {
+            receiver = this.left.receiver.evaluate(scope);
+            property = this.left.argument.evaluate(scope);
+          } else if (this.left.type === 'ID') {
+            // TODO: the id could be a parameter
+            receiver = scope;
+            property = this.left.value;
+          }
+          return receiver === undefined
+            ? undefined
+            : (receiver[property] = value);
         }
         return f(this.left.evaluate(scope), this.right.evaluate(scope));
       },
@@ -241,7 +246,7 @@ export class EvalAstFactory implements AstFactory<Expression> {
         // TODO(justinfagnani): this might be wrong in cases where we're
         // invoking a top-level function rather than a method. If method is
         // defined on a nested scope, then we should probably set _this to null.
-        const _this = this.method ? receiver : scope['this'] ?? scope;
+        const _this = this.method ? receiver : scope?.['this'] ?? scope;
         const f = this.method ? receiver?.[method] : receiver;
         const args = this.arguments ?? [];
         const argValues = args.map((a) => a?.evaluate(scope));
@@ -338,6 +343,35 @@ export class EvalAstFactory implements AstFactory<Expression> {
       getIds(idents) {
         this.items?.forEach((i) => i?.getIds(idents));
         return idents;
+      },
+    };
+  }
+
+  arrowFunction(params: string[], body: Expression): Expression {
+    // throw new Error('Arrow functions not supported');
+    return {
+      type: 'ArrowFunction',
+      params,
+      body,
+      evaluate(scope) {
+        const body = this.body;
+        return function (...args: any[]) {
+          // TODO: this isn't correct for assignments to variables in outer
+          // scopes
+          const newScope = {...scope};
+          for (let i = 0; i < params.length; i++) {
+            newScope[params[i]] = args[i];
+          }
+          return body.evaluate(newScope);
+        };
+      },
+      getIds(idents) {
+        // Only return the _free_ variables in the body. Since arrow function
+        // parameters are the only way to introduce new variable names, we can
+        // assume that any variable in the body that isn't a parameter is free.
+        return this.body
+          .getIds(idents)
+          .filter((id) => !this.params.includes(id));
       },
     };
   }

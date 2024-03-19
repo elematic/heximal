@@ -22,6 +22,7 @@ export interface AstFactory<E extends ast.Expression> {
   ternary(condition: E, trueExpr: E | undefined, falseExpr: E | undefined): E;
   map(entries: {[key: string]: E | undefined} | undefined): E;
   list(items: Array<E | undefined> | undefined): E;
+  arrowFunction(params: Array<string>, body: E | undefined): E;
 }
 
 export class DefaultAstFactory implements AstFactory<ast.Expression> {
@@ -132,6 +133,17 @@ export class DefaultAstFactory implements AstFactory<ast.Expression> {
     return {
       type: 'List',
       items,
+    };
+  }
+
+  arrowFunction(
+    params: Array<string>,
+    body: ast.Expression
+  ): ast.ArrowFunction {
+    return {
+      type: 'ArrowFunction',
+      params,
+      body,
     };
   }
 }

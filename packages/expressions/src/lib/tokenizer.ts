@@ -25,6 +25,7 @@ export enum Kind {
   OPERATOR = 8,
   GROUPER = 9,
   KEYWORD = 10,
+  ARROW = 11,
 }
 
 export const token = (kind: Kind, value: string, precedence: number = 0) => ({
@@ -229,6 +230,10 @@ export class Tokenizer {
       this._advance();
     } else {
       op = this._getValue(1);
+      if (op === '=>') {
+        this._advance();
+        return token(Kind.ARROW, op);
+      }
       if (_TWO_CHAR_OPS.indexOf(op) !== -1) {
         this._advance();
       }

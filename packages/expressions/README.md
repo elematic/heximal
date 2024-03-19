@@ -7,7 +7,8 @@ Jexpr is an expression syntax, parser, and evaluator for JS-like expressions.
 Jexpr is designed for libraries that evaluate user-written expressions, such as
 HTML templating engines. Jexpr has a relatively rich syntax, supporting
 identifiers, operators, property access, method and function calls, and
-literals (including arrays and objects), and pipes.
+literals (including arrays and objects), function literals, assignments,
+and pipes.
 
 Example:
 
@@ -89,7 +90,7 @@ can use either single or double quotes.
 - Objects: `{ 'a': 1, 'b': 2 }`
 - Arrays: `[1, 2, 3]`
 
-### Functions and methods
+### Function and method calls
 
 If a property is a function in the scope, a method on the model, or a method on
 an object, it can be invoked with standard function syntax. Functions and
@@ -106,6 +107,7 @@ Examples:
 
 Jexpr supports the following binary and unary operators:
 
+- Assignment: `=`
 - Arithmetic operators: `+`, `-`, `*`, `/`, `%`, unary `+` and `-`
 - Comparison operators: `==`, `!=`, `===`, `!==`, `<=`, `<`, `>`, `>=`
 - Boolean operators: `&&`, `||`, unary `!`
@@ -115,6 +117,11 @@ Jexpr supports the following binary and unary operators:
 Expressions do not support bitwise operators such as `&`, `|`, `<<` and `>>`, or
 increment/decrement operators (`++` and `--`)
 
+#### Assignment
+
+The left-hand-side expression of the assignment operator (`=`) must be one of an
+ID, getter or setter, otherwise an exception is thrown.
+
 ### Array and Object indexing
 
 Arrays and objects can be accessed via the index operator: []
@@ -123,6 +130,15 @@ Examples:
 
 - `items[2]`
 - `people['john']`
+
+### Function expressions
+
+Functions can be written with the arrow function syntax.
+
+Examples:
+
+- `() => 3`
+- `(a, b) => a + b`
 
 ### Filters and transformers
 

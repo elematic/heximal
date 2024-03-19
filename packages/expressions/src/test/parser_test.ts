@@ -105,6 +105,43 @@ suite('Parser', function () {
     }
   });
 
+  test('shoud parse arrow functions', function () {
+    expectParse('() => x', astFactory.arrowFunction([], astFactory.id('x')));
+    expectParse(
+      '(a) => a',
+      astFactory.arrowFunction(['a'], astFactory.id('a'))
+    );
+    expectParse(
+      '(a, b) => a + b',
+      astFactory.arrowFunction(
+        ['a', 'b'],
+        astFactory.binary(astFactory.id('a'), '+', astFactory.id('b'))
+      )
+    );
+    expectParse(
+      'fn(() => x)',
+      astFactory.invoke(astFactory.id('fn'), undefined, [
+        astFactory.arrowFunction([], astFactory.id('x')),
+      ])
+    );
+    expectParse(
+      'fn ?? () => x',
+      astFactory.binary(
+        astFactory.id('fn'),
+        '??',
+        astFactory.arrowFunction([], astFactory.id('x'))
+      )
+    );
+    expectParse(
+      '(() => x)()',
+      astFactory.invoke(
+        astFactory.paren(astFactory.arrowFunction([], astFactory.id('x'))),
+        undefined,
+        []
+      )
+    );
+  });
+
   // test('should thrown on unknown operators', () {
   //   expect(() => parse('a ?? b'), throwsParseException);
   //   expect(() => parse('a &&& b'), throwsParseException);

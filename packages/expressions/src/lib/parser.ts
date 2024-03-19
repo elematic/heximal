@@ -182,7 +182,7 @@ export class Parser<N extends Expression> {
         return this._parseDecimal();
       case Kind.GROUPER:
         if (this._value === '(') {
-          return this._parseParen();
+          return this._parseParenOrFunction();
         } else if (this._value === '{') {
           return this._parseMap();
         } else if (this._value === '[') {
@@ -278,11 +278,16 @@ export class Parser<N extends Expression> {
     return expr;
   }
 
-  private _parseParen() {
-    this._advance();
-    const expr = this._parseExpression();
-    this._advance(Kind.GROUPER, ')');
-    return this._ast.paren(expr);
+  private _parseParenOrFunction() {
+    const expressions = this._parseArguments();
+    if (this._matches(Kind.ARROW)) {
+      this._advance();
+      const body = this._parseExpression();
+      const params = expressions?.map((e) => (e as ID).value) ?? [];
+      return this._ast.arrowFunction(params, body);
+    } else {
+      return this._ast.paren(expressions![0]);
+    }
   }
 
   private _parseString() {

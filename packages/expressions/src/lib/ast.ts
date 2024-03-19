@@ -15,7 +15,8 @@ export type Expression =
   | Index
   | Ternary
   | Map
-  | List;
+  | List
+  | ArrowFunction;
 
 export type LiteralValue = string | number | boolean | null | undefined;
 
@@ -85,4 +86,10 @@ export interface Map {
 export interface List {
   type: 'List';
   items?: Array<Expression>;
+}
+
+export interface ArrowFunction {
+  type: 'ArrowFunction';
+  params: Array<string>;
+  body: Expression;
 }

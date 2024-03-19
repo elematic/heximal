@@ -15,6 +15,7 @@ const DECIMAL = Kind.DECIMAL;
 const OPERATOR = Kind.OPERATOR;
 const GROUPER = Kind.GROUPER;
 const KEYWORD = Kind.KEYWORD;
+const ARROW = Kind.ARROW;
 const POSTFIX_PRECEDENCE = constants.POSTFIX_PRECEDENCE;
 const PRECEDENCE = constants.PRECEDENCE;
 
@@ -158,6 +159,25 @@ suite('tokenizer', function () {
       t(COMMA, ',', PRECEDENCE[',']),
       t(IDENTIFIER, 'b'),
       t(GROUPER, ')', PRECEDENCE[')']),
+    ]);
+  });
+
+  test('should tokenize arrow functions', function () {
+    // console.log(tokenize('() => x'));
+    expectTokens('() => x', [
+      t(GROUPER, '(', PRECEDENCE['(']),
+      t(GROUPER, ')', PRECEDENCE[')']),
+      t(ARROW, '=>'),
+      t(IDENTIFIER, 'x'),
+    ]);
+    expectTokens('(a, b) => x', [
+      t(GROUPER, '(', PRECEDENCE['(']),
+      t(IDENTIFIER, 'a'),
+      t(COMMA, ',', PRECEDENCE[',']),
+      t(IDENTIFIER, 'b'),
+      t(GROUPER, ')', PRECEDENCE[')']),
+      t(ARROW, '=>'),
+      t(IDENTIFIER, 'x'),
     ]);
   });
 

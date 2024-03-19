@@ -88,28 +88,19 @@ suite('eval', function () {
 
   test('should evaluate ID assignment', function () {
     const scope = {foo: 0};
-    const result = doEval('foo = 3', scope);
-    assert.typeOf(result, 'function');
-    const value = result();
-    assert.equal(value, 3);
+    expectEval('foo = 3', 3, scope);
     assert.equal(scope.foo, 3);
   });
 
   test('should evaluate getter assignment', function () {
     const scope = {foo: {bar: 0}};
-    const result = doEval('foo.bar = 3', scope);
-    assert.typeOf(result, 'function');
-    const value = result();
-    assert.equal(value, 3);
+    expectEval('foo.bar = 3', 3, scope);
     assert.equal(scope.foo.bar, 3);
   });
 
   test('should evaluate index assignment', function () {
     const scope = {foo: {bar: 0}};
-    const result = doEval("foo['bar'] = 3", scope);
-    assert.typeOf(result, 'function');
-    const value = result();
-    assert.equal(value, 3);
+    expectEval("foo['bar'] = 3", 3, scope);
     assert.equal(scope.foo.bar, 3);
   });
 
@@ -181,6 +172,13 @@ suite('eval', function () {
     expectEval('false ? 1 : true ? 2 : 3', 2);
     expectEval('false ? 1 : false ? 2 : 3', 3);
     expectEval('null ? 1 : 2', 2);
+  });
+
+  test('should evaluate function literals', function () {
+    assert.equal(doEval('() => 3')(), 3);
+    assert.equal(doEval('(a, b) => a + b')(1, 2), 3);
+    expectEval('((a, b) => a + b)(1, 2)', 3);
+    expectEval('arr.map((a) => a * 2)', [2, 4, 6], {arr: [1, 2, 3]});
   });
 
   test('should call functions in scope', function () {
