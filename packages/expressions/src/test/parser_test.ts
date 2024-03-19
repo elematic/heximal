@@ -385,6 +385,7 @@ suite('Parser', function () {
 
   test('should parse map literals', function () {
     expectParse("{'a': 1}", astFactory.map({a: astFactory.literal(1)}));
+    expectParse("{a: 1}", astFactory.map({a: astFactory.literal(1)}));
     expectParse(
       "{'a': 1, 'b': 2 + 3}",
       astFactory.map({

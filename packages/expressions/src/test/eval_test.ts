@@ -63,10 +63,12 @@ suite('eval', function () {
 
   test('should return a literal map', function () {
     expectEval('{"a": 1}', {a: 1});
+    expectEval('{a: 1}', {a: 1});
   });
 
   test('should access properties of a literal map', function () {
     expectEval('{"a": 1}.a', 1);
+    expectEval('{a: 1}.a', 1);
   });
 
   test('should return undefined for deeply nil properties of the scope', function () {

@@ -122,6 +122,15 @@ increment/decrement operators (`++` and `--`)
 The left-hand-side expression of the assignment operator (`=`) must be one of an
 ID, getter or setter, otherwise an exception is thrown.
 
+### Maps
+
+Maps are sets of key/value pairs. The key can either be a quoted string, or an
+identifier:
+
+Examples:
+- `{'a': 1, 'b': 2}`
+- `{a: 1, b: 2}`
+
 ### Array and Object indexing
 
 Arrays and objects can be accessed via the index operator: []
@@ -160,4 +169,5 @@ has an inverse function. Two-way transformers are not supported yet.
 Jexpr is forked from `polymer-expressions` which is no longer officially
 maintained by the Polymer team. The JavaScript version of that library was
 ported from the
-[Dart library](https://github.com/dart-archive/polymer-expressions) of the same name, originally used in Polymer.dart.
+[Dart library](https://github.com/dart-archive/polymer-expressions) of the same
+name, originally used in Polymer.dart.

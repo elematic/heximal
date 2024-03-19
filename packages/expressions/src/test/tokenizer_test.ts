@@ -189,6 +189,13 @@ suite('tokenizer', function () {
       t(IDENTIFIER, 'b'),
       t(GROUPER, '}', PRECEDENCE['}']),
     ]);
+    expectTokens(`{a: b}`, [
+      t(GROUPER, '{', PRECEDENCE['{']),
+      t(IDENTIFIER, 'a'),
+      t(COLON, ':', PRECEDENCE[':']),
+      t(IDENTIFIER, 'b'),
+      t(GROUPER, '}', PRECEDENCE['}']),
+    ]);
   });
 
   test('should tokenize lists', function () {

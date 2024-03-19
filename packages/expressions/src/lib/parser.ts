@@ -37,7 +37,9 @@ export class Parser<N extends Expression> {
 
   private _advance(kind?: Kind, value?: string) {
     if (!this._matches(kind, value)) {
-      throw new Error(`Expected kind ${kind} (${value}), was ${this._token}`);
+      throw new Error(
+        `Expected kind ${kind} (${value}), was ${this._token?.kind} (${this._token?.value})`
+      );
     }
     const t = this._tokenizer.nextToken();
     this._token = t;
@@ -213,7 +215,9 @@ export class Parser<N extends Expression> {
       this._advance();
       if (this._matches(Kind.GROUPER, '}')) break;
       const key = this._value!;
-      this._advance(Kind.STRING);
+      if (this._matches(Kind.STRING) || this._matches(Kind.IDENTIFIER)) {
+        this._advance();
+      }
       this._advance(Kind.COLON);
       entries[key] = this._parseExpression();
     } while (this._matches(Kind.COMMA));
