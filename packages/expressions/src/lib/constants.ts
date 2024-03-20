@@ -29,7 +29,7 @@ export const BINARY_OPERATORS = [
   '|>',
 ];
 
-export const PRECEDENCE = {
+export const PRECEDENCE: Record<string, number> = {
   '!': 0,
   ':': 0,
   ',': 0,

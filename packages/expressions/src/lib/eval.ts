@@ -6,7 +6,7 @@
 import * as ast from './ast.js';
 import {AstFactory} from './ast_factory.js';
 
-const _BINARY_OPERATORS = {
+const _BINARY_OPERATORS: Record<string, (a: any, b: any) => any> = {
   '+': (a: any, b: any) => a + b,
   '-': (a: any, b: any) => a - b,
   '*': (a: any, b: any) => a * b,
@@ -27,7 +27,7 @@ const _BINARY_OPERATORS = {
   '|>': (a: any, f: (a: any) => any) => f(a),
 };
 
-const _UNARY_OPERATORS = {
+const _UNARY_OPERATORS: Record<string, (a: any) => any> = {
   '+': (a: any) => a,
   '-': (a: any) => -a,
   '!': (a: any) => !a,
@@ -205,7 +205,7 @@ export class EvalAstFactory implements AstFactory<Expression> {
           }
           return receiver === undefined
             ? undefined
-            : (receiver[property] = value);
+            : ((receiver as any)[property] = value);
         }
         return f(this.left.evaluate(scope), this.right.evaluate(scope));
       },
@@ -312,7 +312,7 @@ export class EvalAstFactory implements AstFactory<Expression> {
           for (const key in entries) {
             const val = this.entries[key];
             if (val) {
-              map[key] = val.evaluate(scope);
+              (map as any)[key] = val.evaluate(scope);
             }
           }
         }
