@@ -38,7 +38,7 @@ suite
       function (o) {
         return o.length;
       },
-      2
+      2,
     );
     return result;
   })

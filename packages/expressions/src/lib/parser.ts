@@ -15,7 +15,7 @@ import {Kind, Token, Tokenizer} from './tokenizer.js';
 
 export const parse = <E extends Expression>(
   expr: string,
-  astFactory: AstFactory<E>
+  astFactory: AstFactory<E>,
 ): E | undefined => new Parser<E>(expr, astFactory).parse();
 
 export class Parser<N extends Expression> {
@@ -38,7 +38,7 @@ export class Parser<N extends Expression> {
   private _advance(kind?: Kind, value?: string) {
     if (!this._matches(kind, value)) {
       throw new Error(
-        `Expected kind ${kind} (${value}), was ${this._token?.kind} (${this._token?.value})`
+        `Expected kind ${kind} (${value}), was ${this._token?.kind} (${this._token?.value})`,
       );
     }
     const t = this._tokenizer.nextToken();
@@ -106,7 +106,7 @@ export class Parser<N extends Expression> {
       return this._ast.invoke(
         left,
         method.value,
-        (right as Invoke).arguments as any
+        (right as Invoke).arguments as any,
       );
     } else {
       throw new Error(`expected identifier: ${right}`);
@@ -147,7 +147,7 @@ export class Parser<N extends Expression> {
         throw new Error(`unexpected token: ${value}`);
       const expr = this._parsePrecedence(
         this._parsePrimary(),
-        POSTFIX_PRECEDENCE
+        POSTFIX_PRECEDENCE,
       );
       return this._ast.unary(value!, expr);
     }

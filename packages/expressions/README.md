@@ -128,6 +128,7 @@ Maps are sets of key/value pairs. The key can either be a quoted string, or an
 identifier:
 
 Examples:
+
 - `{'a': 1, 'b': 2}`
 - `{a: 1, b: 2}`
 

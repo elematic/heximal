@@ -1,4 +1,4 @@
-import {test, describe as suite}  from 'node:test';
+import {test, describe as suite} from 'node:test';
 import assert from 'node:assert';
 
 import * as constants from '../lib/constants.js';

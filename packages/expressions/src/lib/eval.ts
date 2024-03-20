@@ -360,14 +360,14 @@ export class EvalAstFactory implements AstFactory<Expression> {
           // scopes
           // const newScope = Object.create(scope ?? null);
           const paramsObj = Object.fromEntries(
-            params.map((p, i) => [p, args[i]])
+            params.map((p, i) => [p, args[i]]),
           );
           const newScope = new Proxy(scope ?? {}, {
             set(target, prop, value) {
               if (paramsObj.hasOwnProperty(prop)) {
                 paramsObj[prop as string] = value;
               }
-              return target[prop as string] = value;
+              return (target[prop as string] = value);
             },
             get(target, prop) {
               if (paramsObj.hasOwnProperty(prop)) {

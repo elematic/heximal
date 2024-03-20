@@ -1,4 +1,4 @@
-import {test, describe as suite}  from 'node:test';
+import {test, describe as suite} from 'node:test';
 import assert from 'node:assert';
 
 import * as evaluate from '../lib/eval.js';
@@ -181,7 +181,7 @@ suite('eval', function () {
     expectEval('((a, b) => a + b)(1, 2)', 3);
     expectEval('arr.map((a) => a * 2)', [2, 4, 6], {arr: [1, 2, 3]});
     const scope = {foo: 3};
-    doEval('() => this.foo = 4', scope)()
+    doEval('() => this.foo = 4', scope)();
     assert.equal(scope.foo, 4);
     assert.equal(doEval('(a) => a', {a: 5})(3), 3);
     assert.equal(doEval('(a) => ((a) => a)(2)', {a: 5})(3), 2);

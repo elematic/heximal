@@ -15,7 +15,7 @@ export interface AstFactory<E extends ast.Expression> {
   invoke(
     receiver: E,
     method: string | undefined,
-    args: Array<E | undefined> | undefined
+    args: Array<E | undefined> | undefined,
   ): E;
   paren(child: E | undefined): E;
   index(receiver: E, argument: E | undefined): E;
@@ -56,7 +56,7 @@ export class DefaultAstFactory implements AstFactory<ast.Expression> {
   binary(
     left: ast.Expression,
     operator: string,
-    right: ast.Expression
+    right: ast.Expression,
   ): ast.Binary {
     return {
       type: 'Binary',
@@ -77,7 +77,7 @@ export class DefaultAstFactory implements AstFactory<ast.Expression> {
   invoke(
     receiver: ast.Expression,
     method: string | undefined,
-    args: Array<ast.Expression> | undefined
+    args: Array<ast.Expression> | undefined,
   ): ast.Invoke {
     // TODO(justinfagnani): do this assertion in the parser
     if (args === undefined) {
@@ -100,7 +100,7 @@ export class DefaultAstFactory implements AstFactory<ast.Expression> {
 
   index(
     receiver: ast.Expression,
-    argument: ast.Expression | undefined
+    argument: ast.Expression | undefined,
   ): ast.Index {
     return {
       type: 'Index',
@@ -112,7 +112,7 @@ export class DefaultAstFactory implements AstFactory<ast.Expression> {
   ternary(
     condition: ast.Expression,
     trueExpr: ast.Expression,
-    falseExpr: ast.Expression
+    falseExpr: ast.Expression,
   ): ast.Ternary {
     return {
       type: 'Ternary',
@@ -138,7 +138,7 @@ export class DefaultAstFactory implements AstFactory<ast.Expression> {
 
   arrowFunction(
     params: Array<string>,
-    body: ast.Expression
+    body: ast.Expression,
   ): ast.ArrowFunction {
     return {
       type: 'ArrowFunction',
