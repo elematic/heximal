@@ -181,6 +181,12 @@ suite('eval', function () {
     assert.equal(doEval('(a, b) => a + b')(1, 2), 3);
     expectEval('((a, b) => a + b)(1, 2)', 3);
     expectEval('arr.map((a) => a * 2)', [2, 4, 6], {arr: [1, 2, 3]});
+    const scope = {foo: 3};
+    doEval('() => this.foo = 4', scope)()
+    assert.equal(scope.foo, 4);
+    assert.equal(doEval('(a) => a', {a: 5})(3), 3);
+    assert.equal(doEval('(a) => ((a) => a)(2)', {a: 5})(3), 2);
+    expectEval('(() => this.foo)()', 3, {foo: 3});
   });
 
   test('should call functions in scope', function () {

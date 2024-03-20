@@ -348,20 +348,34 @@ export class EvalAstFactory implements AstFactory<Expression> {
   }
 
   arrowFunction(params: string[], body: Expression): Expression {
-    // throw new Error('Arrow functions not supported');
     return {
       type: 'ArrowFunction',
       params,
       body,
       evaluate(scope) {
+        const params = this.params;
         const body = this.body;
         return function (...args: any[]) {
           // TODO: this isn't correct for assignments to variables in outer
           // scopes
-          const newScope = {...scope};
-          for (let i = 0; i < params.length; i++) {
-            newScope[params[i]] = args[i];
-          }
+          // const newScope = Object.create(scope ?? null);
+          const paramsObj = Object.fromEntries(
+            params.map((p, i) => [p, args[i]])
+          );
+          const newScope = new Proxy(scope ?? {}, {
+            set(target, prop, value) {
+              if (paramsObj.hasOwnProperty(prop)) {
+                paramsObj[prop as string] = value;
+              }
+              return target[prop as string] = value;
+            },
+            get(target, prop) {
+              if (paramsObj.hasOwnProperty(prop)) {
+                return paramsObj[prop as string];
+              }
+              return target[prop as string];
+            },
+          });
           return body.evaluate(newScope);
         };
       },
