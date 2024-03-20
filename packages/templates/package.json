@@ -24,7 +24,7 @@
     "demo": "wireit"
   },
   "dependencies": {
-    "jexpr": "^1.0.0-pre.5",
+    "jexpr": "^1.0.0-pre.7",
     "lit-html": "^3.1.2",
     "trusted-types": "^2.0.0"
   },
