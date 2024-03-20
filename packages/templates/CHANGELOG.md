@@ -14,6 +14,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 -->
 
+## 0.8.2
+
+### Changed
+- Updated `jexpr` dependency to 1.0.0-pre.7
+
+## 0.8.1
+
+### Changed
+- Updated `jexpr` dependency to 1.0.0-pre.5
+
 ## 0.8.0
 
 ### Added
