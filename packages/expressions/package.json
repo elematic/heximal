@@ -1,6 +1,6 @@
 {
   "name": "jexpr",
-  "version": "1.0.0-pre.7",
+  "version": "1.0.0-pre.8",
   "description": "A simple expression parser and evaluator",
   "repository": {
     "type": "git",
@@ -19,11 +19,10 @@
     "src/lib/*"
   ],
   "scripts": {
-    "build": "tsc",
-    "test": "mocha --ui tdd test/*.js",
+    "build": "wireit",
+    "test": "wireit",
     "prepublish": "npm test",
-    "benchmark": "node benchmark/eval_benchmark",
-    "test:watch": "watchy -w src/ -- npm test --loglevel=silent",
+    "benchmark": "wireit",
     "format": "prettier \"**/*.{json,md,ts}\" --write"
   },
   "author": "Justin Fagnani",
@@ -37,6 +36,37 @@
     "mocha": "^8.2.1",
     "prettier": "^2.2.1",
     "typescript": "^4.2.0",
-    "watchy": "^0.9.9"
+    "watchy": "^0.9.9",
+    "wireit": "^0.14.4"
+  },
+  "wireit": {
+    "build": {
+      "command": "tsc --pretty",
+      "files": [
+        "src/**/*.ts",
+        "tsconfig.json"
+      ],
+      "output": [
+        "index.{js,js.map,d.ts,d.ts.map}",
+        "lib"
+      ],
+      "clean": "if-file-deleted"
+    },
+    "test": {
+      "command": "mocha --ui tdd test/*.js",
+      "dependencies": [
+        "build"
+      ],
+      "files": [],
+      "output": []
+    },
+    "benchmark": {
+      "command": "node benchmark/eval_benchmark",
+      "dependencies": [
+        "build"
+      ],
+      "files": [],
+      "output": []
+    }
   }
 }

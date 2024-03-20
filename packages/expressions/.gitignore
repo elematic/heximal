@@ -3,5 +3,6 @@
 /benchmark
 /lib
 /test
+/.wireit
 
 /index.*
