@@ -1,9 +1,8 @@
-import chai from 'chai';
+import {test, describe as suite}  from 'node:test';
+import assert from 'node:assert';
 
 import * as ast_factory from '../lib/ast_factory.js';
 import * as parser from '../lib/parser.js';
-
-const {assert} = chai;
 
 const Parser = parser.Parser;
 const astFactory = new ast_factory.DefaultAstFactory();

@@ -1,9 +1,8 @@
-import chai from 'chai';
+import {test, describe as suite}  from 'node:test';
+import assert from 'node:assert';
 
 import * as evaluate from '../lib/eval.js';
 import * as parser from '../lib/parser.js';
-
-const {assert} = chai;
 
 const Parser = parser.Parser;
 

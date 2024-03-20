@@ -1,9 +1,8 @@
-import chai from 'chai';
+import {test, describe as suite}  from 'node:test';
+import assert from 'node:assert';
 
 import * as constants from '../lib/constants.js';
 import {Kind, token as makeToken, Token, Tokenizer} from '../lib/tokenizer.js';
-
-const {assert} = chai;
 
 const STRING = Kind.STRING;
 const IDENTIFIER = Kind.IDENTIFIER;
