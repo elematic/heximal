@@ -6,6 +6,8 @@
 import * as ast from './ast.js';
 import {AstFactory} from './ast_factory.js';
 
+const {hasOwn, fromEntries} = Object;
+
 const _BINARY_OPERATORS: Record<string, (a: any, b: any) => any> = {
   '+': (a: any, b: any) => a + b,
   '-': (a: any, b: any) => a - b,
@@ -356,21 +358,21 @@ export class EvalAstFactory implements AstFactory<Expression> {
         const params = this.params;
         const body = this.body;
         return function (...args: any[]) {
-          // TODO: this isn't correct for assignments to variables in outer
-          // scopes
-          // const newScope = Object.create(scope ?? null);
-          const paramsObj = Object.fromEntries(
-            params.map((p, i) => [p, args[i]]),
-          );
+          // Create a nested scope for the function body with a proxy to getting
+          // and setting parameters on a paramsObj, and setting other
+          // identifiers on the scope. Without a proxy, attempting to set
+          // properties on the outer scope would actually set them on the
+          // inner scope due to JavaScript's assignment semantics.
+          const paramsObj = fromEntries(params.map((p, i) => [p, args[i]]));
           const newScope = new Proxy(scope ?? {}, {
             set(target, prop, value) {
-              if (paramsObj.hasOwnProperty(prop)) {
+              if (hasOwn(paramsObj, prop)) {
                 paramsObj[prop as string] = value;
               }
               return (target[prop as string] = value);
             },
             get(target, prop) {
-              if (paramsObj.hasOwnProperty(prop)) {
+              if (hasOwn(paramsObj, prop)) {
                 return paramsObj[prop as string];
               }
               return target[prop as string];

@@ -214,14 +214,15 @@ suite('eval', function () {
   });
 
   test('should call functions with `this` in nested scopes', function () {
+    const model = {};
     const o = {
+      this: model,
       getThis(this: any) {
         return this;
       },
     };
     const scope = Object.create(o);
-    scope['this'] = o;
-    expectEval('getThis()', o, scope);
+    expectEval('getThis()', model, scope);
   });
 
   test('should call methods with `this` as receiver', function () {
