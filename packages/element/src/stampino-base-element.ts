@@ -29,4 +29,13 @@ export class StampinoBaseElement extends LitElement {
       this,
     );
   }
+
+  /**
+   * Returns a function that can be used in event handlers to update a property.
+   * 
+   * This is experimental and may change or be removed in the future!
+   */
+  protected _getPropertySetter(name: keyof this, value: this[keyof this]) {
+    return () => this[name] = value;
+  }
 }
