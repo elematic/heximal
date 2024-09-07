@@ -1,13 +1,9 @@
-/node_modules
 /test
-/.wireit
 
 /demo/*.d.ts
 /demo/*.d.ts.map
 /demo/*.js
 /demo/*.js.map
-
-*.tsbuildinfo
 
 /index.*
 /base-element.*

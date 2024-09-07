@@ -22,7 +22,7 @@ suite('HeximalBaseElement', () => {
     `;
     @customElement('test-element-1')
     class TestElement extends HeximalBaseElement {
-      static template = template;
+      static override template = template;
 
       @property()
       accessor name: string | undefined;

@@ -10,7 +10,7 @@ export class HeximalBaseElement extends LitElement {
   static renderers?: Renderers;
   static _preparedTemplate?: (model: object) => unknown;
 
-  connectedCallback() {
+  override connectedCallback() {
     const ctor = this.constructor as typeof HeximalBaseElement;
     ctor._preparedTemplate =
       ctor.template === undefined
@@ -24,7 +24,7 @@ export class HeximalBaseElement extends LitElement {
     super.connectedCallback();
   }
 
-  render() {
+  override render() {
     return (this.constructor as typeof HeximalBaseElement)._preparedTemplate?.(
       this,
     );

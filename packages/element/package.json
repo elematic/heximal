@@ -23,7 +23,6 @@
   "scripts": {
     "build": "wireit",
     "test": "wireit",
-    "format": "prettier \"src/**/*.ts\" --write",
     "demo": "wireit"
   },
   "devDependencies": {
