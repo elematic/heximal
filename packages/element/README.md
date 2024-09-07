@@ -33,15 +33,16 @@ The `properties` attribute takes a space-separated list of property names, all p
 
 If you need to set property options like `type`, `reflect`, `attribute`
 
-| Attribute | Meaning |
-| ----------|---------|
-| `name` | The name of the property. Case-sensitive |
-| `type` | The "type hint" for the property. Valid values are "String", "Number", "Boolean", "Object", or "Array" |
-| `reflect` | A boolean attribute. If present the property reflects to an attribute. |
-| `attribute` | The attribute name associated with the property |
-| `noattribute` | If present the property is not read from an attribute |
+| Attribute     | Meaning                                                                                                |
+| ------------- | ------------------------------------------------------------------------------------------------------ |
+| `name`        | The name of the property. Case-sensitive                                                               |
+| `type`        | The "type hint" for the property. Valid values are "String", "Number", "Boolean", "Object", or "Array" |
+| `reflect`     | A boolean attribute. If present the property reflects to an attribute.                                 |
+| `attribute`   | The attribute name associated with the property                                                        |
+| `noattribute` | If present the property is not read from an attribute                                                  |
 
 Example:
+
 ```html
 <h-define-element name="simple-greeter">
   <h-prop name="name" reflect type="String"></h-prop>
@@ -51,7 +52,7 @@ Example:
 
 ### Styling
 
-Styles are added with a `<style type="adopted-css">` child element. 
+Styles are added with a `<style type="adopted-css">` child element.
 
 The type is `"adopted-css"` so that the styles do not apply to the document. The CSS text of the style element is added as an adopted stylesheet to the element's shadow root.
 

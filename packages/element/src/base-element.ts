@@ -32,10 +32,10 @@ export class HeximalBaseElement extends LitElement {
 
   /**
    * Returns a function that can be used in event handlers to update a property.
-   * 
+   *
    * This is experimental and may change or be removed in the future!
    */
   protected _getPropertySetter(name: keyof this, value: this[keyof this]) {
-    return () => this[name] = value;
+    return () => (this[name] = value);
   }
 }

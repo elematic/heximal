@@ -15,7 +15,6 @@
     </style>
   </head>
   <body>
-
     <template id="sub-template">
       <h2>This is a sub-template</h2>
       <h3>Foo is {{ foo ?? 'undefined' }}</h3>
@@ -32,7 +31,7 @@
         <template call="sub-template" data="{{ {'foo': 'FOO'} }}"></template>
       </template>
     </h-define-element>
-    
+
     <simple-greeter name="World"></simple-greeter>
   </body>
 </html>

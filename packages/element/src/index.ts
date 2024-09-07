@@ -114,8 +114,6 @@ export class HeximalElement extends HTMLElement {
         ]),
       );
 
-
-
       if (elementName) {
         customElements.define(elementName, C);
       }
