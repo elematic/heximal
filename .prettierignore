@@ -8,6 +8,31 @@ node_modules/
 
 .tsbuildinfo
 
+packages/expressions/benchmark
+packages/expressions/lib
+packages/expressions/test
 
+packages/expressions/index.*
+
+packages/templates/node_modules
+packages/templates/.wireit
+packages/templates/lib
+packages/templates/test
+packages/templates/logs
+
+packages/templates/index.d.ts
+packages/templates/index.d.ts.map
+packages/templates/index.js
+packages/templates/index.js.map
+
+packages/templates/demo/demo.d.ts
+packages/templates/demo/demo.d.ts.map
+packages/templates/demo/demo.js
+packages/templates/demo/demo.js.map
+
+packages/templates/benchmarks/*.d.ts
+packages/templates/benchmarks/*.d.ts.map
+packages/templates/benchmarks/*.js
+packages/templates/benchmarks/*.js.map
 
 package-lock.json

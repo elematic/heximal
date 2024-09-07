@@ -2,7 +2,7 @@
 .gitignore
 
 [relative]
-packages/{*}/{.gitignore,.prettierignore}
+packages/*/{.gitignore,.prettierignore}
 
 [inline]
 package-lock.json
