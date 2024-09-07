@@ -1,0 +1,8 @@
+.DS_Store
+/node_modules
+/benchmark
+/lib
+/test
+/.wireit
+
+/index.*

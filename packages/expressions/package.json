@@ -1,0 +1,68 @@
+{
+  "name": "jexpr",
+  "version": "1.0.0-pre.9",
+  "description": "A simple expression parser and evaluator",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/justinfagnani/jexpr.git"
+  },
+  "type": "module",
+  "main": "index.js",
+  "exports": {
+    ".": "./index.js",
+    "./lib/*": "./lib/*.js"
+  },
+  "files": [
+    "index.*",
+    "lib/*",
+    "src/*.ts",
+    "src/lib/*"
+  ],
+  "scripts": {
+    "build": "wireit",
+    "test": "wireit",
+    "prepublish": "npm test",
+    "benchmark": "wireit",
+    "format": "prettier \"**/*.{json,md,ts}\" --write"
+  },
+  "author": "Justin Fagnani",
+  "license": "BSD 3-Clause",
+  "devDependencies": {
+    "@types/benchmark": "^2.1.5",
+    "@types/node": "^20.11.30",
+    "benchmark": "^2.1.4",
+    "prettier": "^3.2.5",
+    "typescript": "^5.4.2",
+    "wireit": "^0.14.4"
+  },
+  "wireit": {
+    "build": {
+      "command": "tsc --pretty",
+      "files": [
+        "src/**/*.ts",
+        "tsconfig.json"
+      ],
+      "output": [
+        "index.{js,js.map,d.ts,d.ts.map}",
+        "lib"
+      ],
+      "clean": "if-file-deleted"
+    },
+    "test": {
+      "command": "node --test-reporter spec --test test/*_test.js",
+      "dependencies": [
+        "build"
+      ],
+      "files": [],
+      "output": []
+    },
+    "benchmark": {
+      "command": "node benchmark/eval_benchmark",
+      "dependencies": [
+        "build"
+      ],
+      "files": [],
+      "output": []
+    }
+  }
+}
