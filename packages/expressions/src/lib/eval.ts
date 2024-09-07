@@ -248,7 +248,7 @@ export class EvalAstFactory implements AstFactory<Expression> {
         // TODO(justinfagnani): this might be wrong in cases where we're
         // invoking a top-level function rather than a method. If method is
         // defined on a nested scope, then we should probably set _this to null.
-        const _this = this.method ? receiver : scope?.['this'] ?? scope;
+        const _this = this.method ? receiver : (scope?.['this'] ?? scope);
         const f = this.method ? receiver?.[method] : receiver;
         const args = this.arguments ?? [];
         const argValues = args.map((a) => a?.evaluate(scope));

@@ -6,6 +6,8 @@
     "packages/*"
   ],
   "scripts": {
+    "build": "wireit",
+    "test": "wireit",
     "format": "prettier \"**/*.{cjs,html,js,json,md,ts}\" --write",
     "ignore-sync": "ignore-sync ."
   },
@@ -18,5 +20,16 @@
     "typescript": "^5.5.4",
     "wireit": "^0.14.9"
   },
-  "wireit": {}
+  "wireit": {
+    "build": {
+      "dependencies": [
+        "./packages/expressions:build"
+      ]
+    },
+    "test": {
+      "dependencies": [
+        "./packages/expressions:test"
+      ]
+    }
+  }
 }
