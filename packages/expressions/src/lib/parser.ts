@@ -57,7 +57,7 @@ export class Parser<N extends Expression> {
     return expr === undefined ? undefined : this.#parsePrecedence(expr, 0);
   }
 
-  // _parsePrecedence and _parseBinary implement the precedence climbing
+  // #parsePrecedence and #parseBinary implement the precedence climbing
   // algorithm as described in:
   // http://en.wikipedia.org/wiki/Operator-precedence_parser#Precedence_climbing_method
   #parsePrecedence(left: N | undefined, precedence: number) {
@@ -275,7 +275,7 @@ export class Parser<N extends Expression> {
   }
 
   #parseIndex() {
-    // console.assert(this._matches(Kind.GROUPER, '['));
+    // console.assert(this.#matches(Kind.GROUPER, '['));
     this.#advance();
     const expr = this.#parseExpression();
     this.#advance(Kind.GROUPER, ']');

@@ -5,8 +5,8 @@
 
 import {KEYWORDS, POSTFIX_PRECEDENCE, PRECEDENCE} from './constants.js';
 
-const _TWO_CHAR_OPS = ['==', '!=', '<=', '>=', '||', '&&', '??', '|>'];
-const _THREE_CHAR_OPS = ['===', '!=='];
+const TWO_CHAR_OPS = ['==', '!=', '<=', '>=', '||', '&&', '??', '|>'];
+const THREE_CHAR_OPS = ['===', '!=='];
 
 export interface Token {
   kind: Kind;
@@ -34,14 +34,14 @@ export const token = (kind: Kind, value: string, precedence: number = 0) => ({
   precedence,
 });
 
-const _isWhitespace = (ch: number) =>
+const isWhitespace = (ch: number) =>
   ch === 9 /* \t */ ||
   ch === 10 /* \n */ ||
   ch === 13 /* \r */ ||
   ch === 32; /* space */
 
 // TODO(justinfagnani): allow code points > 127
-const _isIdentOrKeywordStart = (ch: number) =>
+const isIdentOrKeywordStart = (ch: number) =>
   ch === 95 /* _ */ ||
   ch === 36 /* $ */ ||
   // ch &= ~32 puts ch into the range [65,90] [A-Z] only if ch was already in
@@ -51,15 +51,15 @@ const _isIdentOrKeywordStart = (ch: number) =>
 
 // TODO(justinfagnani): allow code points > 127
 const _isIdentifier = (ch: number) =>
-  _isIdentOrKeywordStart(ch) || _isNumber(ch);
+  isIdentOrKeywordStart(ch) || isNumber(ch);
 
 const _isKeyword = (str: string) => KEYWORDS.indexOf(str) !== -1;
 
 const _isQuote = (ch: number) => ch === 34 /* " */ || ch === 39; /* ' */
 
-const _isNumber = (ch: number) => 48 /* 0 */ <= ch && ch <= 57; /* 9 */
+const isNumber = (ch: number) => 48 /* 0 */ <= ch && ch <= 57; /* 9 */
 
-const _isOperator = (ch: number) =>
+const isOperator = (ch: number) =>
   ch === 43 /* + */ ||
   ch === 45 /* - */ ||
   ch === 42 /* * */ ||
@@ -82,7 +82,7 @@ const _isGrouper = (ch: number) =>
   ch === 123 /* { */ ||
   ch === 125; /* } */
 
-const _escapeString = (str: string) =>
+const escapeString = (str: string) =>
   str.replace(/\\(.)/g, (_match, group) => {
     switch (group) {
       case 'n':
@@ -112,18 +112,18 @@ export class Tokenizer {
   }
 
   nextToken() {
-    while (_isWhitespace(this.#next!)) {
+    while (isWhitespace(this.#next!)) {
       this.#advance(true);
     }
     if (_isQuote(this.#next!)) return this.#tokenizeString();
-    if (_isIdentOrKeywordStart(this.#next!)) {
+    if (isIdentOrKeywordStart(this.#next!)) {
       return this.#tokenizeIdentOrKeyword();
     }
-    if (_isNumber(this.#next!)) return this.#tokenizeNumber();
+    if (isNumber(this.#next!)) return this.#tokenizeNumber();
     if (this.#next === 46 /* . */) return this.#tokenizeDot();
     if (this.#next === 44 /* , */) return this.#tokenizeComma();
     if (this.#next === 58 /* : */) return this.#tokenizeColon();
-    if (_isOperator(this.#next!)) return this.#tokenizeOperator();
+    if (isOperator(this.#next!)) return this.#tokenizeOperator();
     if (_isGrouper(this.#next!)) return this.#tokenizeGrouper();
     // no match, should be end of input
     this.#advance();
@@ -169,14 +169,14 @@ export class Tokenizer {
       }
       this.#advance();
     }
-    const t = token(Kind.STRING, _escapeString(this.#getValue()));
+    const t = token(Kind.STRING, escapeString(this.#getValue()));
     this.#advance();
     return t;
   }
 
   #tokenizeIdentOrKeyword() {
-    // This do/while loops assumes _isIdentifier(this._next!), so it must only
-    // be called if _isIdentOrKeywordStart(this._next!) has returned true.
+    // This do/while loops assumes isIdentifier(this._next!), so it must only
+    // be called if isIdentOrKeywordStart(this._next!) has returned true.
     do {
       this.#advance();
     } while (_isIdentifier(this.#next!));
@@ -186,18 +186,18 @@ export class Tokenizer {
   }
 
   #tokenizeNumber() {
-    // This do/while loops assumes _isNumber(this._next!), so it must only
-    // be called if _isNumber(this._next!) has returned true.
+    // This do/while loops assumes isNumber(this._next!), so it must only
+    // be called if isNumber(this._next!) has returned true.
     do {
       this.#advance();
-    } while (_isNumber(this.#next!));
+    } while (isNumber(this.#next!));
     if (this.#next === 46 /* . */) return this.#tokenizeDot();
     return token(Kind.INTEGER, this.#getValue());
   }
 
   #tokenizeDot() {
     this.#advance();
-    if (_isNumber(this.#next!)) return this.#tokenizeFraction();
+    if (isNumber(this.#next!)) return this.#tokenizeFraction();
     this.#clearValue();
     return token(Kind.DOT, '.', POSTFIX_PRECEDENCE);
   }
@@ -213,11 +213,11 @@ export class Tokenizer {
   }
 
   #tokenizeFraction() {
-    // This do/while loops assumes _isNumber(this._next!), so it must only
-    // be called if _isNumber(this._next!) has returned true.
+    // This do/while loops assumes isNumber(this._next!), so it must only
+    // be called if isNumber(this._next!) has returned true.
     do {
       this.#advance();
-    } while (_isNumber(this.#next!));
+    } while (isNumber(this.#next!));
     return token(Kind.DECIMAL, this.#getValue());
   }
 
@@ -225,7 +225,7 @@ export class Tokenizer {
     this.#advance();
     let op = this.#getValue(2);
 
-    if (_THREE_CHAR_OPS.indexOf(op) !== -1) {
+    if (THREE_CHAR_OPS.indexOf(op) !== -1) {
       this.#advance();
       this.#advance();
     } else {
@@ -234,7 +234,7 @@ export class Tokenizer {
         this.#advance();
         return token(Kind.ARROW, op);
       }
-      if (_TWO_CHAR_OPS.indexOf(op) !== -1) {
+      if (TWO_CHAR_OPS.indexOf(op) !== -1) {
         this.#advance();
       }
     }
