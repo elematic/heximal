@@ -23,12 +23,14 @@
   "wireit": {
     "build": {
       "dependencies": [
-        "./packages/expressions:build"
+        "./packages/expressions:build",
+        "./packages/templates:build"
       ]
     },
     "test": {
       "dependencies": [
-        "./packages/expressions:test"
+        "./packages/expressions:test",
+        "./packages/templates:test"
       ]
     }
   }
