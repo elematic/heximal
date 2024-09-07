@@ -1,10 +1,11 @@
 {
-  "name": "jexpr",
-  "version": "1.0.0-pre.9",
+  "name": "@heximal/expressions",
+  "version": "0.1.0",
   "description": "A simple expression parser and evaluator",
   "repository": {
     "type": "git",
-    "url": "https://github.com/justinfagnani/jexpr.git"
+    "url": "https://github.com/elematic/heximal.git",
+    "directory": "packages/expressions"
   },
   "type": "module",
   "main": "index.js",

@@ -1,14 +1,15 @@
-# Jexpr
+# Heximal Expressions
 
 ## Overview
 
-Jexpr is an expression syntax, parser, and evaluator for JS-like expressions.
+Heximal Expressions is an expression syntax, parser, and evaluator for
+JavaScript-like expressions.
 
-Jexpr is designed for libraries that evaluate user-written expressions, such as
-HTML templating engines. Jexpr has a relatively rich syntax, supporting
-identifiers, operators, property access, method and function calls, and
-literals (including arrays and objects), function literals, assignments,
-and pipes.
+Heximal Expressions is designed for libraries that evaluate user-written
+expressions, such as HTML templating engines. Heximal Expressions has a relatively rich
+syntax, supporting identifiers, operators, property access, method and function
+calls, and literals (including arrays and objects), function literals,
+assignments, and pipes.
 
 Example:
 
@@ -21,13 +22,13 @@ Example:
 ### Installation
 
 ```bash
-npm i jexpr
+npm i @heximal/expressions
 ```
 
 ### Usage
 
 ```ts
-import {parse, EvalAstFactory} from 'jexpr';
+import {parse, EvalAstFactory} from '@heximal/expressions';
 
 // An EvalAstFactory produces an AST that can be evaluated
 const astFactory = new EvalAstFactory();
@@ -49,8 +50,8 @@ console.log(result); // 48
 
 ### Fast, small parser
 
-Jexpr is a hand-written, recursive descent, precedence-climbing parser. It's
-simple, fast and small.
+The Heximal Expressions parser is a hand-written, recursive descent,
+precedence-climbing parser. It's simple, fast and small.
 
 ### Pluggable AST factories
 
@@ -80,7 +81,7 @@ name, you can use `this` to refer to the model property.
 
 ### Literals
 
-Jexpr supports number, boolean, string, and map literals. Strings
+Heximal Expressions supports number, boolean, string, and map literals. Strings
 can use either single or double quotes.
 
 - `null` and `undefined`
@@ -105,7 +106,7 @@ Examples:
 
 ### Operators
 
-Jexpr supports the following binary and unary operators:
+Heximal Expressions supports the following binary and unary operators:
 
 - Assignment: `=`
 - Arithmetic operators: `+`, `-`, `*`, `/`, `%`, unary `+` and `-`
@@ -167,8 +168,11 @@ has an inverse function. Two-way transformers are not supported yet.
 
 ## Acknowedgements
 
-Jexpr is forked from `polymer-expressions` which is no longer officially
-maintained by the Polymer team. The JavaScript version of that library was
-ported from the
-[Dart library](https://github.com/dart-archive/polymer-expressions) of the same
-name, originally used in Polymer.dart.
+Heximal Expressions was moved and renamed from
+[Jexpr](https://github.com/justinfagnani/jexpr), which itself was forked from
+[`polymer-expressions`](https://github.com/googlearchive/polymer-expressions),
+which is a JavaScript port of a [Dart
+library](https://github.com/dart-archive/polymer-expressions) by the same name.
+
+Both `polymer-expressions` implementations are no longer officially maintained
+by Google. Jexpr was moved to make it part of the Heximal project and monorepo.
