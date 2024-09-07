@@ -1,0 +1,38 @@
+{
+  "$schema": "https://raw.githubusercontent.com/Polymer/tachometer/master/config.schema.json",
+  "root": "./",
+  "sampleSize": 50,
+  "timeout": 3,
+  "benchmarks": [
+    {
+      "name": "empty template",
+      "url": "benchmarks/benchmark-1.html",
+      "browser": "chrome"
+    },
+    {
+      "name": "one static text node template",
+      "url": "benchmarks/benchmark-2.html",
+      "browser": "chrome"
+    },
+    {
+      "name": "two static text nodes template",
+      "url": "benchmarks/benchmark-3.html",
+      "browser": "chrome"
+    },
+    {
+      "name": "multiple static text nodes template",
+      "url": "benchmarks/benchmark-4.html",
+      "browser": "chrome"
+    },
+    {
+      "name": "multiple expressions template",
+      "url": "benchmarks/benchmark-5.html",
+      "browser": "chrome"
+    },
+    {
+      "name": "repeating template",
+      "url": "benchmarks/benchmark-6.html",
+      "browser": "chrome"
+    }
+  ]
+}

@@ -1,0 +1,147 @@
+<!doctype html>
+
+<html>
+  <head>
+    <script type="module" src="./demo.js"></script>
+    <style>
+      body {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 32px;
+        font-family:
+          Arial,
+          sans serif;
+      }
+      h1 {
+        font-size: 24px;
+      }
+      h2 {
+        font-size: 16px;
+      }
+      code {
+        background: #f8e8e8;
+        white-space: pre;
+      }
+      .block {
+        display: block;
+        padding: 8px;
+        border: solid 1px #888;
+      }
+      .demo-body {
+        padding: 0 16px;
+      }
+    </style>
+  </head>
+  <body>
+    <template id="demo">
+      <h1><template name="title">Title</template></h1>
+      <div class="demo-body">
+        <h2>Source:</h2>
+        <code class="block"><template name="source"></template></code>
+        <h2>Output:</h2>
+        <div class="block"><template name="render-demo"></template></div>
+      </div>
+    </template>
+
+    <template id="demo-1">
+      <template name="title">Static Template</template>
+      Hello
+      <template name="demo">
+        <p>This template has only static content</p>
+      </template>
+    </template>
+
+    <template id="demo-2">
+      <template name="title">Simple Expressions</template>
+      <template name="demo">
+        <p>This template contains expressions, like:</p>
+        <div><code>\{{ foo }}</code>: <span>{{ foo }}</span></div>
+      </template>
+    </template>
+
+    <template id="demo-3">
+      <template name="title">Complex Expressions</template>
+      <template name="demo">
+        <p>This template contains fancy expressions, like:</p>
+        <p><code>\{{ x * x - 1 }}</code>: <span>{{ x * x - 1 }}</span></p>
+        <p>(where x = <span>{{ x }}</span>)</p>
+      </template>
+    </template>
+
+    <template id="demo-4">
+      <template name="title">Conditionals</template>
+      <template name="demo">
+        <p>This template contains conditionals</p>
+        <template type="if" if="{{true}}">
+          <p>This renders (the other case doesn't)</p>
+        </template>
+        <template type="if" if="{{false}}">
+          <p>This does not</p>
+        </template>
+      </template>
+    </template>
+
+    <template id="demo-5">
+      <template name="title">Repeating</template>
+      <template name="demo">
+        <p>This template contains a repeater</p>
+        <ul>
+          <template type="repeat" repeat="{{items}}">
+            <li>{{item}}</li>
+          </template>
+        </ul>
+      </template>
+    </template>
+
+    <template id="demo-6-sub-template">
+      <h2>This is the sub-template</h2>
+    </template>
+
+    <template id="demo-6">
+      <template name="title">Subtemplate calls</template>
+      <template name="demo">
+        <p>This template calls another template</p>
+        <template name="demo-6-sub-template"></template>
+      </template>
+    </template>
+
+    <template id="demo-7-super">
+      <p>This is the parent template that defines blocks named A and B</p>
+      <div>
+        <template name="A">This is default content for block A</template>
+      </div>
+      <div>
+        <template name="B">This is default content for block B</template>
+      </div>
+    </template>
+
+    <template id="demo-7">
+      <template name="title">Template Inheritance</template>
+      <template name="demo" extends="demo-7-super">
+        <template name="B">This is child content for block B</template>
+      </template>
+    </template>
+
+    <template id="demo-7">
+      <template name="title">Explicit Super Template</template>
+      <template name="demo" extends="demo-7-super">
+        <div>before super template</div>
+        <template name="super">
+          <template name="B">This is child content for block B</template>
+        </template>
+        <div>after super template</div>
+      </template>
+    </template>
+
+    <template id="demo-8">
+      <template name="title">Null Safe Expressions</template>
+      <template name="demo">
+        <p>This template contains deep access of a nullable object:</p>
+        <div>
+          <code>\{{nullable.missing.property ?? 'none'}}</code>:
+          <span>{{nullable.missing.property || 'none'}}</span>
+        </div>
+      </template>
+    </template>
+  </body>
+</html>
