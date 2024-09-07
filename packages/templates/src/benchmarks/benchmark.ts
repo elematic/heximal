@@ -1,6 +1,6 @@
 // @ts-expect-error: tachometer creates this
 import * as bench from '../bench.js';
-import * as stampino from '../stampino.js';
+import {render} from '../index.js';
 
 const template = document.querySelector('template')!;
 
@@ -15,7 +15,7 @@ const model = modelScript?.textContent
 bench.start();
 
 for (let i = 0; i < 1000; i++) {
-  stampino.render(template, output, model);
+  render(template, output, model);
 }
 
 bench.stop();

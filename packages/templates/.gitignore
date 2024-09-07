@@ -4,10 +4,10 @@
 /test
 /logs
 
-/stampino.d.ts
-/stampino.d.ts.map
-/stampino.js
-/stampino.js.map
+/index.d.ts
+/index.d.ts.map
+/index.js
+/index.js.map
 
 /demo/demo.d.ts
 /demo/demo.d.ts.map

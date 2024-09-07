@@ -1,6 +1,6 @@
-# Stampino
+# Heximal Templates
 
-Stampino is a fast and flexible HTML template system, where you write dynamic templates using real HTML `<template>` tags:
+Heximal Templates is a fast and flexible HTML template system, where you write dynamic templates using real HTML `<template>` tags:
 
 ```html
 <template id="my-template">
@@ -10,9 +10,9 @@ Stampino is a fast and flexible HTML template system, where you write dynamic te
 
 ## Overview
 
-Stampino uses HTML [`<template>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/template) tags to define templates, [lit-html](https://lit.dev/docs/libraries/standalone-templates/) for the underlying template rendering, and [jexpr](https://www.npmjs.com/package/jexpr) for binding expressions.
+Heximal Templates use HTML [`<template>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/template) tags to define templates, [lit-html](https://lit.dev/docs/libraries/standalone-templates/) for the underlying template rendering, and [Heximal Expressions](https://www.npmjs.com/package/jexpr) for binding expressions.
 
-Stampino is based on the idea that a template defines a function from data to DOM, so it transforms `<template>` elements into lit-html render functions. Control flow, template composition, and extensibility are built on top of function composition.
+Heximal Templates is based on the idea that a template defines a function from data to DOM, so it transforms `<template>` elements into lit-html render functions. Control flow, template composition, and extensibility are built on top of function composition.
 
 This approach leads to a low-cost for features like conditionals and repeating, which are just `<template>`s themselves:
 
@@ -30,19 +30,19 @@ This approach leads to a low-cost for features like conditionals and repeating, 
 </template>
 ```
 
-`<template type="if">` and `<template type="repeat">` are not hard-coded into the core of Stampino. Instead they are just default _template handlers_ that are matched against the `"type"` attribute. Users can implement their own template handlers just like `if` and `repeat`.
+`<template type="if">` and `<template type="repeat">` are not hard-coded into the core of Heximal Templates. Instead they are just default _template handlers_ that are matched against the `"type"` attribute. Users can implement their own template handlers just like `if` and `repeat`.
 
 ### A low-level template toolkit
 
-Stampino does not currently automatically enable templates within HTML. JavaScript is required to find and make `<template>` elements available as renderable lit-html templates, and requries lit-html `render()` calls to render them. Stampino also does not autoamtically wire up super templates, or sub tempalte calls.
+Heximal Templates does not currently automatically enable templates within HTML. JavaScript is required to find and make `<template>` elements available as renderable lit-html templates, and requries lit-html `render()` calls to render them. Heximal Templates also does not automatically wire up super templates, or sub tempalte calls.
 
-The low-level nature of Stampino is intended to allow frameworks and components to define how and what data, control flow handlers, and super- and sub-templates are available.
+The low-level nature of Heximal Templates is intended to allow frameworks and components to define how and what data, control flow handlers, and super- and sub-templates are available.
 
 ### Use cases
 
-Stampino is very useful for custom elements that want to allow custom rendering or user-extensibility.
+Heximal Templates is very useful for custom elements that want to allow custom rendering or user-extensibility.
 
-Consider the example of an `<npm-packages>` element that fetches a list of npm packages and renders it, letting users override a default shadow-DOM template. The element may accept a template as a child and render it with Stampino and the package data:
+Consider the example of an `<npm-packages>` element that fetches a list of npm packages and renders it, letting users override a default shadow-DOM template. The element may accept a template as a child and render it with Heximal Templates and the package data:
 
 ```html
 <script type="module" src="/npm-packages.js"></script>
@@ -55,7 +55,7 @@ Consider the example of an `<npm-packages>` element that fetches a list of npm p
 </npm-packages>
 ```
 
-When Stampino processes a template, it creates a lit-html template function.
+When Heximal Templates processes a template, it creates a lit-html template function.
 
 To render this template:
 ```html
@@ -66,7 +66,7 @@ To render this template:
 
 Pass it to `prepareTemplate()` and use lit-html to render the returned function:
 ```ts
-import {prepareTemplate} from 'stampino';
+import {prepareTemplate} from '@heximal/templates';
 import {render} from 'lit';
 
 const templateElement = document.querySelector('#my-template');
@@ -103,7 +103,7 @@ See the [jexpr README](https://www.npmjs.com/package/jexpr) for more expression 
 
 ### Property, event, and boolean attribute bindings
 
-Stampino uses lit-html's syntax for binding to properties, events, and boolean attributes.
+Heximal Templates uses lit-html's syntax for binding to properties, events, and boolean attributes.
 
 | Binding Type      | Prefix | Example                 |
 |-------------------|--------|-------------------------|
@@ -114,7 +114,7 @@ Stampino uses lit-html's syntax for binding to properties, events, and boolean a
 
 ### Control flow
 
-Stampino control flow is based on nested `<template>` elements with a `type` attribute. Stampino comes with two built-in template handlers, `if` and `repeat`
+Template control flow is based on nested `<template>` elements with a `type` attribute. Heximal Templates comes with two built-in template handlers, `if` and `repeat`
 
 #### if templates
 
@@ -235,9 +235,9 @@ callsite.
 
 ### Inheritance
 
-Stampino supports template inheritance similar to how the popular [Jinja](https://jinja.palletsprojects.com/) library does.
+Heximal Templates supports template inheritance similar to how the popular [Jinja](https://jinja.palletsprojects.com/) library does.
 
-Because Stampino does not automatically find templates in the DOM, even for simple rendering, specifying inheritance is done entirely out-of-band. Set up code must find the template and it's super template, then pass both to `prepareTemplate()`.
+Because Heximal Templates does not automatically find templates in the DOM, even for simple rendering, specifying inheritance is done entirely out-of-band. Set up code must find the template and it's super template, then pass both to `prepareTemplate()`.
 
 ```html
 <template id="base-template">
@@ -256,7 +256,7 @@ Because Stampino does not automatically find templates in the DOM, even for simp
 
 ```javascript
 import {render} from 'lit-html';
-import {prepareTemplate} from 'stampino';
+import {prepareTemplate} from '@heximal/templates';
 
 const baseEl = document.querySelector('#base-template');
 const templateEl = document.querySelector('#my-template');
@@ -289,7 +289,7 @@ Templates can explicitly include a call to the super template with `<template na
 
 ### Extensibility
 
-Most template systems have built-in control-flow constructs like 'if' and 'repeat'. Stampino includes these too, but they are implemented as extensions called template handlers, just like user-provided handlers.
+Most template systems have built-in control-flow constructs like 'if' and 'repeat'. Heximal Templates includes these too, but they are implemented as extensions called template handlers, just like user-provided handlers.
 
 Handlers are functions that implement this signature:
 
@@ -307,7 +307,7 @@ They can return any lit-html rendereable object, including strings, numbers, arr
 Handlers are passed to `prepareTemplate()`:
 
 ```javascript
-import {prepareTemplate, evaluateTemplate} from 'stampino';
+import {prepareTemplate, evaluateTemplate} from '@heximal/templates';
 
 const myTemplate = prepareTemplate(
   element,
@@ -345,8 +345,8 @@ handlers: {
 },
 ```
 
-Note: `getSingleValue()` evaluates an expression against a model. It's provided by the Stampino library.
+Note: `getSingleValue()` evaluates an expression against a model. It's provided by the Heximal Templates library.
 
-## Status
+## Acknowledgements
 
-Stampino is a side-project and development typically happens in bursts. Things are changing quickly, so be careful. If you find a problem or are intested in contributing please reach out in the issues.
+Heximal Templates was renamed and moved from [Stampino](https://github.com/justinfagnani/stampino).

@@ -1,16 +1,16 @@
 {
-  "name": "stampino",
-  "version": "0.8.3",
+  "name": "@heximal/templates",
+  "version": "0.1.0",
   "type": "module",
-  "main": "./stampino.js",
+  "main": "./index.js",
   "exports": {
     ".": {
-      "types": "./stampino.d.ts",
-      "default": "./stampino.js"
+      "types": "./index.d.ts",
+      "default": "./index.js"
     }
   },
   "files": [
-    "stampino.{d.ts,d.ts.map,js,js.map}",
+    "index.{d.ts,d.ts.map,js,js.map}",
     "src/*",
     "!src/benchmarks/*",
     "!src/demo/*",
@@ -24,7 +24,7 @@
     "demo": "wireit"
   },
   "dependencies": {
-    "jexpr": "^1.0.0-pre.9",
+    "@heximal/expressions": "^0.1.0",
     "lit-html": "^3.1.2",
     "trusted-types": "^2.0.0"
   },
@@ -42,17 +42,22 @@
     "wireit": "^0.14.4"
   },
   "keywords": [
+    "heximal",
     "html",
     "lit-html",
     "template"
   ],
   "author": "Justin Fagnani <justin@fagnani.com>",
   "license": "MIT",
-  "repository": "justinfagnani/stampino",
-  "bugs": {
-    "url": "https://github.com/justinfagnani/stampino/issues"
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/elematic/heximal.git",
+    "directory": "packages/templates"
   },
-  "homepage": "https://github.com/justinfagnani/stampino#readme",
+  "bugs": {
+    "url": "https://github.com/elematic/heximal/issues"
+  },
+  "homepage": "https://github.com/elematic/heximal/tree/main/packages/templates",
   "wireit": {
     "build": {
       "command": "tsc",
@@ -61,10 +66,10 @@
         "tsconfig.json"
       ],
       "output": [
-        "stampino.js",
-        "stampino.js.map",
-        "stampino.d.ts.map",
-        "stampino.d.ts"
+        "index.js",
+        "index.js.map",
+        "index.d.ts.map",
+        "index.d.ts"
       ],
       "clean": "if-file-deleted"
     },

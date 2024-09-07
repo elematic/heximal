@@ -5,9 +5,9 @@ import {
   evaluateTemplate,
   prepareTemplate,
   render,
-} from '../stampino.js';
+} from '../index.js';
 
-suite('stampino', () => {
+suite('templates', () => {
   let container: HTMLDivElement;
 
   setup(() => {

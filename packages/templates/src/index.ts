@@ -1,8 +1,8 @@
 import {render as renderLit, TemplateInstance, nothing} from 'lit-html';
 import {CompiledTemplate, CompiledTemplateResult} from 'lit-html';
 
-import {parse, Parser, EvalAstFactory} from 'jexpr';
-import type {Expression, Scope} from 'jexpr/lib/eval';
+import {parse, Parser, EvalAstFactory} from '@heximal/expressions';
+import type {Expression, Scope} from '@heximal/expressions/lib/eval';
 
 import {_$LH} from 'lit-html/private-ssr-support.js';
 const {AttributePart, PropertyPart, BooleanAttributePart, EventPart} = _$LH;
@@ -215,7 +215,7 @@ export interface RenderOptions {
 }
 
 /**
- * Renders a template element containing a Stampino template.
+ * Renders a template element containing a Heximal template.
  *
  * This is a convenience function wrapper around:
  *
@@ -269,7 +269,7 @@ export const evaluateTemplate = (
 
 type TemplatePart = TemplateInstance['_$template']['parts'][0];
 
-type StampinoTemplatePart = TemplatePart & {
+type HeximalTemplatePart = TemplatePart & {
   update: PartUpdater;
 };
 
@@ -279,16 +279,16 @@ type PartUpdater = (
   blocks: Renderers,
 ) => unknown;
 
-interface StampinoTemplate extends CompiledTemplate {
-  parts: Array<StampinoTemplatePart>;
+interface HeximalTemplate extends CompiledTemplate {
+  parts: Array<HeximalTemplatePart>;
   renderers: Renderers;
 }
 
-const litTemplateCache = new Map<HTMLTemplateElement, StampinoTemplate>();
+const litTemplateCache = new Map<HTMLTemplateElement, HeximalTemplate>();
 
 export const getLitTemplate = (
   template: HTMLTemplateElement,
-): StampinoTemplate => {
+): HeximalTemplate => {
   let litTemplate = litTemplateCache.get(template);
   if (litTemplate === undefined) {
     litTemplateCache.set(template, (litTemplate = makeLitTemplate(template)));
@@ -296,8 +296,8 @@ export const getLitTemplate = (
   return litTemplate;
 };
 
-const makeLitTemplate = (template: HTMLTemplateElement): StampinoTemplate => {
-  const litTemplate: StampinoTemplate = {
+const makeLitTemplate = (template: HTMLTemplateElement): HeximalTemplate => {
+  const litTemplate: HeximalTemplate = {
     h: undefined as unknown as TemplateStringsArray,
     el: template.cloneNode(true) as HTMLTemplateElement,
     parts: [],
