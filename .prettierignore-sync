@@ -1,0 +1,8 @@
+[local]
+.gitignore
+
+[relative]
+packages/{*}/{.gitignore,.prettierignore}
+
+[inline]
+package-lock.json

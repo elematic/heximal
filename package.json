@@ -1,0 +1,22 @@
+{
+  "name": "@heximal/monorepo",
+  "private": true,
+  "description": "Heximal is a web-based interactive document and notebook system",
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "format": "prettier \"**/*.{cjs,html,js,json,md,ts}\" --write",
+    "ignore-sync": "ignore-sync ."
+  },
+  "license": "MIT",
+  "devDependencies": {
+    "eslint": "^9.10.0",
+    "husky": "^9.1.5",
+    "ignore-sync": "^7.0.1",
+    "prettier": "^3.3.3",
+    "typescript": "^5.5.4",
+    "wireit": "^0.14.9"
+  },
+  "wireit": {}
+}
