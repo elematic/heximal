@@ -1,0 +1,1 @@
+import '../stampino-element.js';

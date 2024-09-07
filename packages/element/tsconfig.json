@@ -1,0 +1,25 @@
+{
+  "compilerOptions": {
+    "incremental": true,
+    "target": "es2022", 
+    "module": "NodeNext", 
+    "moduleResolution": "NodeNext",
+    "lib": ["DOM", "es2020", "DOM.Iterable"], 
+    "declaration": true,
+    "declarationMap": true,
+    "sourceMap": true,
+    "outDir": "./", 
+    "rootDir": "./src", 
+    "strict": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noImplicitReturns": true,
+    "noFallthroughCasesInSwitch": true,
+    "noUncheckedIndexedAccess": true,
+    "noPropertyAccessFromIndexSignature": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true 
+  },
+  "include": ["src/**/*.ts"],
+  "exclude": []
+}

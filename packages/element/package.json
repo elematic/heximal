@@ -1,0 +1,85 @@
+{
+  "name": "stampino-element",
+  "version": "0.2.0",
+  "type": "module",
+  "main": "./stampino-element.js",
+  "exports": {
+    ".": {
+      "types": "./stampino-element.d.ts",
+      "default": "./stampino-element.js"
+    }
+  },
+  "files": [
+    "stampino-element.{d.ts,d.ts.map,js,js.map}",
+    "stampino-base-element.{d.ts,d.ts.map,js,js.map}",
+    "src/*",
+    "!src/demo/*",
+    "!src/test/*"
+  ],
+  "dependencies": {
+    "lit": "^3.1.2",
+    "stampino": "^0.8.2"
+  },
+  "scripts": {
+    "build": "wireit",
+    "test": "wireit",
+    "format": "prettier \"src/**/*.ts\" --write",
+    "demo": "wireit"
+  },
+  "devDependencies": {
+    "@esm-bundle/chai": "^4.3.4-fix.0",
+    "@types/mocha": "^10.0.6",
+    "@web/dev-server": "^0.4.3",
+    "@web/test-runner": "^0.18.1",
+    "@web/test-runner-mocha": "^0.9.0",
+    "@web/test-runner-playwright": "^0.11.0",
+    "prettier": "^3.2.5",
+    "typescript": "^5.4.2",
+    "wireit": "^0.14.4"
+  },
+  "author": "Justin Fagnani <justin@fagnani.com>",
+  "license": "MIT",
+  "repository": "justinfagnani/stampino-element",
+  "bugs": {
+    "url": "https://github.com/justinfagnani/stampino-element/issues"
+  },
+  "homepage": "https://github.com/justinfagnani/stampino-element#readme",
+  "wireit": {
+    "build": {
+      "command": "tsc --pretty",
+      "files": [
+        "src/**/*.ts",
+        "tsconfig.json"
+      ],
+      "output": [
+        "stampino-element.{d.ts,d.ts.map,js,js.map}",
+        "stampino-base-element.{d.ts,d.ts.map,js,js.map}",
+        "test"
+      ],
+      "clean": "if-file-deleted"
+    },
+    "demo": {
+      "command": "wds",
+      "service": true,
+      "dependencies": [
+        {
+          "script": "build",
+          "cascade": false
+        }
+      ],
+      "files": [
+        "web-dev-server.config.js"
+      ]
+    },
+    "test": {
+      "command": "wtr test/**/*_test.js --node-resolve --playwright --browsers chromium",
+      "dependencies": [
+        "build"
+      ],
+      "files": [
+        "web-test-runner.config.js"
+      ],
+      "output": []
+    }
+  }
+}
