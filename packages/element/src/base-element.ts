@@ -1,17 +1,17 @@
 import {LitElement} from 'lit';
-import {Renderers, prepareTemplate} from 'stampino';
+import {Renderers, prepareTemplate} from '@heximal/templates';
 
 /**
- * The base class for elements declared with `<stampino-element>`.
+ * The base class for elements declared with `<h-define-element>`.
  */
-export class StampinoBaseElement extends LitElement {
+export class HeximalBaseElement extends LitElement {
   static superTemplate?: HTMLTemplateElement;
   static template?: HTMLTemplateElement;
   static renderers?: Renderers;
   static _preparedTemplate?: (model: object) => unknown;
 
   connectedCallback() {
-    const ctor = this.constructor as typeof StampinoBaseElement;
+    const ctor = this.constructor as typeof HeximalBaseElement;
     ctor._preparedTemplate =
       ctor.template === undefined
         ? undefined
@@ -25,7 +25,7 @@ export class StampinoBaseElement extends LitElement {
   }
 
   render() {
-    return (this.constructor as typeof StampinoBaseElement)._preparedTemplate?.(
+    return (this.constructor as typeof HeximalBaseElement)._preparedTemplate?.(
       this,
     );
   }

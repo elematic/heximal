@@ -1,9 +1,9 @@
 import {assert} from '@esm-bundle/chai';
-import {StampinoBaseElement} from '../stampino-base-element.js';
+import {HeximalBaseElement} from '../base-element.js';
 import {render, html} from 'lit/html.js';
 import {customElement, property} from 'lit/decorators.js';
 
-suite('StampinoBaseElement', () => {
+suite('HeximalBaseElement', () => {
   let container: HTMLDivElement;
 
   setup(() => {
@@ -21,7 +21,7 @@ suite('StampinoBaseElement', () => {
       <h1>Hello {{ name }}!</h1>
     `;
     @customElement('test-element-1')
-    class TestElement extends StampinoBaseElement {
+    class TestElement extends HeximalBaseElement {
       static template = template;
 
       @property()

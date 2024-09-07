@@ -9,5 +9,5 @@
 
 *.tsbuildinfo
 
-/stampino-element.*
-/stampino-base-element.*
+/index.*
+/base-element.*

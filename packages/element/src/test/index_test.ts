@@ -1,9 +1,9 @@
 import {assert} from '@esm-bundle/chai';
-import {StampinoBaseElement} from '../stampino-base-element.js';
-import '../stampino-element.js';
-import {StampinoElement} from '../stampino-element.js';
+import {HeximalBaseElement} from '../base-element.js';
+import '../index.js';
+import {HeximalElement} from '../index.js';
 
-suite('stampino-element', () => {
+suite('h-define-element', () => {
   let container: HTMLDivElement;
 
   setup(() => {
@@ -17,7 +17,7 @@ suite('stampino-element', () => {
 
   test('basic', async () => {
     container.innerHTML = `
-      <stampino-element name="test-1" properties="name">
+      <h-define-element name="test-1" properties="name">
           <style type="adopted-css">
             :host {
               color: blue;
@@ -26,11 +26,11 @@ suite('stampino-element', () => {
           <template>
           <h1>Hello {{ name }}!</h1>
         </template>
-      </stampino-element>
+      </h-define-element>
     `;
     container.insertAdjacentHTML('beforeend', `<test-1 name="World"></test-1>`);
-    const el = container.querySelector('test-1') as StampinoBaseElement;
-    assert.instanceOf(el, StampinoBaseElement);
+    const el = container.querySelector('test-1') as HeximalBaseElement;
+    assert.instanceOf(el, HeximalBaseElement);
     await el.updateComplete;
     assert.equal(
       stripExpressionMarkers(el.shadowRoot!.innerHTML).trim(),
@@ -44,15 +44,15 @@ suite('stampino-element', () => {
 
   test('reconnecting', async () => {
     container.innerHTML = `
-      <stampino-element name="test-2" properties="name">
+      <h-define-element name="test-2" properties="name">
         <template>
           <h1>Hello {{ name }}!</h1>
         </template>
-      </stampino-element>
+      </h-define-element>
     `;
     const definitionEl = container.querySelector(
-      'stampino-element',
-    ) as StampinoElement;
+      'h-define-element',
+    ) as HeximalElement;
 
     // Remove and reattach the element to check that it doesn't redo definition
     // time work:
@@ -61,8 +61,8 @@ suite('stampino-element', () => {
 
     // Make sure an element still works
     container.insertAdjacentHTML('beforeend', `<test-1 name="World"></test-1>`);
-    const el = container.querySelector('test-1') as StampinoBaseElement;
-    assert.instanceOf(el, StampinoBaseElement);
+    const el = container.querySelector('test-1') as HeximalBaseElement;
+    assert.instanceOf(el, HeximalBaseElement);
     await el.updateComplete;
     assert.equal(
       stripExpressionMarkers(el.shadowRoot!.innerHTML).trim(),
@@ -73,12 +73,12 @@ suite('stampino-element', () => {
   suite('properties', () => {
     test('single property', async () => {
       container.innerHTML = `
-        <stampino-element name="test-prop-1" properties="name">
+        <h-define-element name="test-prop-1" properties="name">
           <template><h1>Hello {{ name }}!</h1></template>
-        </stampino-element>
+        </h-define-element>
         <test-prop-1></test-prop-1>
       `;
-      interface TestProp1Element extends StampinoBaseElement {
+      interface TestProp1Element extends HeximalBaseElement {
         name?: string;
       }
       const el = container.querySelector('test-prop-1') as TestProp1Element;
@@ -93,12 +93,12 @@ suite('stampino-element', () => {
 
     test('multiple properties', async () => {
       container.innerHTML = `
-        <stampino-element name="test-prop-2" properties="a b">
+        <h-define-element name="test-prop-2" properties="a b">
           <template><p>{{ a }}</p><p>{{ b }}</p></template>
-        </stampino-element>
+        </h-define-element>
         <test-prop-2></test-prop-2>
       `;
-      interface TestProp1Element extends StampinoBaseElement {
+      interface TestProp1Element extends HeximalBaseElement {
         a?: string;
         b?: string;
       }
@@ -115,13 +115,13 @@ suite('stampino-element', () => {
 
     test('property child declaration - type', async () => {
       container.innerHTML = `
-        <stampino-element name="test-prop-3">
-          <st-prop name="a" type="Number"></st-prop>
+        <h-define-element name="test-prop-3">
+          <h-prop name="a" type="Number"></h-prop>
           <template><p>{{ a }}</p></template>
-        </stampino-element>
+        </h-define-element>
         <test-prop-3 a="123"></test-prop-3>
       `;
-      interface TestProp1Element extends StampinoBaseElement {
+      interface TestProp1Element extends HeximalBaseElement {
         a?: number;
       }
       const el = container.querySelector('test-prop-3') as TestProp1Element;
@@ -135,13 +135,13 @@ suite('stampino-element', () => {
 
     test('property child declaration - noattribute', async () => {
       container.innerHTML = `
-        <stampino-element name="test-prop-4">
-          <st-prop name="a" noattribute></st-prop>
+        <h-define-element name="test-prop-4">
+          <h-prop name="a" noattribute></h-prop>
           <template><p>{{ a }}</p></template>
-        </stampino-element>
+        </h-define-element>
         <test-prop-4 a="AAA"></test-prop-4>
       `;
-      interface TestProp1Element extends StampinoBaseElement {
+      interface TestProp1Element extends HeximalBaseElement {
         a?: string;
       }
       const el = container.querySelector('test-prop-4') as TestProp1Element;
@@ -155,13 +155,13 @@ suite('stampino-element', () => {
 
     test('property child declaration - reflect', async () => {
       container.innerHTML = `
-        <stampino-element name="test-prop-5">
-          <st-prop name="a" reflect></st-prop>
+        <h-define-element name="test-prop-5">
+          <h-prop name="a" reflect></h-prop>
           <template><p>{{ a }}</p></template>
-        </stampino-element>
+        </h-define-element>
         <test-prop-5></test-prop-5>
       `;
-      interface TestProp1Element extends StampinoBaseElement {
+      interface TestProp1Element extends HeximalBaseElement {
         a?: string;
       }
       const el = container.querySelector('test-prop-5') as TestProp1Element;
@@ -179,7 +179,7 @@ suite('stampino-element', () => {
   suite('inheritance', () => {
     test('trivial subclass', async () => {
       container.innerHTML = `
-        <stampino-element name="test-3-a" properties="name">
+        <h-define-element name="test-3-a" properties="name">
             <style type="adopted-css">
               :host {
                 color: blue;
@@ -188,16 +188,16 @@ suite('stampino-element', () => {
             <template>
             <h1>Hello {{ name }}!</h1>
           </template>
-        </stampino-element>
+        </h-define-element>
   
         <!-- Trivial subclass -->
-        <stampino-element name="test-3-b" extends="test-3-a">
-        </stampino-element>
+        <h-define-element name="test-3-b" extends="test-3-a">
+        </h-define-element>
 
         <test-3-b name="World"></test-3-b>
       `;
-      const el = container.querySelector('test-3-b') as StampinoBaseElement;
-      assert.instanceOf(el, StampinoBaseElement);
+      const el = container.querySelector('test-3-b') as HeximalBaseElement;
+      assert.instanceOf(el, HeximalBaseElement);
       await el.updateComplete;
       assert.equal(
         stripExpressionMarkers(el.shadowRoot!.innerHTML).trim(),
@@ -211,7 +211,7 @@ suite('stampino-element', () => {
 
     test('subclass with implicit super template', async () => {
       container.innerHTML = `
-        <stampino-element name="test-4-a" properties="a b">
+        <h-define-element name="test-4-a" properties="a b">
             <style type="adopted-css">
               :host {
                 color: blue;
@@ -221,18 +221,18 @@ suite('stampino-element', () => {
             <h1>{{ a }}</h1>
             <template name="b"><h2>{{ b }}</h2></template>
           </template>
-        </stampino-element>
+        </h-define-element>
   
-        <stampino-element name="test-4-b" extends="test-4-a">
+        <h-define-element name="test-4-b" extends="test-4-a">
           <template>
             <template name="b"><h3>{{ b }}</h3></template>
           </template>
-        </stampino-element>
+        </h-define-element>
 
         <test-4-b a="AAA" b ="BBB"></test-4-b>
       `;
-      const el = container.querySelector('test-4-b') as StampinoBaseElement;
-      assert.instanceOf(el, StampinoBaseElement);
+      const el = container.querySelector('test-4-b') as HeximalBaseElement;
+      assert.instanceOf(el, HeximalBaseElement);
       await el.updateComplete;
       assert.match(
         stripExpressionMarkers(el.shadowRoot!.innerHTML),

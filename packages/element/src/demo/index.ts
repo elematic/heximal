@@ -1,1 +1,1 @@
-import '../stampino-element.js';
+import '../index.js';

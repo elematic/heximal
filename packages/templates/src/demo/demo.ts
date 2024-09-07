@@ -83,7 +83,7 @@ const demo6SubTemplateElement =
 
 // TODO: make a utility to do this, though it probably shouldn't forward
 // the model this way, because that's dynamic scoping which is confusing.
-// We'll want a way to declare template parameters like in stampino-element.
+// We'll want a way to declare template parameters like in h-define-element.
 const demo6SubTemplateRenderer: Renderer = (model, handlers, renderers) => {
   return evaluateTemplate(demo6SubTemplateElement, model, handlers, renderers);
 };

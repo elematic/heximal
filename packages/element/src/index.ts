@@ -1,5 +1,5 @@
-import {evaluateTemplate} from 'stampino';
-import {StampinoBaseElement} from './stampino-base-element.js';
+import {evaluateTemplate} from '@heximal/templates';
+import {HeximalBaseElement} from './base-element.js';
 import {css, PropertyDeclaration, unsafeCSS} from 'lit';
 
 const typeHints = {
@@ -11,14 +11,14 @@ const typeHints = {
 } as const;
 
 /**
- * Declares a custom element with Stampino templating.
+ * Declares a custom element with Heximal templating.
  */
-export class StampinoElement extends HTMLElement {
+export class HeximalElement extends HTMLElement {
   static observedAttributes = ['name', 'properties'];
 
   private declare _initialized: boolean;
 
-  class?: typeof StampinoBaseElement;
+  class?: typeof HeximalBaseElement;
   template?: HTMLTemplateElement;
 
   constructor() {
@@ -32,31 +32,31 @@ export class StampinoElement extends HTMLElement {
       const extendsName = this.getAttribute('extends');
       const elementName = this.getAttribute('name');
       const propertiesAttr = this.getAttribute('properties');
-      const propertyChildren = this.querySelectorAll('st-prop');
+      const propertyChildren = this.querySelectorAll('h-prop');
       this.template =
         this.querySelector<HTMLTemplateElement>('template') ?? undefined;
       const style = this.querySelector<HTMLStyleElement>(
         "style[type='adopted-css']",
       );
 
-      let superclass = StampinoBaseElement;
+      let superclass = HeximalBaseElement;
       let superTemplate = undefined;
 
       if (extendsName !== null) {
         const superDefinition = (
           this.getRootNode() as unknown as ParentNode
-        ).querySelector(`stampino-element[name=${extendsName}]`);
+        ).querySelector(`h-define-element[name=${extendsName}]`);
         if (superDefinition === null) {
           console.warn(
             `Could not find superclass definition for ${extendsName}`,
           );
           return;
         }
-        const foundSuperclass = (superDefinition as StampinoElement).class;
+        const foundSuperclass = (superDefinition as HeximalElement).class;
         if (foundSuperclass) {
           superclass = foundSuperclass;
         }
-        superTemplate = (superDefinition as StampinoElement).template;
+        superTemplate = (superDefinition as HeximalElement).template;
       }
 
       const C = (this.class = class extends superclass {});
@@ -122,9 +122,9 @@ export class StampinoElement extends HTMLElement {
     }
   }
 }
-customElements.define('stampino-element', StampinoElement);
+customElements.define('h-define-element', HeximalElement);
 
-class StampinoProperty extends HTMLElement {
+class HeximalProperty extends HTMLElement {
   static observedAttributes = [
     'name',
     'type',
@@ -133,4 +133,4 @@ class StampinoProperty extends HTMLElement {
     'reflect',
   ];
 }
-customElements.define('st-prop', StampinoProperty);
+customElements.define('h-prop', HeximalProperty);
