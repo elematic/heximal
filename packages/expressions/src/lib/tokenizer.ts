@@ -101,151 +101,151 @@ const _escapeString = (str: string) =>
   });
 
 export class Tokenizer {
-  private _input: string;
-  private _index = -1;
-  private _tokenStart = 0;
-  private _next?: number;
+  #input: string;
+  #index = -1;
+  #tokenStart = 0;
+  #next?: number;
 
   constructor(input: string) {
-    this._input = input;
-    this._advance();
+    this.#input = input;
+    this.#advance();
   }
 
   nextToken() {
-    while (_isWhitespace(this._next!)) {
-      this._advance(true);
+    while (_isWhitespace(this.#next!)) {
+      this.#advance(true);
     }
-    if (_isQuote(this._next!)) return this._tokenizeString();
-    if (_isIdentOrKeywordStart(this._next!)) {
-      return this._tokenizeIdentOrKeyword();
+    if (_isQuote(this.#next!)) return this.#tokenizeString();
+    if (_isIdentOrKeywordStart(this.#next!)) {
+      return this.#tokenizeIdentOrKeyword();
     }
-    if (_isNumber(this._next!)) return this._tokenizeNumber();
-    if (this._next === 46 /* . */) return this._tokenizeDot();
-    if (this._next === 44 /* , */) return this._tokenizeComma();
-    if (this._next === 58 /* : */) return this._tokenizeColon();
-    if (_isOperator(this._next!)) return this._tokenizeOperator();
-    if (_isGrouper(this._next!)) return this._tokenizeGrouper();
+    if (_isNumber(this.#next!)) return this.#tokenizeNumber();
+    if (this.#next === 46 /* . */) return this.#tokenizeDot();
+    if (this.#next === 44 /* , */) return this.#tokenizeComma();
+    if (this.#next === 58 /* : */) return this.#tokenizeColon();
+    if (_isOperator(this.#next!)) return this.#tokenizeOperator();
+    if (_isGrouper(this.#next!)) return this.#tokenizeGrouper();
     // no match, should be end of input
-    this._advance();
-    if (this._next !== undefined) {
-      throw new Error(`Expected end of input, got ${this._next}`);
+    this.#advance();
+    if (this.#next !== undefined) {
+      throw new Error(`Expected end of input, got ${this.#next}`);
     }
     return undefined;
   }
 
-  private _advance(resetTokenStart?: boolean) {
-    this._index++;
-    if (this._index < this._input.length) {
-      this._next = this._input.charCodeAt(this._index);
+  #advance(resetTokenStart?: boolean) {
+    this.#index++;
+    if (this.#index < this.#input.length) {
+      this.#next = this.#input.charCodeAt(this.#index);
       if (resetTokenStart === true) {
-        this._tokenStart = this._index;
+        this.#tokenStart = this.#index;
       }
     } else {
-      this._next = undefined;
+      this.#next = undefined;
     }
   }
 
-  private _getValue(lookahead: number = 0) {
-    const v = this._input.substring(this._tokenStart, this._index + lookahead);
+  #getValue(lookahead: number = 0) {
+    const v = this.#input.substring(this.#tokenStart, this.#index + lookahead);
     if (lookahead === 0) {
-      this._clearValue();
+      this.#clearValue();
     }
     return v;
   }
 
-  private _clearValue() {
-    this._tokenStart = this._index;
+  #clearValue() {
+    this.#tokenStart = this.#index;
   }
 
-  private _tokenizeString() {
+  #tokenizeString() {
     const _us = 'unterminated string';
-    const quoteChar = this._next;
-    this._advance(true);
-    while (this._next !== quoteChar) {
-      if (this._next === undefined) throw new Error(_us);
-      if (this._next === 92 /* \ */) {
-        this._advance();
-        if (this._next === undefined) throw new Error(_us);
+    const quoteChar = this.#next;
+    this.#advance(true);
+    while (this.#next !== quoteChar) {
+      if (this.#next === undefined) throw new Error(_us);
+      if (this.#next === 92 /* \ */) {
+        this.#advance();
+        if (this.#next === undefined) throw new Error(_us);
       }
-      this._advance();
+      this.#advance();
     }
-    const t = token(Kind.STRING, _escapeString(this._getValue()));
-    this._advance();
+    const t = token(Kind.STRING, _escapeString(this.#getValue()));
+    this.#advance();
     return t;
   }
 
-  private _tokenizeIdentOrKeyword() {
+  #tokenizeIdentOrKeyword() {
     // This do/while loops assumes _isIdentifier(this._next!), so it must only
     // be called if _isIdentOrKeywordStart(this._next!) has returned true.
     do {
-      this._advance();
-    } while (_isIdentifier(this._next!));
-    const value = this._getValue();
+      this.#advance();
+    } while (_isIdentifier(this.#next!));
+    const value = this.#getValue();
     const kind = _isKeyword(value) ? Kind.KEYWORD : Kind.IDENTIFIER;
     return token(kind, value);
   }
 
-  private _tokenizeNumber() {
+  #tokenizeNumber() {
     // This do/while loops assumes _isNumber(this._next!), so it must only
     // be called if _isNumber(this._next!) has returned true.
     do {
-      this._advance();
-    } while (_isNumber(this._next!));
-    if (this._next === 46 /* . */) return this._tokenizeDot();
-    return token(Kind.INTEGER, this._getValue());
+      this.#advance();
+    } while (_isNumber(this.#next!));
+    if (this.#next === 46 /* . */) return this.#tokenizeDot();
+    return token(Kind.INTEGER, this.#getValue());
   }
 
-  private _tokenizeDot() {
-    this._advance();
-    if (_isNumber(this._next!)) return this._tokenizeFraction();
-    this._clearValue();
+  #tokenizeDot() {
+    this.#advance();
+    if (_isNumber(this.#next!)) return this.#tokenizeFraction();
+    this.#clearValue();
     return token(Kind.DOT, '.', POSTFIX_PRECEDENCE);
   }
 
-  private _tokenizeComma() {
-    this._advance(true);
+  #tokenizeComma() {
+    this.#advance(true);
     return token(Kind.COMMA, ',');
   }
 
-  private _tokenizeColon() {
-    this._advance(true);
+  #tokenizeColon() {
+    this.#advance(true);
     return token(Kind.COLON, ':');
   }
 
-  private _tokenizeFraction() {
+  #tokenizeFraction() {
     // This do/while loops assumes _isNumber(this._next!), so it must only
     // be called if _isNumber(this._next!) has returned true.
     do {
-      this._advance();
-    } while (_isNumber(this._next!));
-    return token(Kind.DECIMAL, this._getValue());
+      this.#advance();
+    } while (_isNumber(this.#next!));
+    return token(Kind.DECIMAL, this.#getValue());
   }
 
-  private _tokenizeOperator() {
-    this._advance();
-    let op = this._getValue(2);
+  #tokenizeOperator() {
+    this.#advance();
+    let op = this.#getValue(2);
 
     if (_THREE_CHAR_OPS.indexOf(op) !== -1) {
-      this._advance();
-      this._advance();
+      this.#advance();
+      this.#advance();
     } else {
-      op = this._getValue(1);
+      op = this.#getValue(1);
       if (op === '=>') {
-        this._advance();
+        this.#advance();
         return token(Kind.ARROW, op);
       }
       if (_TWO_CHAR_OPS.indexOf(op) !== -1) {
-        this._advance();
+        this.#advance();
       }
     }
-    op = this._getValue();
+    op = this.#getValue();
     return token(Kind.OPERATOR, op, PRECEDENCE[op]);
   }
 
-  private _tokenizeGrouper() {
-    const value = String.fromCharCode(this._next!);
+  #tokenizeGrouper() {
+    const value = String.fromCharCode(this.#next!);
     const t = token(Kind.GROUPER, value, PRECEDENCE[value]);
-    this._advance(true);
+    this.#advance(true);
     return t;
   }
 }

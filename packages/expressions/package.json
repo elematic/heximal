@@ -61,5 +61,8 @@
       "files": [],
       "output": []
     }
+  },
+  "dependencies": {
+    "tslib": "^2.7.0"
   }
 }
