@@ -50,12 +50,11 @@ const isIdentOrKeywordStart = (ch: number) =>
   ((ch &= ~32), 65 /* A */ <= ch && ch <= 90); /* Z */
 
 // TODO(justinfagnani): allow code points > 127
-const _isIdentifier = (ch: number) =>
-  isIdentOrKeywordStart(ch) || isNumber(ch);
+const isIdentifier = (ch: number) => isIdentOrKeywordStart(ch) || isNumber(ch);
 
-const _isKeyword = (str: string) => KEYWORDS.indexOf(str) !== -1;
+const isKeyword = (str: string) => KEYWORDS.indexOf(str) !== -1;
 
-const _isQuote = (ch: number) => ch === 34 /* " */ || ch === 39; /* ' */
+const isQuote = (ch: number) => ch === 34 /* " */ || ch === 39; /* ' */
 
 const isNumber = (ch: number) => 48 /* 0 */ <= ch && ch <= 57; /* 9 */
 
@@ -115,7 +114,7 @@ export class Tokenizer {
     while (isWhitespace(this.#next!)) {
       this.#advance(true);
     }
-    if (_isQuote(this.#next!)) return this.#tokenizeString();
+    if (isQuote(this.#next!)) return this.#tokenizeString();
     if (isIdentOrKeywordStart(this.#next!)) {
       return this.#tokenizeIdentOrKeyword();
     }
@@ -179,9 +178,9 @@ export class Tokenizer {
     // be called if isIdentOrKeywordStart(this._next!) has returned true.
     do {
       this.#advance();
-    } while (_isIdentifier(this.#next!));
+    } while (isIdentifier(this.#next!));
     const value = this.#getValue();
-    const kind = _isKeyword(value) ? Kind.KEYWORD : Kind.IDENTIFIER;
+    const kind = isKeyword(value) ? Kind.KEYWORD : Kind.IDENTIFIER;
     return token(kind, value);
   }
 

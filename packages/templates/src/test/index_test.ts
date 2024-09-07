@@ -1,11 +1,6 @@
 import {assert} from '@esm-bundle/chai';
 import {render as litRender} from 'lit-html';
-import {
-  Renderer,
-  evaluateTemplate,
-  prepareTemplate,
-  render,
-} from '../index.js';
+import {Renderer, evaluateTemplate, prepareTemplate, render} from '../index.js';
 
 suite('templates', () => {
   let container: HTMLDivElement;
