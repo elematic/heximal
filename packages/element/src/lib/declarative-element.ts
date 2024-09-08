@@ -4,14 +4,14 @@ import {Renderers, prepareTemplate} from '@heximal/templates';
 /**
  * The base class for elements declared with `<h-define-element>`.
  */
-export class HeximalBaseElement extends LitElement {
+export class HeximalDeclarativeElement extends LitElement {
   static superTemplate?: HTMLTemplateElement;
   static template?: HTMLTemplateElement;
   static renderers?: Renderers;
   static _preparedTemplate?: (model: object) => unknown;
 
   override connectedCallback() {
-    const ctor = this.constructor as typeof HeximalBaseElement;
+    const ctor = this.constructor as typeof HeximalDeclarativeElement;
     ctor._preparedTemplate =
       ctor.template === undefined
         ? undefined
@@ -25,9 +25,9 @@ export class HeximalBaseElement extends LitElement {
   }
 
   override render() {
-    return (this.constructor as typeof HeximalBaseElement)._preparedTemplate?.(
-      this,
-    );
+    return (
+      this.constructor as typeof HeximalDeclarativeElement
+    )._preparedTemplate?.(this);
   }
 
   /**

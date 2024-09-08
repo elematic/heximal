@@ -12,6 +12,7 @@
   "files": [
     "index.{d.ts,d.ts.map,js,js.map}",
     "base-element.{d.ts,d.ts.map,js,js.map}",
+    "lib/*",
     "src/*",
     "!src/demo/*",
     "!src/test/*"
@@ -52,7 +53,7 @@
       ],
       "output": [
         "index.{d.ts,d.ts.map,js,js.map}",
-        "base-element.{d.ts,d.ts.map,js,js.map}",
+        "lib",
         "test"
       ],
       "clean": "if-file-deleted"

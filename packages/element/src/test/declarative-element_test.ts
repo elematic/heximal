@@ -1,9 +1,9 @@
 import {assert} from '@esm-bundle/chai';
-import {HeximalBaseElement} from '../base-element.js';
+import {HeximalDeclarativeElement} from '../lib/declarative-element.js';
 import {render, html} from 'lit/html.js';
 import {customElement, property} from 'lit/decorators.js';
 
-suite('HeximalBaseElement', () => {
+suite('HeximalDeclarativeElement', () => {
   let container: HTMLDivElement;
 
   setup(() => {
@@ -21,7 +21,7 @@ suite('HeximalBaseElement', () => {
       <h1>Hello {{ name }}!</h1>
     `;
     @customElement('test-element-1')
-    class TestElement extends HeximalBaseElement {
+    class TestElement extends HeximalDeclarativeElement {
       static override template = template;
 
       @property()

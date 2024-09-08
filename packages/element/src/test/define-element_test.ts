@@ -1,7 +1,7 @@
 import {assert} from '@esm-bundle/chai';
-import {HeximalBaseElement} from '../base-element.js';
+import {HeximalDeclarativeElement} from '../lib/declarative-element.js';
 import '../index.js';
-import {HeximalElement} from '../index.js';
+import {HeximalDefineElement} from '../index.js';
 
 suite('h-define-element', () => {
   let container: HTMLDivElement;
@@ -29,8 +29,8 @@ suite('h-define-element', () => {
       </h-define-element>
     `;
     container.insertAdjacentHTML('beforeend', `<test-1 name="World"></test-1>`);
-    const el = container.querySelector('test-1') as HeximalBaseElement;
-    assert.instanceOf(el, HeximalBaseElement);
+    const el = container.querySelector('test-1') as HeximalDeclarativeElement;
+    assert.instanceOf(el, HeximalDeclarativeElement);
     await el.updateComplete;
     assert.equal(
       stripExpressionMarkers(el.shadowRoot!.innerHTML).trim(),
@@ -52,7 +52,7 @@ suite('h-define-element', () => {
     `;
     const definitionEl = container.querySelector(
       'h-define-element',
-    ) as HeximalElement;
+    ) as HeximalDefineElement;
 
     // Remove and reattach the element to check that it doesn't redo definition
     // time work:
@@ -61,8 +61,8 @@ suite('h-define-element', () => {
 
     // Make sure an element still works
     container.insertAdjacentHTML('beforeend', `<test-1 name="World"></test-1>`);
-    const el = container.querySelector('test-1') as HeximalBaseElement;
-    assert.instanceOf(el, HeximalBaseElement);
+    const el = container.querySelector('test-1') as HeximalDeclarativeElement;
+    assert.instanceOf(el, HeximalDeclarativeElement);
     await el.updateComplete;
     assert.equal(
       stripExpressionMarkers(el.shadowRoot!.innerHTML).trim(),
@@ -78,7 +78,7 @@ suite('h-define-element', () => {
         </h-define-element>
         <test-prop-1></test-prop-1>
       `;
-      interface TestProp1Element extends HeximalBaseElement {
+      interface TestProp1Element extends HeximalDeclarativeElement {
         name?: string;
       }
       const el = container.querySelector('test-prop-1') as TestProp1Element;
@@ -98,7 +98,7 @@ suite('h-define-element', () => {
         </h-define-element>
         <test-prop-2></test-prop-2>
       `;
-      interface TestProp1Element extends HeximalBaseElement {
+      interface TestProp1Element extends HeximalDeclarativeElement {
         a?: string;
         b?: string;
       }
@@ -121,7 +121,7 @@ suite('h-define-element', () => {
         </h-define-element>
         <test-prop-3 a="123"></test-prop-3>
       `;
-      interface TestProp1Element extends HeximalBaseElement {
+      interface TestProp1Element extends HeximalDeclarativeElement {
         a?: number;
       }
       const el = container.querySelector('test-prop-3') as TestProp1Element;
@@ -141,7 +141,7 @@ suite('h-define-element', () => {
         </h-define-element>
         <test-prop-4 a="AAA"></test-prop-4>
       `;
-      interface TestProp1Element extends HeximalBaseElement {
+      interface TestProp1Element extends HeximalDeclarativeElement {
         a?: string;
       }
       const el = container.querySelector('test-prop-4') as TestProp1Element;
@@ -161,7 +161,7 @@ suite('h-define-element', () => {
         </h-define-element>
         <test-prop-5></test-prop-5>
       `;
-      interface TestProp1Element extends HeximalBaseElement {
+      interface TestProp1Element extends HeximalDeclarativeElement {
         a?: string;
       }
       const el = container.querySelector('test-prop-5') as TestProp1Element;
@@ -196,8 +196,10 @@ suite('h-define-element', () => {
 
         <test-3-b name="World"></test-3-b>
       `;
-      const el = container.querySelector('test-3-b') as HeximalBaseElement;
-      assert.instanceOf(el, HeximalBaseElement);
+      const el = container.querySelector(
+        'test-3-b',
+      ) as HeximalDeclarativeElement;
+      assert.instanceOf(el, HeximalDeclarativeElement);
       await el.updateComplete;
       assert.equal(
         stripExpressionMarkers(el.shadowRoot!.innerHTML).trim(),
@@ -231,8 +233,10 @@ suite('h-define-element', () => {
 
         <test-4-b a="AAA" b ="BBB"></test-4-b>
       `;
-      const el = container.querySelector('test-4-b') as HeximalBaseElement;
-      assert.instanceOf(el, HeximalBaseElement);
+      const el = container.querySelector(
+        'test-4-b',
+      ) as HeximalDeclarativeElement;
+      assert.instanceOf(el, HeximalDeclarativeElement);
       await el.updateComplete;
       assert.match(
         stripExpressionMarkers(el.shadowRoot!.innerHTML),

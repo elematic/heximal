@@ -1,4 +1,5 @@
 /test
+/lib
 
 /demo/*.d.ts
 /demo/*.d.ts.map
