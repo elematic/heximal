@@ -25,6 +25,7 @@
       "dependencies": [
         "./packages/components:build",
         "./packages/element:build",
+        "./packages/examples:build",
         "./packages/expressions:build",
         "./packages/templates:build"
       ]

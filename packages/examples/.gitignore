@@ -1,0 +1,6 @@
+/lib
+
+/documents/**/*.js
+/documents/**/*.js.map
+/documents/**/*.d.ts
+/documents/**/*.d.ts.map

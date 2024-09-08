@@ -1,0 +1,24 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Simple Document</title>
+    <script type="module" src="index.js"></script>
+  </head>
+  <body>
+    <h-define-element name="simple-greeter" properties="name">
+      <style type="adopted-css">
+        :host {
+          color: blue;
+        }
+      </style>
+      <template>
+        <h1>Hello {{ name }}!</h1>
+      </template>
+    </h-define-element>
+
+    <h1>Simple Document</h1>
+    <p>This is a simple document.</p>
+
+    <simple-greeter name="World"></simple-greeter>
+  </body>
+</html>

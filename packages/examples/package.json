@@ -1,0 +1,64 @@
+{
+  "name": "@heximal/internal-examples",
+  "private": true,
+  "type": "module",
+  "main": "./index.js",
+  "exports": {
+    ".": {
+      "types": "./index.d.ts",
+      "default": "./index.js"
+    }
+  },
+  "files": [
+    "index.{d.ts,d.ts.map,js,js.map}",
+    "src/*"
+  ],
+  "dependencies": {
+    "@heximal/element": "^0.1.0",
+    "@heximal/components": "^0.1.0"
+  },
+  "scripts": {
+    "build": "wireit",
+    "start": "wireit"
+  },
+  "devDependencies": {
+    "@web/dev-server": "^0.4.3"
+  },
+  "author": "Justin Fagnani <justin@fagnani.com>",
+  "license": "MIT",
+  "repository": "elematic/heximal",
+  "bugs": {
+    "url": "https://github.com/elematic/heximal/issues"
+  },
+  "homepage": "https://github.com/elematic/heximal/tree/main/packages/components",
+  "wireit": {
+    "build": {
+      "command": "tsc --pretty",
+      "dependencies": [
+        "../element:build",
+        "../components:build"
+      ],
+      "files": [
+        "src/**/*.ts",
+        "tsconfig.json"
+      ],
+      "output": [
+        "index.{d.ts,d.ts.map,js,js.map}"
+      ],
+      "clean": "if-file-deleted"
+    },
+    "start": {
+      "command": "wds",
+      "service": true,
+      "dependencies": [
+        {
+          "script": "build",
+          "cascade": false
+        }
+      ],
+      "files": [
+        "web-dev-server.config.js"
+      ]
+    }
+  }
+}

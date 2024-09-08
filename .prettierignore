@@ -31,6 +31,13 @@ packages/element/demo/*.js.map
 packages/element/index.*
 packages/element/base-element.*
 
+packages/examples/lib
+
+packages/examples/documents/**/*.js
+packages/examples/documents/**/*.js.map
+packages/examples/documents/**/*.d.ts
+packages/examples/documents/**/*.d.ts.map
+
 packages/expressions/benchmark
 packages/expressions/lib
 packages/expressions/test
