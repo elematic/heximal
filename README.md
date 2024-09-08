@@ -50,9 +50,9 @@ and CSS, not Markdown, for instance.
 
 ## Packages
 
-- [@heximal/expressions](./packages/components/): Expression parser and evaluator
-- [@heximal/templates](./packages/components/): Declarative HTML templates
-- [@heximal/element](./packages/components/): Declarative custom elements
+- [@heximal/expressions](./packages/expressions/): Expression parser and evaluator
+- [@heximal/templates](./packages/templates/): Declarative HTML templates
+- [@heximal/element](./packages/element/): Declarative custom elements
 - [@heximal/components](./packages/components/): Built-in components
 
 ## Inspirations
