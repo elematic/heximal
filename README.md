@@ -17,6 +17,8 @@ Heximal extends (or will extend) HTML with:
 - 🎨 Built-in CSS variables and styles for document themes (🔮)
 - 🔐 Security tools for sanitizing, viewing, and distributing documents (🔮)
 
+_🔮 = Future work_
+
 Heximal's ultimate goal is to be able to describe a wide range of documents that
 you might create in tools like Google Docs, Notion, Observable, or Jupyter
 Notebook.
