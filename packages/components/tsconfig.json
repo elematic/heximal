@@ -8,5 +8,12 @@
   },
   "include": ["src/**/*.ts"],
   "exclude": [],
-  "references": []
+  "references": [
+    {
+      "path": "../element"
+    },
+    {
+      "path": "../templates"
+    }
+  ]
 }

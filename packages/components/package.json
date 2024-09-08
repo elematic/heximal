@@ -16,8 +16,12 @@
     "!src/test/*"
   ],
   "dependencies": {
+    "@heximal/element": "^0.1.0",
+    "@heximal/templates": "^0.1.0",
     "@lit/task": "^1.0.1",
-    "lit": "^3.1.2"
+    "lit": "^3.1.2",
+    "signal-polyfill": "^0.1.2",
+    "signal-utils": "^0.18.0"
   },
   "scripts": {
     "build": "wireit",
@@ -42,12 +46,17 @@
   "wireit": {
     "build": {
       "command": "tsc --pretty",
+      "dependencies": [
+        "../element:build",
+        "../templates:build"
+      ],
       "files": [
         "src/**/*.ts",
         "tsconfig.json"
       ],
       "output": [
         "index.{d.ts,d.ts.map,js,js.map}",
+        "lib",
         "test/**/*.{js,js.map,d.ts,d.ts.map}",
         "demo"
       ],

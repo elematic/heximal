@@ -8,5 +8,9 @@
   },
   "include": ["src/**/*.ts"],
   "exclude": [],
-  "references": []
+  "references": [
+    {
+      "path": "../components"
+    }
+  ]
 }

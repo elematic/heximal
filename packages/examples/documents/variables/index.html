@@ -1,0 +1,43 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Variables</title>
+    <script type="module" src="./index.js"></script>
+  </head>
+  <body>
+    <h1>Variables</h1>
+    <p>
+      Variables are declared using <code>&lt;h-var></code> elements. They can be
+      referenced using <code>&lt;h-out></code> elements, or in expressions
+      within <code>&lt;template h-auto></code> elements.
+    </p>
+    <pre><script type="sample" style="display: block">
+      <h-var name="name" value="World"></h-var>
+
+      <p>h-out: <h-out value="name"></h-out></p>
+
+      <template h-auto>
+        <p>Binding: {{ name }}</p>
+        <p>
+          Input with binding:
+          <input .value="{{ name }}" @input="{{ (e) => name = e.target.value }}" />
+        </p>
+      </template>
+    </script></pre>
+
+    <h-var name="name" value="World"></h-var>
+
+    <p>h-out: <h-out value="name"></h-out></p>
+
+    <template h-auto>
+      <p>Binding: {{ name }}</p>
+      <p>
+        Input with bindings:
+        <input
+          .value="{{ name }}"
+          @input="{{ (e) => name = e.target.value }}"
+        />
+      </p>
+    </template>
+  </body>
+</html>

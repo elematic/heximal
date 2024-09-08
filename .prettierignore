@@ -22,6 +22,7 @@ packages/components/demo/*.js.map
 packages/components/index.*
 
 packages/element/test
+packages/element/lib
 
 packages/element/demo/*.d.ts
 packages/element/demo/*.d.ts.map
