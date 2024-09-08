@@ -1,5 +1,5 @@
 {
-  "name": "@heximal/element",
+  "name": "@heximal/components",
   "version": "0.1.0",
   "type": "module",
   "main": "./index.js",
@@ -11,19 +11,18 @@
   },
   "files": [
     "index.{d.ts,d.ts.map,js,js.map}",
-    "base-element.{d.ts,d.ts.map,js,js.map}",
     "src/*",
     "!src/demo/*",
     "!src/test/*"
   ],
   "dependencies": {
-    "lit": "^3.1.2",
-    "@heximal/templates": "^0.1.0"
+    "@lit/task": "^1.0.1",
+    "lit": "^3.1.2"
   },
   "scripts": {
     "build": "wireit",
-    "test": "wireit",
-    "demo": "wireit"
+    "demo": "wireit",
+    "test": "wireit"
   },
   "devDependencies": {
     "@esm-bundle/chai": "^4.3.4-fix.0",
@@ -39,21 +38,18 @@
   "bugs": {
     "url": "https://github.com/elematic/heximal/issues"
   },
-  "homepage": "https://github.com/elematic/heximal/tree/main/packages/element",
+  "homepage": "https://github.com/elematic/heximal/tree/main/packages/components",
   "wireit": {
     "build": {
       "command": "tsc --pretty",
-      "dependencies": [
-        "../templates:build"
-      ],
       "files": [
         "src/**/*.ts",
         "tsconfig.json"
       ],
       "output": [
         "index.{d.ts,d.ts.map,js,js.map}",
-        "base-element.{d.ts,d.ts.map,js,js.map}",
-        "test"
+        "test/**/*.{js,js.map,d.ts,d.ts.map}",
+        "demo"
       ],
       "clean": "if-file-deleted"
     },

@@ -60,6 +60,9 @@
   "wireit": {
     "build": {
       "command": "tsc",
+      "dependencies": [
+        "../expressions:build"
+      ],
       "files": [
         "src/**/*.ts",
         "tsconfig.json"

@@ -8,16 +8,25 @@ node_modules/
 
 .tsbuildinfo
 
-packages/element/node_modules
+packages/components/lib
+packages/components/test/**/*.d.ts
+packages/components/test/**/*.d.ts.map
+packages/components/test/**/*.js
+packages/components/test/**/*.js.map
+
+packages/components/demo/*.d.ts
+packages/components/demo/*.d.ts.map
+packages/components/demo/*.js
+packages/components/demo/*.js.map
+
+packages/components/index.*
+
 packages/element/test
-packages/element/.wireit
 
 packages/element/demo/*.d.ts
 packages/element/demo/*.d.ts.map
 packages/element/demo/*.js
 packages/element/demo/*.js.map
-
-packages/element/**/*.tsbuildinfo
 
 packages/element/index.*
 packages/element/base-element.*

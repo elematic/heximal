@@ -8,6 +8,7 @@ Heximal aims to be an HTML-based file format for rich, interactive, data-driven
 documents and computational notebooks.
 
 Heximal extends (or will extend) HTML with:
+
 - 🔣 Expressions
 - 🖨️ Declarative HTML templates
 - 🍱 Declarative custom elements
