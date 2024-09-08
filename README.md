@@ -54,6 +54,7 @@ and CSS, not Markdown, for instance.
 - [@heximal/templates](./packages/templates/): Declarative HTML templates
 - [@heximal/element](./packages/element/): Declarative custom elements
 - [@heximal/components](./packages/components/): Built-in components
+- [@heximal/examples](./packages/examples/): Examples
 
 ## Inspirations
 
