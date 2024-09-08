@@ -2,6 +2,9 @@
 
 Heximal is a web-based interactive document and notebook system
 
+> [!WARNING]
+> Heximal is extremely early, experimental, incomplete. It is under active development.
+
 ## Goals
 
 Heximal aims to be an HTML-based file format for rich, interactive, data-driven
@@ -44,6 +47,13 @@ Notebook.
 Heximal will be optimized for document interchange and runtime, not necessarily
 for hand-written documents, so rich text formatting will be done with plain HTML
 and CSS, not Markdown, for instance.
+
+## Packages
+
+- [@heximal/expressions](./packages/components/): Expression parser and evaluator
+- [@heximal/templates](./packages/components/): Declarative HTML templates
+- [@heximal/element](./packages/components/): Declarative custom elements
+- [@heximal/components](./packages/components/): Built-in components
 
 ## Inspirations
 
