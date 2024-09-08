@@ -1,5 +1,11 @@
-import {render as renderLit, TemplateInstance, nothing} from 'lit-html';
-import {CompiledTemplate, CompiledTemplateResult} from 'lit-html';
+import {
+  render as renderLit,
+  TemplateInstance,
+  nothing,
+  CompiledTemplate,
+  CompiledTemplateResult,
+  RenderOptions as LitRenderOptions,
+} from 'lit-html';
 
 import {parse, Parser, EvalAstFactory} from '@heximal/expressions';
 import type {Expression, Scope} from '@heximal/expressions/lib/eval';
@@ -230,9 +236,10 @@ export const render = (
   container: HTMLElement,
   model: any,
   handlers: TemplateHandlers = defaultHandlers,
+  options: LitRenderOptions = {},
 ) => {
   const litTemplate = prepareTemplate(template, handlers);
-  renderLit(litTemplate(model), container);
+  renderLit(litTemplate(model), container, options);
 };
 
 /**
