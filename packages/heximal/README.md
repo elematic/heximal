@@ -2,8 +2,9 @@
 
 An HTML-first interactive document and notebook system.
 
-> [!WARNING] Heximal is extremely experimental and incomplete. It is under
-> active development.
+> [!WARNING]
+> Heximal is extremely experimental and incomplete. It is under active
+> development.
 
 ## Goals
 
