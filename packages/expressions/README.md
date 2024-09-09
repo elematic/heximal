@@ -1,15 +1,16 @@
 # Heximal Expressions
 
+An expression syntax, parser, and evaluator for JavaScript-like expressions.
+
+Part of the [Heximal](https://www.npmjs.com/package/heximal) project.
+
 ## Overview
 
-Heximal Expressions is an expression syntax, parser, and evaluator for
-JavaScript-like expressions.
-
 Heximal Expressions is designed for libraries that evaluate user-written
-expressions, such as HTML templating engines. Heximal Expressions has a relatively rich
-syntax, supporting identifiers, operators, property access, method and function
-calls, and literals (including arrays and objects), function literals,
-assignments, and pipes.
+expressions, such as HTML templating engines. Heximal Expressions has a
+relatively rich syntax, supporting identifiers, operators, property access,
+method and function calls, and literals (including arrays and objects), function
+literals, assignments, and pipes.
 
 Example:
 

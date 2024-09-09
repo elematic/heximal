@@ -4,6 +4,8 @@ Heximal Element is a library for creating _declarative custom elements_ - elemen
 
 Heximal Element provides a `<h-define-element>` element that defines new custom elements with reactivity, rich templates, scoped styles, and more.
 
+Part of the [Heximal](https://www.npmjs.com/package/heximal) project.
+
 ### Example
 
 ```html

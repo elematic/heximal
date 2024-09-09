@@ -9,6 +9,8 @@ dynamic templates using real HTML `<template>` tags:
 </template>
 ```
 
+Part of the [Heximal](https://www.npmjs.com/package/heximal) project.
+
 ## Overview
 
 Heximal Templates use HTML
