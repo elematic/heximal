@@ -1,6 +1,6 @@
 # Heximal
 
-A web-based interactive document and notebook system
+An HTML-first interactive document and notebook system.
 
 > [!WARNING] Heximal is extremely experimental and incomplete. It is under
 > active development.
@@ -50,6 +50,56 @@ Notebook.
 Heximal will be optimized for document interchange and runtime, not necessarily
 for hand-written documents, so rich text formatting will be done with plain HTML
 and CSS, not Markdown, for instance.
+
+## Example
+
+While blocks aren't defined yet, Heximal does have initial implementations of
+many of the primitives necessary for dynamic documents including expressions,
+templates, components, and variables.
+
+```html
+<body>
+  <!-- Declare variables with <h-var>. Variables are backed by Signals -->
+  <h-var name="name" value="World"></h-var>
+
+  <!-- Render expressions in plain HTML with <h-out> -->
+  <h-out expr="name"></h-out>
+
+  <!-- Templates have special syntax for bindings. Auto-templates render
+      and update automatically! -->
+  <template h-auto>
+    <!-- Bindings are denoted with {{}} and can contain arbitray expressions -->
+    <p>{{ name.toUpperCase() }}</p>
+
+    <!-- Hexmical can bind to attributes, properties, and events too -->
+    <input .value="{{ name }}" @input="{{ (e) => name = e.target.value }}" />
+  </template>
+
+  <!-- Components are defined with <h-define-element> -->
+  <h-define-element name="simple-greeter" properties="name">
+    <!-- Styles are scoped with shadow DOM -->
+    <style type="adopted-css">
+      :host {
+        color: blue;
+      }
+    </style>
+
+    <!-- Templates have all the same binding features. -->
+    <template>
+      <h1>Hello {{ name }}!</h1>
+    </template>
+  </h-define-element>
+
+  <!-- Once you define an element, you can use it in your HTML.
+       It'll update when state changes too! -->
+  <simple-greeter name="{{ name }}"></simple-greeter>
+
+  <!-- There's also a way to include external content -->
+  <h-include src="./foo.html"></h-include>
+
+  <!-- And other utilities will come for helping for forms, fetching, etc. -->
+</body>
+```
 
 ## Packages
 
