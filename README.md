@@ -1,9 +1,9 @@
 # Heximal
 
-Heximal is a web-based interactive document and notebook system
+A web-based interactive document and notebook system
 
-> [!WARNING]
-> Heximal is extremely early, experimental, incomplete. It is under active development.
+> [!WARNING] Heximal is extremely experimental and incomplete. It is under
+> active development.
 
 ## Goals
 
@@ -43,6 +43,9 @@ Notebook.
   implicit dependencies. Runtime and components should simply be imported
   modules.
 - Interactive documents are applications, and need to be secured appropriately.
+- Editing functionality is best separated from rendering. It takes less code and
+  bytes to view a document than to edit it. There can be multiple editors for
+  the same document format.
 
 Heximal will be optimized for document interchange and runtime, not necessarily
 for hand-written documents, so rich text formatting will be done with plain HTML
@@ -55,6 +58,22 @@ and CSS, not Markdown, for instance.
 - [@heximal/element](./packages/element/): Declarative custom elements
 - [@heximal/components](./packages/components/): Built-in components
 - [@heximal/examples](./packages/examples/): Examples
+
+## Design Ideas
+
+### Notebooks and Blocks
+
+Computational notebooks blur the lines between documents, spreadsheets, and
+applications. They are usually structured as a linear sequence of blocks of
+various types, where the blocks are able to share data. Notebooks are
+scriptable, and the scripts both execute and are displayed as content within the
+document.
+
+Examples of blocks inlcude rich text, tables, scripts, graphs and charts, etc.
+
+The design for blocks in Heximal is not yet started. They will be custom
+elements, but there will be a protocol for blocks adding and reading data from
+other blocks, and responding to changes.
 
 ## Inspirations
 
@@ -69,3 +88,4 @@ These tools are especially influential:
 - Alpine.js
 - HTMX
 - Observable
+- Block Prototcol
