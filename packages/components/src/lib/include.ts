@@ -143,3 +143,9 @@ export class HeximalInclude extends LitElement {
     return document.createDocumentFragment();
   }
 }
+
+declare global {
+  interface HTMLElementTagNameMap {
+    'h-include': HeximalInclude;
+  }
+}
