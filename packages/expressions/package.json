@@ -16,8 +16,9 @@
   "files": [
     "index.*",
     "lib/*",
-    "src/*.ts",
-    "src/lib/*"
+    "src/*",
+    "!src/benchmark/*",
+    "!src/test/*"
   ],
   "scripts": {
     "build": "wireit",

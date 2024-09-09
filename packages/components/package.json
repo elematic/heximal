@@ -11,6 +11,7 @@
   },
   "files": [
     "index.{d.ts,d.ts.map,js,js.map}",
+    "lib/*",
     "src/*",
     "!src/demo/*",
     "!src/test/*"
