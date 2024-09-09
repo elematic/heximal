@@ -27,6 +27,7 @@
         "./packages/element:build",
         "./packages/examples:build",
         "./packages/expressions:build",
+        "./packages/heximal:build",
         "./packages/templates:build"
       ]
     },

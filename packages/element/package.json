@@ -34,7 +34,7 @@
     "@web/test-runner-mocha": "^0.9.0",
     "@web/test-runner-playwright": "^0.11.0"
   },
-  "author": "Justin Fagnani <justin@fagnani.com>",
+  "author": "Elematic Software, Inc.",
   "license": "MIT",
   "repository": "elematic/heximal",
   "bugs": {

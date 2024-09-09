@@ -45,6 +45,10 @@ packages/expressions/test
 
 packages/expressions/index.*
 
+packages/heximal/lib
+
+packages/heximal/index.*
+
 packages/templates/node_modules
 packages/templates/.wireit
 packages/templates/lib

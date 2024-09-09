@@ -1,0 +1,54 @@
+{
+  "name": "heximal",
+  "version": "0.1.0",
+  "type": "module",
+  "main": "./index.js",
+  "exports": {
+    ".": {
+      "types": "./index.d.ts",
+      "default": "./index.js"
+    }
+  },
+  "files": [
+    "index.{d.ts,d.ts.map,js,js.map}",
+    "src/*",
+    "!src/test/*"
+  ],
+  "dependencies": {
+    "@heximal/components": "^0.1.0",
+    "@heximal/element": "^0.1.0",
+    "@heximal/expressions": "^0.1.0",
+    "@heximal/templates": "^0.1.0"
+  },
+  "scripts": {
+    "build": "wireit"
+  },
+  "devDependencies": {},
+  "author": "Elematic Software, Inc.",
+  "license": "MIT",
+  "repository": "elematic/heximal",
+  "bugs": {
+    "url": "https://github.com/elematic/heximal/issues"
+  },
+  "homepage": "https://github.com/elematic/heximal",
+  "wireit": {
+    "build": {
+      "command": "tsc --pretty",
+      "dependencies": [
+        "../components:build",
+        "../element:build",
+        "../expressions:build",
+        "../templates:build"
+      ],
+      "files": [
+        "src/**/*.ts",
+        "tsconfig.json"
+      ],
+      "output": [
+        "index.{d.ts,d.ts.map,js,js.map}",
+        "lib"
+      ],
+      "clean": "if-file-deleted"
+    }
+  }
+}

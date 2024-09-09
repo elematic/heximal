@@ -14,6 +14,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 -->
 
+## 0.0.1
+
+Initial preview release
+
+---
+
+Changes from https://github.com/justinfagnani/stampino
+
 ## 0.8.2
 
 ### Changed

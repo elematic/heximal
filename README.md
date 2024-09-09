@@ -103,11 +103,20 @@ templates, components, and variables.
 
 ## Packages
 
+- [heximal](./packages/heximal/): Top-level Heximal package
 - [@heximal/expressions](./packages/expressions/): Expression parser and evaluator
 - [@heximal/templates](./packages/templates/): Declarative HTML templates
 - [@heximal/element](./packages/element/): Declarative custom elements
 - [@heximal/components](./packages/components/): Built-in components
 - [@heximal/examples](./packages/examples/): Examples
+
+### Installation
+
+You probably shouldn't install Heximal yet, but if you want to try it:
+
+```sh
+npm i heximal
+```
 
 ## Design Ideas
 
@@ -139,3 +148,16 @@ These tools are especially influential:
 - HTMX
 - Observable
 - Block Prototcol
+
+## Stampino and Jexpr
+
+[Jexpr](https://github.com/justinfagnani/jexpr),
+[Stampino](https://github.com/justinfagnani/stampino), and [Stampino
+Element](https://github.com/justinfagnani/stampino-element) are the original
+names and implementations of three of the core Hexiaml packages. They have been
+moved into the Heximal monorepo and renamed to Heximal Expressions, Heximal
+Templates, and Heximal Element, respectively. The previous repositories will not
+be actively maintained and will eventually be archived.
+
+This move is being done in order to create a unified project and expand the
+scope beyond just declarative templates and custom elements.

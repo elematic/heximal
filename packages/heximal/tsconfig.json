@@ -1,0 +1,25 @@
+{
+  "extends": "../../tsconfig-base.json",
+  "compilerOptions": {
+    "tsBuildInfoFile": "./.tsbuildinfo",
+    "lib": ["ES2023", "DOM", "DOM.Iterable"],
+    "outDir": "./",
+    "rootDir": "./src"
+  },
+  "include": ["src/**/*.ts"],
+  "exclude": [],
+  "references": [
+    {
+      "path": "../components"
+    },
+    {
+      "path": "../element"
+    },
+    {
+      "path": "../expressions"
+    },
+    {
+      "path": "../templates"
+    }
+  ]
+}

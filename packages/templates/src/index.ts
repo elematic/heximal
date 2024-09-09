@@ -4,7 +4,7 @@ import {
   nothing,
   CompiledTemplate,
   CompiledTemplateResult,
-  RenderOptions as LitRenderOptions,
+  RenderOptions,
 } from 'lit-html';
 
 import {parse, Parser, EvalAstFactory} from '@heximal/expressions';
@@ -215,7 +215,7 @@ export const prepareTemplate = (
   return (model) => evaluateTemplate(template, model, handlers, renderers);
 };
 
-export interface RenderOptions {
+export interface HeximalRenderOptions {
   renderers?: Renderers;
   extends?: HTMLTemplateElement;
 }
@@ -236,7 +236,7 @@ export const render = (
   container: HTMLElement,
   model: any,
   handlers: TemplateHandlers = defaultHandlers,
-  options: LitRenderOptions = {},
+  options: RenderOptions = {},
 ) => {
   const litTemplate = prepareTemplate(template, handlers);
   renderLit(litTemplate(model), container, options);
