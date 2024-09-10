@@ -1,7 +1,11 @@
 import {LitElement, css} from 'lit';
 import {customElement, property} from 'lit/decorators.js';
 import {Signal} from 'signal-polyfill';
-import {getRootScope} from './document.js';
+import {getScope} from './document.js';
+
+// This import ensures the scope is created before any vars try to attach to it.
+// This isn't so rubust. We need a scheduler to ensure top-down initialization.
+import './scope.js';
 
 @customElement('h-var')
 export class HeximalVar extends LitElement {
@@ -36,7 +40,10 @@ export class HeximalVar extends LitElement {
 
   override connectedCallback(): void {
     super.connectedCallback();
-    const scope = getRootScope(this);
+    const scope = getScope(this);
+    if (scope === undefined) {
+      return;
+    }
     if (Object.hasOwn(scope, this.name)) {
       console.warn(`Variable ${this.name} already exists in scope`);
     }
@@ -50,7 +57,14 @@ export class HeximalVar extends LitElement {
 
   override disconnectedCallback(): void {
     super.disconnectedCallback();
-    const scope = getRootScope(this);
+    // TODO (justinfagnani): there are collision and race conditions here. We
+    // could be removing a variable that was just added by another element.
+    // We should write a proper Scope object so we will only remove the
+    // variable if it was added by this element.
+    const scope = getScope(this);
+    if (scope === undefined) {
+      return;
+    }
     delete scope[this.name];
   }
 }

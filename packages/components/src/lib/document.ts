@@ -1,5 +1,6 @@
 import {render} from '@heximal/templates';
 import {effect} from 'signal-utils/subtle/microtask-effect';
+import {HeximalScope} from './scope.js';
 
 // TODO (justinfagnani): Put this in a new @heximal/document package
 
@@ -12,17 +13,33 @@ const rootScopes = new WeakMap<
  * Returns the root scope object for an element. The root scope is the object
  * that is shared by all elements in the same document or shadow root.
  */
-export const getRootScope = (el: Element) => {
-  const root = el.getRootNode() as Document | ShadowRoot;
-  let scope = rootScopes.get(root);
-  if (scope === undefined) {
-    scope = {
-      window,
-      document: el.ownerDocument,
-    };
-    rootScopes.set(root, scope);
+export const getScope = (node: Node) => {
+  while (true) {
+    if (
+      node.nodeType === Node.ELEMENT_NODE &&
+      (node as Element).localName === 'h-scope'
+    ) {
+      return (node as HeximalScope).scope;
+    }
+    if (node.parentNode === null) {
+      if (
+        node.nodeType === Node.DOCUMENT_NODE ||
+        node.nodeType === Node.DOCUMENT_FRAGMENT_NODE
+      ) {
+        let scope = rootScopes.get(node as Document | ShadowRoot);
+        if (scope === undefined) {
+          scope = {
+            window,
+            document: node.ownerDocument,
+          };
+          rootScopes.set(node as Document | ShadowRoot, scope);
+        }
+        return scope;
+      }
+      return undefined;
+    }
+    node = node.parentNode;
   }
-  return scope;
 };
 
 /**
@@ -34,8 +51,11 @@ export const getRootScope = (el: Element) => {
  * specified. This is just a placeholder.
  */
 export const getElementScope = (el: Element) => {
-  const rootScope = getRootScope(el);
-  const scope: Record<string, unknown> = Object.create(rootScope, {
+  const outerScope = getScope(el);
+  if (outerScope === undefined) {
+    throw new Error('No scope found');
+  }
+  const scope: Record<string, unknown> = Object.create(outerScope, {
     host: {
       value: el,
       writable: false,
@@ -55,7 +75,7 @@ export const runAutoTemplates = (root: Document | ShadowRoot = document) => {
     // TODO (justinfagnani): How to we want to be able to refer to the
     // <template> element itself from within expressions? Both `this` and `host`
     // seem wrong... For now just use the root scope.
-    const scope = getRootScope(template);
+    const scope = getScope(template);
     effect(() => {
       // TODO (justinfagnani): use prepareTemplate() to be able to pass in
       // renderers for other templates, so that sub-template calls and
