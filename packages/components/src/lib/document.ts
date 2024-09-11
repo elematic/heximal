@@ -32,6 +32,7 @@ export const getScope = (node: Node) => {
           scope = {
             window,
             document,
+            JSON,
           };
           rootScopes.set(node as Document | ShadowRoot, scope);
         }

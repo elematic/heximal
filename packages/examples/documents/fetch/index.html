@@ -1,0 +1,29 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Fetch</title>
+    <script type="module" src="./index.js"></script>
+  </head>
+  <body>
+    <h1>Fetch</h1>
+    <p>
+      A network fetch can be declared with an <code>&lt;h-fetch></code> element.
+    </p>
+
+    <template h-auto>
+      <h-var name="url" value="./foo.json"></h-var>
+
+      <h-fetch id="fetch" url="{{ url }}" type="json"></h-fetch>
+
+      <p>
+        URL:
+        <input .value="{{ url }}" @change="{{ (e) => url = e.target.value }}" />
+      </p>
+
+      <p><code>{{ url }}</code></p>
+      <p>Mode: {{ document.getElementById('fetch').mode }}</p>
+      <p>Status: {{ document.getElementById('fetch').status }}</p>
+      <pre><code>{{ JSON.stringify(document.getElementById('fetch').value) }}</code></pre>
+    </template>
+  </body>
+</html>
