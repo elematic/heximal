@@ -21,9 +21,14 @@
       </p>
 
       <p><code>{{ url }}</code></p>
-      <p>Mode: {{ document.getElementById('fetch').mode }}</p>
-      <p>Status: {{ document.getElementById('fetch').status }}</p>
+      <p>Mode: {{ $('#fetch').mode }}</p>
+      <p>Status: {{ $('#fetch').status }}</p>
       <pre><code>{{ JSON.stringify($('#fetch').value) }}</code></pre>
+
+      <template type="if" if="{{ $('#fetch').status === 'error' }}">
+        <p>Error: {{ $('#fetch').error }}</p>
+      </template>
+      
     </template>
   </body>
 </html>
