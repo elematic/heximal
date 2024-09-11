@@ -102,6 +102,80 @@ templates, components, and variables.
 </body>
 ```
 
+## Features
+
+### Templates
+
+Heximal Templates enhance the HTML `<template>` element with bindings,
+[expressions](./packages/expressions/), and control flow like `if` and `repeat`.
+
+Templates can be used as a part of custom elements, standalone, or as auto
+templates that automatically render to the document.
+
+```html
+<template id="my-template">
+  <h2>Messages</h2>
+
+  <template type="if" if="{{ important }}">
+    <p class="important">These messages are important</p>
+  </template>
+
+  <template type="repeat" repeat="{{ messages }}">
+    <p>{{ item.text }}</p>
+  </template>
+</template>
+```
+
+See [@heximal/templates](./packages/templates/) for more information on
+templates, and [@heximal/expressions](./packages/expressions/) for more
+information on expressions.
+
+### Custom Elements
+
+Heximal allows you to define new custom elements declaratively in HTML.
+
+```html
+<h-define-element name="simple-greeter" properties="name">
+  <style type="adopted-css">
+    :host {
+      color: blue;
+    }
+  </style>
+  <template>
+    <h1>Hello {{ name }}!</h1>
+  </template>
+</h-define-element>
+```
+
+These elements can then be used anywhere in the HTML document.
+
+```html
+<simple-greeter name="World"></simple-greeter>
+```
+
+Heximal elements (or any custom or built-in element!) can be used with Heximal's
+template data-binding system, to be automatically updated as data changes:
+
+```html
+<template h-auto>
+  <h-var name="name" value="World"></h-var>
+  <simple-greeter name="{{ name }}"></simple-greeter>
+</template>
+```
+
+See [@heximal/element](./packages/element/) for more information.
+
+### Built-in Components
+
+Heximal includes several built-in components to help construct dynamic
+documents:
+
+- `<h-var>`: Declares a signal-backed variable
+- `<h-out>`: Displays the value of an expression
+- `<h-scope>`: Creates a nested scope for `<h-var>` variables
+- `<h-include>`: Include HTML files into your document
+- `<h-fetch>`: Fetch a network resource
+
 ## Packages
 
 - [heximal](./packages/heximal/): Top-level Heximal package
