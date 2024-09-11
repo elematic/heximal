@@ -11,6 +11,8 @@ import {parse, Parser, EvalAstFactory} from '@heximal/expressions';
 import type {Expression, Scope} from '@heximal/expressions/lib/eval';
 
 import {_$LH} from 'lit-html/private-ssr-support.js';
+import {directive, Part, PartInfo} from 'lit-html/directive.js';
+import {AsyncDirective} from 'lit-html/async-directive.js';
 const {AttributePart, PropertyPart, BooleanAttributePart, EventPart} = _$LH;
 
 const astFactory = new EvalAstFactory();
@@ -242,6 +244,23 @@ export const render = (
   renderLit(litTemplate(model), container, options);
 };
 
+class DeferEvalDirective extends AsyncDirective {
+  constructor(partInfo: PartInfo) {
+    super(partInfo);
+  }
+
+  override render(f: Function): unknown {
+    return f();
+  }
+
+  override update(part: Part, [f]: [Function]): unknown {
+    const el = part.type === 2 ? part.startNode : part.element;
+    console.log('DeferEvalDirective update', this.isConnected, el?.isConnected);
+    return f();
+  }
+}
+const deferEval = directive(DeferEvalDirective);
+
 /**
  * Evaluates the given template and returns its result
  *
@@ -257,10 +276,12 @@ export const evaluateTemplate = (
   handlers: TemplateHandlers = defaultHandlers,
   renderers: Renderers = {},
 ) => {
+  console.log('evaluateTemplate', model);
   const litTemplate = getLitTemplate(template);
   const values: Array<unknown> = [];
   for (const part of litTemplate.parts) {
     const value = part.update(model, handlers, renderers);
+    // deferEval(part, model, handlers, renderers)
     if (part.type === 1) {
       values.push(...(value as Iterable<unknown>));
     } else {
@@ -475,7 +496,7 @@ const makeLitTemplate = (template: HTMLTemplateElement): HeximalTemplate => {
             _handlers: TemplateHandlers,
             _renderers: Renderers,
           ) => {
-            return exprs.map((expr) => expr.evaluate(model));
+            return exprs.map((expr) => deferEval(() => expr.evaluate(model)));
           },
         });
       }
@@ -494,8 +515,14 @@ const makeLitTemplate = (template: HTMLTemplateElement): HeximalTemplate => {
         litTemplate.parts.push({
           type: 2,
           index: ++nodeIndex,
-          update: (model: unknown, _handlers: TemplateHandlers) =>
-            expr.evaluate(model as Scope),
+          update: (model: unknown, _handlers: TemplateHandlers) => {
+            console.log('text binding update', exprText);
+            return deferEval(() => {
+              const value = expr.evaluate(model as Scope);
+              console.log('text binding eval', exprText, value);
+              return value;
+            });
+          },
         });
         const newTextNode = new Text(strings[i + 1].replace('\\{{', '{{'));
         textNode.parentNode!.insertBefore(newTextNode, textNode.nextSibling);

@@ -1,4 +1,5 @@
-import {render} from '@heximal/templates';
+import {prepareTemplate} from '@heximal/templates';
+import {render} from 'lit';
 import {effect} from 'signal-utils/subtle/microtask-effect';
 import {HeximalScope} from './scope.js';
 
@@ -30,7 +31,7 @@ export const getScope = (node: Node) => {
         if (scope === undefined) {
           scope = {
             window,
-            document: node.ownerDocument,
+            document,
           };
           rootScopes.set(node as Document | ShadowRoot, scope);
         }
@@ -75,18 +76,29 @@ export const runAutoTemplates = (root: Document | ShadowRoot = document) => {
     // TODO (justinfagnani): How to we want to be able to refer to the
     // <template> element itself from within expressions? Both `this` and `host`
     // seem wrong... For now just use the root scope.
+
+    const preparedTemplate = prepareTemplate(
+      template as HTMLTemplateElement,
+      undefined,
+    );
+
+    // This is a hack to get any h-var and h-scope elements in the template to
+    // attach to the scope so that they can be used in template expressions.
+    // Other ways to do this:
+    // - Make scope be a signal-producing Proxy, and adopt signals from the
+    //   scope into variables once they are created. Then when the var sets its
+    //   value, the signal in the scope is updated, and parts will update.
+    // - Process the prepared template and create a signal for each var.
     const scope = getScope(template);
+    render(preparedTemplate(scope ?? {}), template.parentElement!, {
+      renderBefore: template,
+    });
+
     effect(() => {
-      // TODO (justinfagnani): use prepareTemplate() to be able to pass in
-      // renderers for other templates, so that sub-template calls and
-      // inheritance work.
-      render(
-        template as HTMLTemplateElement,
-        template.parentElement!,
-        scope,
-        undefined,
-        {renderBefore: template},
-      );
+      const scope = getScope(template);
+      render(preparedTemplate(scope ?? {}), template.parentElement!, {
+        renderBefore: template,
+      });
     });
   }
 };

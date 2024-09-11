@@ -2,7 +2,7 @@
   "extends": "../../tsconfig-base.json",
   "compilerOptions": {
     "tsBuildInfoFile": "./.tsbuildinfo",
-    "lib": ["ES2023", "DOM", "DOM.Iterable"],
+    "lib": ["esnext", "DOM", "DOM.Iterable"],
     "outDir": "./",
     "rootDir": "./src"
   },
