@@ -23,7 +23,7 @@
       <p><code>{{ url }}</code></p>
       <p>Mode: {{ document.getElementById('fetch').mode }}</p>
       <p>Status: {{ document.getElementById('fetch').status }}</p>
-      <pre><code>{{ JSON.stringify(document.getElementById('fetch').value) }}</code></pre>
+      <pre><code>{{ JSON.stringify($('#fetch').value) }}</code></pre>
     </template>
   </body>
 </html>

@@ -33,6 +33,10 @@ export const getScope = (node: Node) => {
             window,
             document,
             JSON,
+            $: (selector: string) =>
+              (node.getRootNode() as Document | ShadowRoot)?.querySelector(
+                selector,
+              ),
           };
           rootScopes.set(node as Document | ShadowRoot, scope);
         }
