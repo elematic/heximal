@@ -5,6 +5,9 @@ export type AsyncComputedStatus = 'initial' | 'pending' | 'complete' | 'error';
 export interface AsyncComputedOptions<T> {
   /**
    * The initial value of the AsyncComputed.
+   *
+   * If `initialValue` is provided, the task is initialized to the 'complete'
+   * status and the value is set to `initialValue`.
    */
   initialValue?: T;
 }
@@ -129,6 +132,9 @@ export class AsyncComputed<T> {
     options?: AsyncComputedOptions<T>,
   ) {
     this.#value = new Signal.State(options?.initialValue);
+    if (options !== undefined && Object.hasOwn(options, 'initialValue')) {
+      this.#status.set('complete');
+    }
     this.#computed = new Signal.Computed(() => {
       const runId = ++this.#currentRunId;
       // Untrack reading the status signal to avoid triggering the computed when

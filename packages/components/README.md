@@ -27,5 +27,5 @@ components are backed-by signals so that changes to them can be tracked.
 ```html
 <template h-auto>
   <h1>Hello, {{ name }}</h1>
-<template>
+</template>
 ```

@@ -12,23 +12,26 @@
 
     <template h-auto>
       <h-var name="url" value="./foo.json"></h-var>
+      <h-out expr="url"></h-out>
+
+      <p>URL: {{ url }}</p>
 
       <h-fetch id="fetch" url="{{ url }}" type="json"></h-fetch>
 
+      <!-- Bind an input to the `url` variable, so we can change it -->
       <p>
         URL:
         <input .value="{{ url }}" @change="{{ (e) => url = e.target.value }}" />
       </p>
 
-      <p><code>{{ url }}</code></p>
-      <p>Mode: {{ $('#fetch').mode }}</p>
-      <p>Status: {{ $('#fetch').status }}</p>
-      <pre><code>{{ JSON.stringify($('#fetch').value) }}</code></pre>
+      <template type="if" if="{{ $('#fetch').status === 'complete' }}">
+        <pre><code>{{ JSON.stringify($('#fetch').value) }}</code></pre>
+      </template>   
 
       <template type="if" if="{{ $('#fetch').status === 'error' }}">
         <p>Error: {{ $('#fetch').error }}</p>
-      </template>
-      
+      </template>      
+
     </template>
   </body>
 </html>
