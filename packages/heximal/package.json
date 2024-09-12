@@ -1,6 +1,6 @@
 {
   "name": "heximal",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "type": "module",
   "main": "./index.js",
   "exports": {
@@ -15,10 +15,10 @@
     "!src/test/*"
   ],
   "dependencies": {
-    "@heximal/components": "^0.1.2",
-    "@heximal/element": "^0.1.2",
-    "@heximal/expressions": "^0.1.2",
-    "@heximal/templates": "^0.1.2"
+    "@heximal/components": "^0.1.3",
+    "@heximal/element": "^0.1.3",
+    "@heximal/expressions": "^0.1.3",
+    "@heximal/templates": "^0.1.3"
   },
   "scripts": {
     "build": "wireit"

@@ -14,8 +14,8 @@
     "src/*"
   ],
   "dependencies": {
-    "@heximal/element": "^0.1.2",
-    "@heximal/components": "^0.1.2"
+    "@heximal/element": "^0.1.3",
+    "@heximal/components": "^0.1.3"
   },
   "scripts": {
     "build": "wireit",
