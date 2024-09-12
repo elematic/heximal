@@ -1,6 +1,6 @@
 {
   "name": "@heximal/components",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "type": "module",
   "main": "./index.js",
   "exports": {
@@ -17,8 +17,8 @@
     "!src/test/*"
   ],
   "dependencies": {
-    "@heximal/element": "^0.1.4",
-    "@heximal/templates": "^0.1.4",
+    "@heximal/element": "^0.1.5",
+    "@heximal/templates": "^0.1.5",
     "@lit/task": "^1.0.1",
     "lit": "^3.1.2",
     "signal-polyfill": "^0.1.2",
