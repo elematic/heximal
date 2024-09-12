@@ -1,6 +1,6 @@
 {
   "name": "@heximal/templates",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "type": "module",
   "main": "./index.js",
   "exports": {
@@ -23,7 +23,7 @@
     "demo": "wireit"
   },
   "dependencies": {
-    "@heximal/expressions": "^0.1.3",
+    "@heximal/expressions": "^0.1.4",
     "lit-html": "^3.1.2",
     "trusted-types": "^2.0.0"
   },

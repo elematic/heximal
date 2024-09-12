@@ -1,6 +1,6 @@
 {
   "name": "@heximal/expressions",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "description": "A simple expression parser and evaluator",
   "repository": {
     "type": "git",
