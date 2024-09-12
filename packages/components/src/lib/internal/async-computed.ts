@@ -125,7 +125,7 @@ export class AsyncComputed<T> {
    * @param options.initialValue The initial value of the AsyncComputed.
    */
   constructor(
-    fn: (signal: AbortSignal) => Promise<T>,
+    fn: ({signal}: {signal: AbortSignal}) => Promise<T>,
     options?: AsyncComputedOptions<T>,
   ) {
     this.#value = new Signal.State(options?.initialValue);
@@ -146,7 +146,7 @@ export class AsyncComputed<T> {
       this.#currentAbortController?.abort();
       this.#currentAbortController = new AbortController();
 
-      fn(this.#currentAbortController.signal).then(
+      fn({signal: this.#currentAbortController.signal}).then(
         (result) => {
           // If we've been preempted by a new run, don't update the status or
           // resolve the deferred.
@@ -171,9 +171,11 @@ export class AsyncComputed<T> {
         },
       );
     });
-    this.#watcher = new Signal.subtle.Watcher(() => {
+    this.#watcher = new Signal.subtle.Watcher(async () => {
       this.#isNotified = true;
       this.#watcher.watch();
+      await 0;
+      this.#computed.get();
     });
     this.#watcher.watch(this.#computed);
   }

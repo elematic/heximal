@@ -12,15 +12,21 @@ export class HeximalFetch extends HeximalElement {
     }
   `;
 
-  #fetch = new AsyncComputed<unknown>(async () => {
-    if (this.url === undefined) {
+  #fetch = new AsyncComputed<unknown>(async ({signal}) => {
+    const url = this.url;
+
+    if (url === undefined || url.trim() === '') {
       return undefined;
     }
-    const response = await fetch(this.url, {mode: this.mode});
+
+    const response = await fetch(url, {mode: this.mode, signal});
     if (!response.ok) {
       // TODO: HttpError
-      throw new Error(`h-include fetch failed: ${response.statusText}`);
+      throw new Error(
+        `h-include fetch for ${url} failed: ${response.statusText}`,
+      );
     }
+
     const type = this.type;
     if (type === 'json') {
       return response.json();
@@ -76,11 +82,6 @@ export class HeximalFetch extends HeximalElement {
 
   get error() {
     return this.#fetch.error;
-  }
-
-  constructor() {
-    super();
-    console.log('h-fetch constructed');
   }
 }
 
