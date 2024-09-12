@@ -116,11 +116,27 @@ suite('templates', () => {
 
   test('Property binding', () => {
     const template = document.createElement('template');
-    template.innerHTML = `<p .class-name="{{ x }}">`;
+    template.innerHTML = `<p .class-name="{{ x }}"></p>`;
     render(template, container, {x: 'foo'});
     assert.equal(
       stripExpressionMarkers(container.innerHTML),
       `<p class="foo"></p>`,
+    );
+  });
+
+  test('Property binding with comment', () => {
+    const template = document.createElement('template');
+    template.innerHTML = `
+      <!-- comment -->
+      <p .class-name="{{ x }}"></p>
+    `;
+    render(template, container, {x: 'foo'});
+    assert.equal(
+      stripExpressionMarkers(container.innerHTML).trim(),
+      `
+      <!-- comment -->
+      <p class="foo"></p>
+      `.trim(),
     );
   });
 

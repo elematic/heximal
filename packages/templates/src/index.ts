@@ -319,7 +319,9 @@ const makeLitTemplate = (template: HTMLTemplateElement): HeximalTemplate => {
   const elementsToRemove = [];
 
   while ((node = walker.nextNode()) !== null) {
-    if (node.nodeType === Node.ELEMENT_NODE) {
+    if (node.nodeType === Node.COMMENT_NODE) {
+      nodeIndex++;
+    } else if (node.nodeType === Node.ELEMENT_NODE) {
       nodeIndex++;
       const element = node as Element;
       if (element.tagName === 'TEMPLATE') {
