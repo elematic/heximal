@@ -11,6 +11,21 @@ import {getTextContent} from './internal/slot.js';
 /**
  * A custom element that formats a number according to the user's preferred
  * locale and the provided options.
+ *
+ * The number is read from the text content of the element.
+ *
+ * ```ts
+ * <h-num>1234.5</h-num>
+ * ```
+ *
+ * The element supports all options of the `Intl.NumberFormat` constructor.
+ *
+ * The `style` option is renamed to `display` since all elements already have a
+ * `style` attribute.
+ *
+ * The `display` option is optional. When not set and `currency` or `unit` is
+ * provided, the `display` option is set to `'currency'` or `'unit'`
+ * respectively. Otherwise, the `display` option is set to `'decimal'`.
  */
 @customElement('h-num')
 export class HeximalNum extends HeximalElement {
@@ -93,7 +108,7 @@ export class HeximalNum extends HeximalElement {
    * `Intl.NumberFormat` constructor.
    */
   @property({reflect: true})
-  accessor display: 'decimal' | 'currency' | 'percent' | 'unit' = 'decimal';
+  accessor display: 'decimal' | 'currency' | 'percent' | 'unit' | undefined;
 
   @property({reflect: true})
   accessor currency: string | undefined;
@@ -135,6 +150,12 @@ export class HeximalNum extends HeximalElement {
   // End options
 
   protected override willUpdate(_changedProperties: PropertyValues): void {
+    // For convenience, we determine the `style` option based on the `display`,
+    // `currency`, and `unit` properties.
+    const style =
+      this.display ??
+      (this.currency ? 'currency' : this.unit ? 'unit' : 'decimal');
+
     // Any change to properties requires re-creating the formatter.
     this.#format = new Intl.NumberFormat(undefined, {
       localeMatcher: this.localeMatcher,
@@ -150,7 +171,7 @@ export class HeximalNum extends HeximalElement {
       roundingMode: this.roundingMode,
       trailingZeroDisplay: this.trailingZeroDisplay,
 
-      style: this.display,
+      style,
       currency: this.currency,
       currencyDisplay: this.currencyDisplay,
       currencySign: this.currencySign,
@@ -170,6 +191,8 @@ export class HeximalNum extends HeximalElement {
 
   #slotchange() {
     const slot = this.shadowRoot!.querySelector('slot')!;
+
+    // TODO(justinfagnani): We need to observe the nodes deeply.
     const text = getTextContent(slot);
     console.log('text', text);
     if (text.trim() !== '') {
