@@ -1,7 +1,6 @@
 import {
   HeximalElement,
   type PropertyValues,
-  css,
   customElement,
   property,
 } from '@heximal/element';
@@ -12,11 +11,6 @@ const astFactory = new EvalAstFactory();
 
 @customElement('h-out')
 export class HeximalOut extends HeximalElement {
-  static override styles = css`
-    :host {
-      display: inline;
-    }
-  `;
 
   @property({type: String})
   accessor expr = '';
@@ -26,6 +20,10 @@ export class HeximalOut extends HeximalElement {
   get value() {
     const scope = getElementScope(this);
     return this.#expr?.evaluate(scope);
+  }
+
+  protected override createRenderRoot(): HTMLElement | DocumentFragment {
+    return this;
   }
 
   protected override willUpdate(changedProperties: PropertyValues<this>): void {

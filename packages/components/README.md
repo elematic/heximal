@@ -4,11 +4,19 @@ The core built-in components for [Heximal](https://www.npmjs.com/package/heximal
 
 ## Components
 
+### Variables
 - `<h-var>`: Declares a variable
 - `<h-out>`: Displays the value of an expression
 - `<h-scope>`: Creates a nested scope for h-var variables
+
+### Utilities
+
 - `<h-include>`: Include HTML files into your document
 - `<h-fetch>`: Fetch a network resource
+
+### Display
+
+- `<h-num>` Formats a number with the `Intl.NumberFormat` API.
 
 ## Auto Templates
 

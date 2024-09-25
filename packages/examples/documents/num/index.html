@@ -1,0 +1,37 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Num</title>
+    <script type="module" src="./index.js"></script>
+  </head>
+  <body>
+    <h1>&lt;h-num></h1>
+    <ul>
+      <li>
+        Default options
+        <p><code>&lt;h-num>1234.5&lt;/h-num></code></p>
+        <p><h-num>1234.5</h-num></p>
+      </li>
+      <li>
+        Currency
+        <p>
+          <code
+            >&lt;h-num display="currency" currency="USD">1234.5&lt;/h-num></code
+          >
+        </p>
+        <p><h-num display="currency" currency="USD">1234.5</h-num></p>
+      </li>
+      <li>
+        With variables
+        <p>
+          <code
+            >&lt;h-num>&lt;h-out expr="1234.5">&lt;/h-out>&lt;/h-num></code
+          >
+        </p>
+        <p>
+          <h-num><h-out expr="1234.5"></h-out></h-num>
+        </p>
+      </li>
+    </ul>
+  </body>
+</html>

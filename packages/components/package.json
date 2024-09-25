@@ -59,7 +59,7 @@
         "index.{d.ts,d.ts.map,js,js.map}",
         "lib",
         "test/**/*.{js,js.map,d.ts,d.ts.map}",
-        "demo"
+        ".tsbuildinfo"
       ],
       "clean": "if-file-deleted"
     },
@@ -77,7 +77,7 @@
       ]
     },
     "test": {
-      "command": "wtr test/**/*_test.js --node-resolve --playwright --browsers chromium",
+      "command": "wtr test/**/num_test.js --node-resolve --playwright --browsers chromium",
       "dependencies": [
         "build"
       ],

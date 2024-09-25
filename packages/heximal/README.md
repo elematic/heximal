@@ -170,11 +170,19 @@ See [@heximal/element](./packages/element/) for more information.
 Heximal includes several built-in components to help construct dynamic
 documents:
 
-- `<h-var>`: Declares a signal-backed variable
+#### Variables
+- `<h-var>`: Declares a variable
 - `<h-out>`: Displays the value of an expression
-- `<h-scope>`: Creates a nested scope for `<h-var>` variables
+- `<h-scope>`: Creates a nested scope for h-var variables
+
+#### Utilities
+
 - `<h-include>`: Include HTML files into your document
 - `<h-fetch>`: Fetch a network resource
+
+#### Display
+
+- `<h-num>` Formats a number with the `Intl.NumberFormat` API.
 
 ## Packages
 
