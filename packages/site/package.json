@@ -11,14 +11,14 @@
     "deploy": "wireit"
   },
   "dependencies": {
-    "@11ty/eleventy": "^3.0.0",
-    "@11ty/eleventy-navigation": "^1.0.4",
-    "@11ty/eleventy-plugin-syntaxhighlight": "^5.0.0",
-    "markdown-it": "^14.1.0",
-    "markdown-it-anchor": "^9.2.0",
-    "markdown-it-attrs": "^4.3.1",
-    "open-props": "^1.7.14",
-    "zipadee": "^0.0.16"
+    "@11ty/eleventy": "^3.1.8",
+    "@11ty/eleventy-navigation": "^1.0.5",
+    "@11ty/eleventy-plugin-syntaxhighlight": "^5.0.2",
+    "markdown-it": "^14.3.3",
+    "markdown-it-anchor": "^9.2.1",
+    "markdown-it-attrs": "^4.5.0",
+    "open-props": "^1.7.23",
+    "zipadee": "^0.0.22"
   },
   "wireit": {
     "build": {

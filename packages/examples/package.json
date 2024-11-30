@@ -22,7 +22,7 @@
     "start": "wireit"
   },
   "devDependencies": {
-    "@web/dev-server": "^0.4.3"
+    "@web/dev-server": "^1.0.0"
   },
   "author": "Justin Fagnani <justin@fagnani.com>",
   "license": "MIT",

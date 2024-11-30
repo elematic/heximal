@@ -49,6 +49,25 @@ packages/heximal/lib
 
 packages/heximal/index.*
 
+packages/site/node_modules/
+packages/site/out/
+packages/site/lib/
+packages/site/index.*
+packages/site/.tsbuildinfo
+
+packages/slides/lib
+packages/slides/test/**/*.d.ts
+packages/slides/test/**/*.d.ts.map
+packages/slides/test/**/*.js
+packages/slides/test/**/*.js.map
+
+packages/slides/demo/*.d.ts
+packages/slides/demo/*.d.ts.map
+packages/slides/demo/*.js
+packages/slides/demo/*.js.map
+
+packages/slides/index.*
+
 packages/templates/node_modules
 packages/templates/.wireit
 packages/templates/lib

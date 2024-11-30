@@ -1,7 +1,7 @@
 import {prepareTemplate} from '@heximal/templates';
 import {render} from 'lit';
 import {effect} from 'signal-utils/subtle/microtask-effect';
-import {HeximalScope} from './scope.js';
+import type {HeximalScope} from './scope.js';
 
 // TODO (justinfagnani): Put this in a new @heximal/document package
 
@@ -14,11 +14,12 @@ const rootScopes = new WeakMap<
  * Returns the root scope object for an element. The root scope is the object
  * that is shared by all elements in the same document or shadow root.
  */
-export const getScope = (node: Node) => {
+export const getScope = (node: Node): Record<string, unknown> | undefined => {
   while (true) {
     if (
       node.nodeType === Node.ELEMENT_NODE &&
-      (node as Element).localName === 'h-scope'
+      'scope' in node &&
+      (node as any).scope !== undefined
     ) {
       return (node as HeximalScope).scope;
     }
@@ -95,13 +96,14 @@ export const runAutoTemplates = (root: Document | ShadowRoot = document) => {
     //   value, the signal in the scope is updated, and parts will update.
     // - Process the prepared template and create a signal for each var.
     const scope = getScope(template);
-    render(preparedTemplate(scope ?? {}), template.parentElement!, {
+    const container = template.parentNode as HTMLElement | DocumentFragment;
+    render(preparedTemplate(scope ?? {}), container, {
       renderBefore: template,
     });
 
     effect(() => {
       const scope = getScope(template);
-      render(preparedTemplate(scope ?? {}), template.parentElement!, {
+      render(preparedTemplate(scope ?? {}), container, {
         renderBefore: template,
       });
     });

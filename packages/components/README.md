@@ -6,6 +6,7 @@ The core built-in components for
 ## Components
 
 ### State
+
 - `<h-var>`: Declares a signal-backed variable
 - `<h-out>`: Displays the value of an expression
 - `<h-scope>`: Creates a nested scope for h-var variables

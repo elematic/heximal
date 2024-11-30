@@ -41,7 +41,7 @@ test, and dev server script execution, dependency graphs, and caching.
     `@web/test-runner` with Playwright Chromium.
   - In sandboxed CLI environments (such as sandboxed agent execution on macOS),
     Chromium may fail with Mach port permissions (`KERN_SUCCESS
-    bootstrap_check_in`). Run tests unsandboxed (with permission / bypass
+bootstrap_check_in`). Run tests unsandboxed (with permission / bypass
     sandbox) if browser tests fail to launch Chromium.
   - `@heximal/expressions` runs in Node (`node:test`) and does not require a
     browser.
@@ -78,7 +78,7 @@ The repository is organized under npm workspaces (`packages/*`):
 - Declarative HTML `<template>` engine built on top of `lit-html` and
   `@heximal/expressions`.
 - Core function: `prepareTemplate(templateElement, handlers, renderers,
-  superTemplate)` transforms `<template>` elements into `lit-html` render
+superTemplate)` transforms `<template>` elements into `lit-html` render
   functions.
 - Expressions are delimited by `{{ expression }}`.
 - Supports standard `lit-html` bindings:
@@ -102,7 +102,7 @@ The repository is organized under npm workspaces (`packages/*`):
   `<h-define-element>`.
 - Custom element name declared with `name="..."` (must contain a hyphen).
 - Properties defined via `properties="..."` attribute or child `<h-prop
-  name="..." type="..." reflect attribute="...">` elements.
+name="..." type="..." reflect attribute="...">` elements.
 - Adopted styles via child `<style type="adopted-css">`.
 - Template via child `<template>`.
 - Inheritance via `extends="base-element-name"`, supporting block overrides and
@@ -174,7 +174,7 @@ The repository is organized under npm workspaces (`packages/*`):
 - Wireit configurations define `"output"` files (e.g. `index.{js,d.ts}`, `lib/`)
   and `"clean": "if-file-deleted"`.
 - TypeScript references connect dependencies across packages (`"references":
-  [{"path": "../templates"}]`).
+[{"path": "../templates"}]`).
 
 ### Code Style & Prettier
 

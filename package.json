@@ -13,12 +13,12 @@
   },
   "license": "MIT",
   "devDependencies": {
-    "eslint": "^9.10.0",
-    "husky": "^9.1.5",
-    "ignore-sync": "^7.0.1",
-    "prettier": "^3.3.3",
-    "typescript": "^5.5.4",
-    "wireit": "^0.14.9"
+    "eslint": "^10.14.0",
+    "husky": "^9.1.7",
+    "ignore-sync": "^8.0.0",
+    "prettier": "^3.9.10",
+    "typescript": "^5.9.3",
+    "wireit": "^0.15.0"
   },
   "wireit": {
     "build": {
@@ -29,6 +29,7 @@
         "./packages/expressions:build",
         "./packages/heximal:build",
         "./packages/site:build",
+        "./packages/slides:build",
         "./packages/templates:build"
       ]
     },
@@ -37,6 +38,7 @@
         "./packages/components:test",
         "./packages/element:test",
         "./packages/expressions:test",
+        "./packages/slides:test",
         "./packages/templates:test"
       ]
     }

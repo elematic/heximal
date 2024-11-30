@@ -90,12 +90,7 @@ export class HeximalFetch extends HeximalElement {
    */
   @property({reflect: true})
   accessor type:
-    | 'text'
-    | 'json'
-    | 'blob'
-    | 'arrayBuffer'
-    | 'formData'
-    | 'stream' = 'text';
+    'text' | 'json' | 'blob' | 'arrayBuffer' | 'formData' | 'stream' = 'text';
 
   /**
    * The current status of the fetch, which is one of 'initial',
