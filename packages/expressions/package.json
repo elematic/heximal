@@ -30,7 +30,7 @@
   "license": "BSD 3-Clause",
   "devDependencies": {
     "@types/benchmark": "^2.1.5",
-    "@types/node": "^22.5.4",
+    "@types/node": "^22.20.5",
     "benchmark": "^2.1.4"
   },
   "wireit": {
@@ -64,6 +64,6 @@
     }
   },
   "dependencies": {
-    "tslib": "^2.7.0"
+    "tslib": "^2.9.1"
   }
 }

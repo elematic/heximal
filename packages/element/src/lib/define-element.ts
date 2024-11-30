@@ -16,7 +16,7 @@ const typeHints = {
 export class HeximalDefineElement extends HTMLElement {
   static observedAttributes = ['name', 'properties'];
 
-  private declare _initialized: boolean;
+  declare private _initialized: boolean;
 
   class?: typeof HeximalDeclarativeElement;
   template?: HTMLTemplateElement;

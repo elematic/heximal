@@ -39,7 +39,9 @@ const getSingleValue = (s: string, model: any) => {
 };
 
 export interface TemplateFunction {
-  (model: object): unknown;
+  (model: object, handlers?: TemplateHandlers, renderers?: Renderers): unknown;
+  template?: HTMLTemplateElement;
+  renderers?: Renderers;
 }
 
 /**
@@ -138,6 +140,23 @@ export const defaultHandlers = <TemplateHandlers>{
   repeat: repeatHandler,
 };
 
+const hasDefaultContent = (template: HTMLTemplateElement): boolean => {
+  for (const child of template.content.childNodes) {
+    if (child.nodeType === Node.ELEMENT_NODE) {
+      const el = child as Element;
+      if (el.tagName !== 'TEMPLATE' || !el.hasAttribute('name')) {
+        return true;
+      }
+    } else if (
+      child.nodeType === Node.TEXT_NODE &&
+      child.textContent!.trim() !== ''
+    ) {
+      return true;
+    }
+  }
+  return false;
+};
+
 /**
  * @returns {Function} a template function of the form (model) => TemplateResult
  */
@@ -145,55 +164,85 @@ export const prepareTemplate = (
   template: HTMLTemplateElement,
   handlers: TemplateHandlers = defaultHandlers,
   renderers: Renderers = {},
-  superTemplate?: HTMLTemplateElement,
+  superTemplate?: HTMLTemplateElement | TemplateFunction,
 ): TemplateFunction => {
   const litTemplate = getLitTemplate(template);
   const templateRenderers = litTemplate.renderers;
+  let resultFn: TemplateFunction;
+
   if (superTemplate) {
-    const superLitTemplate = getLitTemplate(superTemplate);
-    const superRenderers = superLitTemplate.renderers;
+    let superRenderers: Renderers;
+    let superEvaluate: (
+      model: object,
+      handlers: TemplateHandlers,
+      renderers: Renderers,
+    ) => unknown;
+    let superTemplateEl: HTMLTemplateElement | undefined;
+
+    if (typeof superTemplate === 'function') {
+      superRenderers = superTemplate.renderers ?? {};
+      superEvaluate = (model, h, r) => superTemplate(model, h, r);
+      superTemplateEl = superTemplate.template;
+    } else {
+      const superLitTemplate = getLitTemplate(superTemplate);
+      superRenderers = superLitTemplate.renderers;
+      superEvaluate = (model, h, r) =>
+        evaluateTemplate(superTemplate, model, h, r);
+      superTemplateEl = superTemplate;
+    }
+
     const superCallRenderer = templateRenderers['super'];
 
     if (superCallRenderer !== undefined) {
       // Explicit super call
-
-      // render the sub template with:
       renderers = {
         // sub template's own renderers
         ...templateRenderers,
         // passed-in renderers
         ...renderers,
         // a super call renderer
-        super: (model, handlers, renderers) => {
-          // This renderer delegates to the super block in the sub template,
-          // which in turn delegates back to the super renderer below, but with
-          // the inner blocks of the super call.
-          // when the super call goes, render with:
-          renderers = {
+        super: (model, handlers, r) => {
+          const innerRenderers: Renderers = {
             // super template's own blocks
             ...superRenderers,
             // passed-in renderers
-            ...renderers,
+            ...r,
             // sub template's overrides will be added by the inner super call
-            super: (model, handlers, renderers) => {
-              return evaluateTemplate(
-                superTemplate,
-                model,
-                handlers,
-                renderers,
-              );
-            },
+            super: (model, h, r2) => superEvaluate(model, h, r2),
           };
-          return superCallRenderer(model, handlers, renderers);
+          return superCallRenderer(model, handlers, innerRenderers);
         },
       };
+      resultFn = (model, h = handlers, r = renderers) =>
+        evaluateTemplate(template, model, h, {...renderers, ...r});
+      resultFn.renderers = renderers;
+      resultFn.template = template;
+    } else if (hasDefaultContent(template)) {
+      // Implicit super call where the sub-template has top-level content outside
+      // of named <template name="..."> blocks. The sub-template itself acts as
+      // the default "content" block for the super template, while exposing its
+      // own named blocks to further sub-templates.
+      const combinedRenderers: Renderers = {
+        ...superRenderers,
+        ...templateRenderers,
+        ...renderers,
+      };
+      resultFn = (model, h = handlers, r = {}) =>
+        superEvaluate(model, h, {
+          ...combinedRenderers,
+          ...r,
+          content: (m, h2) =>
+            evaluateTemplate(template, m, h2, {
+              ...templateRenderers,
+              ...renderers,
+              ...r,
+            }),
+        });
+      resultFn.renderers = combinedRenderers;
+      resultFn.template = superTemplateEl ?? template;
     } else {
-      // Implicit super call
-
-      // Wrap the whole template in an implicit super call by rendering the
-      // super template first, but using the block renderers from this template.
-      // Render the super template with:
-      renderers = {
+      // Implicit super call with only named <template name="..."> block overrides
+      const combinedRenderers: Renderers = {
         // super template's own blocks
         ...superRenderers,
         // sub template's overrides
@@ -201,18 +250,25 @@ export const prepareTemplate = (
         // passed-in renderers
         ...renderers,
       };
-      template = superTemplate;
+      resultFn = (model, h = handlers, r = {}) =>
+        superEvaluate(model, h, {...combinedRenderers, ...r});
+      resultFn.renderers = combinedRenderers;
+      resultFn.template = superTemplateEl ?? template;
     }
   } else {
     // No super call
-    renderers = {
+    const combinedRenderers: Renderers = {
       // template's named blocks
       ...templateRenderers,
       // passed-in renderers
       ...renderers,
     };
+    resultFn = (model, h = handlers, r = combinedRenderers) =>
+      evaluateTemplate(template, model, h, {...combinedRenderers, ...r});
+    resultFn.renderers = combinedRenderers;
+    resultFn.template = template;
   }
-  return (model) => evaluateTemplate(template, model, handlers, renderers);
+  return resultFn;
 };
 
 export interface HeximalRenderOptions {
@@ -499,7 +555,7 @@ const makeLitTemplate = (template: HTMLTemplateElement): HeximalTemplate => {
           update: (model: unknown, _handlers: TemplateHandlers) =>
             expr.evaluate(model as Scope),
         });
-        const newTextNode = new Text(strings[i + 1].replace('\\{{', '{{'));
+        const newTextNode = new Text(unescapeBindingMarkers(strings[i + 1]));
         textNode.parentNode!.insertBefore(newTextNode, textNode.nextSibling);
         textNode.parentNode!.insertBefore(
           document.createComment(''),

@@ -1,0 +1,1802 @@
+<!doctype html>
+
+<html>
+  <head>
+    <title>Heximal Slides Demo</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script type="module" src="../index.js"></script>
+    <script type="module" src="../../components/index.js"></script>
+    <style>
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        width: 100vw;
+        height: 100vh;
+        overflow: hidden;
+        background: #000;
+      }
+    </style>
+  </head>
+  <body>
+    <h-slide-viewer>
+      <h-slide-deck aspect-ratio="16 / 9">
+        <!-- ================================================================
+             Theme & Layout Slides
+             ================================================================ -->
+        <h-slide-theme>
+          <!-- Base Layout: shared typography, code block styles, and footer -->
+          <h-slide name="base">
+            <template>
+              <style>
+                :host {
+                  font-family:
+                    system-ui,
+                    -apple-system,
+                    BlinkMacSystemFont,
+                    'Segoe UI',
+                    Roboto,
+                    sans-serif;
+                  padding: 52px 72px 64px;
+                  color: #0f172a;
+                  background: #f8fafc;
+                  display: flex;
+                  flex-direction: column;
+                  justify-content: space-between;
+                }
+                * {
+                  box-sizing: border-box;
+                }
+                h1,
+                h2,
+                h3 {
+                  margin: 0;
+                  letter-spacing: -0.02em;
+                }
+                h2 {
+                  font-size: 2.65rem;
+                  font-weight: 800;
+                  color: #0f172a;
+                  margin-top: 6px;
+                }
+                p,
+                li {
+                  font-size: 1.4rem;
+                  line-height: 1.58;
+                  color: #334155;
+                }
+                ul {
+                  margin: 0;
+                  padding-left: 1.4rem;
+                }
+                li + li {
+                  margin-top: 8px;
+                }
+                code {
+                  font-family:
+                    ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+                    monospace;
+                  font-size: 0.9em;
+                  background: #e2e8f0;
+                  color: #0f172a;
+                  padding: 0.15em 0.4em;
+                  border-radius: 6px;
+                }
+                pre {
+                  margin: 0;
+                  padding: 26px 30px;
+                  background: #0f172a;
+                  color: #e2e8f0;
+                  border-radius: 16px;
+                  font-size: 1.18rem;
+                  line-height: 1.55;
+                  overflow: auto;
+                  box-shadow: 0 10px 25px rgba(15, 23, 42, 0.15);
+                  border: 1px solid #1e293b;
+                }
+                pre code {
+                  background: transparent;
+                  color: inherit;
+                  padding: 0;
+                  font-size: inherit;
+                }
+                .tag {
+                  color: #7dd3fc;
+                }
+                .attr {
+                  color: #c4b5fd;
+                }
+                .str {
+                  color: #86efac;
+                }
+                .expr {
+                  color: #fde047;
+                }
+                .comment {
+                  color: #64748b;
+                  font-style: italic;
+                }
+                .card {
+                  background: #ffffff;
+                  border: 1px solid #e2e8f0;
+                  border-radius: 16px;
+                  padding: 24px 28px;
+                  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.04);
+                }
+                .badge {
+                  display: inline-block;
+                  padding: 5px 14px;
+                  border-radius: 999px;
+                  font-size: 1.05rem;
+                  font-weight: 700;
+                  background: #dbeafe;
+                  color: #1d4ed8;
+                  font-family:
+                    ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+                    monospace;
+                }
+                .slide-body {
+                  flex: 1;
+                  display: flex;
+                  flex-direction: column;
+                  min-height: 0;
+                }
+                .slide-footer {
+                  display: flex;
+                  justify-content: space-between;
+                  align-items: center;
+                  padding-top: 18px;
+                  border-top: 1px solid #e2e8f0;
+                  font-size: 1.05rem;
+                  color: #64748b;
+                }
+                .footer-nav {
+                  display: flex;
+                  align-items: center;
+                  gap: 10px;
+                }
+                .footer-link {
+                  color: #2563eb;
+                  text-decoration: none;
+                  font-weight: 600;
+                  padding: 4px 10px;
+                  border-radius: 6px;
+                  background: #eff6ff;
+                  font-family:
+                    ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+                    monospace;
+                  font-size: 0.95rem;
+                }
+                .footer-link:hover {
+                  background: #dbeafe;
+                }
+              </style>
+              <div class="slide-body">
+                <template name="content"></template>
+              </div>
+              <footer class="slide-footer">
+                <div class="footer-nav">
+                  <a class="footer-link" href="#cover">&uarr; Title</a>
+                  <a class="footer-link" href="#intro">&larr; All Elements</a>
+                </div>
+                <span style="font-variant-numeric: tabular-nums">
+                  ⏱ {{ timer.formatted }} &middot;
+                  <span>Slide {{ slideNumber }} of {{ totalSlides }}</span>
+                </span>
+              </footer>
+            </template>
+          </h-slide>
+
+          <!-- Title Layout (extends base) -->
+          <h-slide name="title" layout="base">
+            <template>
+              <style>
+                :host {
+                  background: linear-gradient(
+                    135deg,
+                    #0f172a 0%,
+                    #1e3a8a 55%,
+                    #2563eb 100%
+                  );
+                  color: #ffffff;
+                }
+                .title-wrap {
+                  flex: 1;
+                  display: flex;
+                  flex-direction: column;
+                  justify-content: center;
+                  align-items: center;
+                  text-align: center;
+                  gap: 24px;
+                }
+                .slide-footer {
+                  border-top-color: rgba(255, 255, 255, 0.15);
+                  color: rgba(255, 255, 255, 0.7);
+                }
+                .footer-link {
+                  background: rgba(255, 255, 255, 0.12);
+                  color: #e0f2fe;
+                }
+                .footer-link:hover {
+                  background: rgba(255, 255, 255, 0.22);
+                }
+              </style>
+              <div class="title-wrap">
+                <template name="content"></template>
+              </div>
+            </template>
+          </h-slide>
+
+          <!-- Two-Column Layout (extends base) -->
+          <h-slide name="two-column" layout="base">
+            <template>
+              <style>
+                .header {
+                  margin-bottom: 24px;
+                }
+                .columns {
+                  flex: 1;
+                  display: grid;
+                  grid-template-columns: 1fr 1.15fr;
+                  gap: 40px;
+                  align-items: start;
+                  min-height: 0;
+                }
+                .col {
+                  display: flex;
+                  flex-direction: column;
+                  gap: 18px;
+                }
+              </style>
+              <div class="header">
+                <template name="header"></template>
+              </div>
+              <div class="columns">
+                <div class="col">
+                  <template name="left"></template>
+                </div>
+                <div class="col">
+                  <template name="right"></template>
+                </div>
+              </div>
+            </template>
+          </h-slide>
+        </h-slide-theme>
+
+        <!-- ================================================================
+             Slide 1: Title
+             ================================================================ -->
+        <h-slide layout="title" name="cover">
+          <template>
+            <style>
+              h1 {
+                font-size: 6rem;
+                font-weight: 800;
+                letter-spacing: -0.03em;
+                color: #fff;
+              }
+              .subtitle {
+                font-size: 2.2rem;
+                color: #bfdbfe;
+                max-width: 1000px;
+                margin: 0;
+              }
+              .footer-nav {
+                visibility: hidden;
+              }
+            </style>
+            <h1>Heximal Slides</h1>
+            <p class="subtitle">
+              Declarative, reactive HTML presentations powered by Web
+              Components, Signals, and Template Inheritance
+            </p>
+          </template>
+          <h-slide-notes>
+            <p>Welcome to Heximal Slides!</p>
+            <p>
+              Advance to the next slide for an overview of the framework and
+              interactive links to every custom element.
+            </p>
+          </h-slide-notes>
+        </h-slide>
+
+        <!-- ================================================================
+             Slide 2: Introduction (Gradient background + large link buttons)
+             ================================================================ -->
+        <h-slide layout="title" name="intro">
+          <template>
+            <style>
+              .intro-wrap {
+                width: 100%;
+                max-width: 1720px;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                gap: 32px;
+              }
+              .intro-header {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                gap: 14px;
+                max-width: 1280px;
+              }
+              h2 {
+                font-size: 3.4rem;
+                font-weight: 800;
+                letter-spacing: -0.02em;
+                color: #ffffff;
+                margin: 0;
+              }
+              .lead {
+                font-size: 1.6rem;
+                line-height: 1.5;
+                color: #dbeafe;
+                margin: 0;
+              }
+              .lead code {
+                background: rgba(255, 255, 255, 0.14);
+                color: #ffffff;
+                padding: 3px 10px;
+                border-radius: 6px;
+              }
+              .element-buttons {
+                width: 100%;
+                display: grid;
+                grid-template-columns: repeat(5, 1fr);
+                gap: 18px;
+              }
+              a.el-btn {
+                display: flex;
+                flex-direction: column;
+                align-items: flex-start;
+                text-align: left;
+                gap: 10px;
+                padding: 24px 22px;
+                border-radius: 18px;
+                background: rgba(255, 255, 255, 0.1);
+                border: 1px solid rgba(255, 255, 255, 0.24);
+                color: #ffffff;
+                text-decoration: none;
+                backdrop-filter: blur(8px);
+                transition:
+                  transform 0.15s ease,
+                  background 0.15s ease,
+                  border-color 0.15s ease,
+                  box-shadow 0.15s ease;
+              }
+              a.el-btn:hover {
+                background: rgba(255, 255, 255, 0.2);
+                border-color: #93c5fd;
+                transform: translateY(-4px);
+                box-shadow: 0 14px 28px rgba(0, 0, 0, 0.25);
+              }
+              a.el-btn .el-tag {
+                font-family:
+                  ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+                  monospace;
+                font-size: 1.38rem;
+                font-weight: 700;
+                color: #93c5fd;
+                white-space: nowrap;
+              }
+              a.el-btn:hover .el-tag {
+                color: #ffffff;
+              }
+              a.el-btn .el-desc {
+                font-size: 1.15rem;
+                line-height: 1.42;
+                color: #e0f2fe;
+              }
+            </style>
+            <div class="intro-wrap">
+              <div class="intro-header">
+                <h2>What is Heximal Slides?</h2>
+                <p class="lead">
+                  Built on <code>@heximal/templates</code> and
+                  <code>@heximal/components</code>, Heximal Slides is a suite of
+                  declarative custom elements for authoring reactive
+                  presentations, reusable slide templates, and scoped signal
+                  state directly in HTML.
+                </p>
+              </div>
+
+              <div class="element-buttons">
+                <a class="el-btn" href="#h-slide">
+                  <span class="el-tag">&lt;h-slide&gt;</span>
+                  <span class="el-desc">
+                    The slide element: authored with a
+                    <code>&lt;template&gt;</code>, layouts, expressions, and
+                    multi-step builds.
+                  </span>
+                </a>
+                <a class="el-btn" href="#h-slide-deck">
+                  <span class="el-tag">&lt;h-slide-deck&gt;</span>
+                  <span class="el-desc">
+                    The presentation document holding all slides and themes,
+                    with canvas scaling and hotkeys.
+                  </span>
+                </a>
+                <a class="el-btn" href="#h-slide-viewer">
+                  <span class="el-tag">&lt;h-slide-viewer&gt;</span>
+                  <span class="el-desc">
+                    Chrome wrapper with floating hover toolbar, overview grid,
+                    filmstrip drawer, and presenter launch.
+                  </span>
+                </a>
+                <a class="el-btn" href="#h-slide-theme">
+                  <span class="el-tag">&lt;h-slide-theme&gt;</span>
+                  <span class="el-desc">
+                    Layout slide registry supporting multi-level template
+                    inheritance and named blocks.
+                  </span>
+                </a>
+                <a class="el-btn" href="#h-slide-section">
+                  <span class="el-tag">&lt;h-slide-section&gt;</span>
+                  <span class="el-desc">
+                    Groups slides into logical trees with shared lexical
+                    <code>&lt;h-var&gt;</code> signal scopes.
+                  </span>
+                </a>
+                <a class="el-btn" href="#h-slide-presenter">
+                  <span class="el-tag">&lt;h-slide-presenter&gt;</span>
+                  <span class="el-desc">
+                    Dual-window speaker console with current &amp; next
+                    previews, notes, and timer via
+                    <code>BroadcastChannel</code>.
+                  </span>
+                </a>
+                <a class="el-btn" href="#h-slide-notes">
+                  <span class="el-tag">&lt;h-slide-notes&gt;</span>
+                  <span class="el-desc">
+                    Rich HTML speaker notes hidden on stage and extracted for
+                    the presenter view.
+                  </span>
+                </a>
+                <a class="el-btn" href="#h-slide-overview">
+                  <span class="el-tag">&lt;h-slide-overview&gt;</span>
+                  <span class="el-desc">
+                    Interactive thumbnail grid displaying all slides in the deck
+                    for quick navigation.
+                  </span>
+                </a>
+                <a class="el-btn" href="#h-slide-filmstrip">
+                  <span class="el-tag">&lt;h-slide-filmstrip&gt;</span>
+                  <span class="el-desc">
+                    Vertical scrollable list of numbered slide previews and
+                    extracted slide titles.
+                  </span>
+                </a>
+                <a class="el-btn" href="#h-slide-preview">
+                  <span class="el-tag">&lt;h-slide-preview&gt;</span>
+                  <span class="el-desc">
+                    Live auto-scaled preview renderer for any
+                    <code>&lt;h-slide&gt;</code> at a target build step.
+                  </span>
+                </a>
+              </div>
+            </div>
+          </template>
+          <h-slide-notes>
+            <p>
+              Heximal Slides is built on <code>@heximal/templates</code> and
+              <code>@heximal/components</code>. Click any of the 10 element
+              buttons to jump directly to its deep-dive slide.
+            </p>
+          </h-slide-notes>
+        </h-slide>
+
+        <!-- ================================================================
+             1a. <h-slide>: Basic Static Content
+             ================================================================ -->
+        <h-slide layout="two-column" name="h-slide">
+          <template name="header">
+            <h2>&lt;h-slide&gt;: The Slide Element</h2>
+          </template>
+          <template name="left">
+            <p>
+              <code>&lt;h-slide&gt;</code> represents a single slide in a
+              presentation. At its simplest, it wraps a standard HTML
+              <code>&lt;template&gt;</code> with static markup and styles:
+            </p>
+            <div class="card">
+              <ul>
+                <li>
+                  <strong>Authored in a <code>&lt;template&gt;</code></strong
+                  >: Slide markup lives inside a child
+                  <code>&lt;template&gt;</code> element, keeping it inert until
+                  rendered by the slide.
+                </li>
+                <li>
+                  <strong>Shadow DOM Encapsulation</strong>: Each
+                  <code>&lt;h-slide&gt;</code> renders into its own Shadow Root,
+                  so slide-specific <code>&lt;style&gt;</code> tags never leak
+                  into other slides.
+                </li>
+                <li>
+                  <strong>Named Hash Targets</strong>: Setting
+                  <code>name="welcome"</code> makes the slide directly
+                  addressable via URL hash (<code>#welcome</code>).
+                </li>
+              </ul>
+            </div>
+          </template>
+          <template name="right">
+            <pre><code><span class="comment">&lt;!-- A basic slide with static HTML &amp; scoped CSS --&gt;</span>
+<span class="tag">&lt;h-slide</span> <span class="attr">name</span>=<span class="str">"welcome"</span><span class="tag">&gt;</span>
+  <span class="tag">&lt;template&gt;</span>
+    <span class="tag">&lt;style&gt;</span>
+      h1 {
+        font-size: 4rem;
+        color: #1d4ed8;
+      }
+      p {
+        font-size: 1.75rem;
+      }
+    <span class="tag">&lt;/style&gt;</span>
+
+    <span class="tag">&lt;h1&gt;</span>Hello, Heximal Slides!<span class="tag">&lt;/h1&gt;</span>
+    <span class="tag">&lt;p&gt;</span>
+      Just standard HTML and CSS inside a &lt;template&gt;.
+    <span class="tag">&lt;/p&gt;</span>
+  <span class="tag">&lt;/template&gt;</span>
+<span class="tag">&lt;/h-slide&gt;</span></code></pre>
+          </template>
+          <h-slide-notes>
+            <p>
+              Every slide starts with <code>&lt;h-slide&gt;</code> and a child
+              <code>&lt;template&gt;</code>. Even with static HTML, you get
+              Shadow DOM style isolation and hash routing out of the box.
+            </p>
+          </h-slide-notes>
+        </h-slide>
+
+        <!-- ================================================================
+             1b. <h-slide>: Using a Layout
+             ================================================================ -->
+        <h-slide layout="two-column" name="h-slide-layouts">
+          <template name="header">
+            <h2>&lt;h-slide&gt;: Using a Layout</h2>
+          </template>
+          <template name="left">
+            <p>
+              Instead of repeating headers, footers, or column grids on every
+              slide, set <code>layout="..."</code> on
+              <code>&lt;h-slide&gt;</code> to inherit from a layout slide:
+            </p>
+            <div class="card">
+              <ul>
+                <li>
+                  <strong>Default Content Block</strong>: Top-level markup in
+                  your slide's <code>&lt;template&gt;</code> automatically fills
+                  the layout's default
+                  <code>&lt;template name="content"&gt;</code> slot.
+                </li>
+                <li>
+                  <strong>Named Blocks</strong>: Multi-region layouts (like
+                  <code>layout="two-column"</code> used on this slide) expose
+                  named slots—just place
+                  <code>&lt;template name="header"&gt;</code>,
+                  <code>left</code>, and <code>right</code> directly inside
+                  <code>&lt;h-slide&gt;</code>!
+                </li>
+                <li>
+                  <strong>Shared Chrome</strong>: Footers, typography, and
+                  backgrounds defined by the layout wrap your slide content
+                  automatically.
+                </li>
+              </ul>
+            </div>
+          </template>
+          <template name="right">
+            <pre><code><span class="comment">&lt;!-- 1. Using a layout's default "content" block --&gt;</span>
+<span class="tag">&lt;h-slide</span> <span class="attr">layout</span>=<span class="str">"title"</span> <span class="attr">name</span>=<span class="str">"cover"</span><span class="tag">&gt;</span>
+  <span class="tag">&lt;template&gt;</span>
+    <span class="tag">&lt;h1&gt;</span>Heximal Slides<span class="tag">&lt;/h1&gt;</span>
+    <span class="tag">&lt;p&gt;</span>Fills the title layout's default slot<span class="tag">&lt;/p&gt;</span>
+  <span class="tag">&lt;/template&gt;</span>
+<span class="tag">&lt;/h-slide&gt;</span>
+
+<span class="comment">&lt;!-- 2. Filling named blocks directly in &lt;h-slide&gt; --&gt;</span>
+<span class="tag">&lt;h-slide</span> <span class="attr">layout</span>=<span class="str">"two-column"</span> <span class="attr">name</span>=<span class="str">"comparison"</span><span class="tag">&gt;</span>
+  <span class="tag">&lt;template</span> <span class="attr">name</span>=<span class="str">"header"</span><span class="tag">&gt;</span>
+    <span class="tag">&lt;h2&gt;</span>Two-Column Slide<span class="tag">&lt;/h2&gt;</span>
+  <span class="tag">&lt;/template&gt;</span>
+  <span class="tag">&lt;template</span> <span class="attr">name</span>=<span class="str">"left"</span><span class="tag">&gt;</span>
+    <span class="tag">&lt;p&gt;</span>Left column content<span class="tag">&lt;/p&gt;</span>
+  <span class="tag">&lt;/template&gt;</span>
+  <span class="tag">&lt;template</span> <span class="attr">name</span>=<span class="str">"right"</span><span class="tag">&gt;</span>
+    <span class="tag">&lt;p&gt;</span>Right column content<span class="tag">&lt;/p&gt;</span>
+  <span class="tag">&lt;/template&gt;</span>
+<span class="tag">&lt;/h-slide&gt;</span></code></pre>
+          </template>
+          <h-slide-notes>
+            <p>
+              Layouts keep slide markup concise: simple slides use a single
+              <code>&lt;template&gt;</code>, while structured slides pass named
+              <code>&lt;template name="..."&gt;</code> blocks directly inside
+              <code>&lt;h-slide&gt;</code> without an extra outer wrapper.
+            </p>
+          </h-slide-notes>
+        </h-slide>
+
+        <!-- ================================================================
+             1c. <h-slide>: Reactive Expressions
+             ================================================================ -->
+        <h-slide layout="two-column" name="h-slide-expressions">
+          <h-var name="clicks" type="number" value="0"></h-var>
+          <template name="header">
+            <h2>&lt;h-slide&gt;: Reactive Expressions</h2>
+          </template>
+          <template name="left">
+            <p>
+              Because each slide is a Heximal template, you can use
+              <code>\{{ ... }}</code> expressions in text, attributes,
+              properties (<code>.prop</code>), boolean attributes
+              (<code>?attr</code>), and events (<code>@event</code>):
+            </p>
+            <div class="card">
+              <ul>
+                <li>
+                  <strong>Built-In Deck &amp; Slide State</strong>: Every slide
+                  exposes <code>slideNumber</code> (<strong
+                    >{{ slideNumber }}</strong
+                  >), <code>totalSlides</code> (<strong
+                    >{{ totalSlides }}</strong
+                  >), <code>timer.formatted</code> (<strong
+                    >{{ timer.formatted }}</strong
+                  >), <code>slide</code>, and <code>deck</code>.
+                </li>
+                <li>
+                  <strong>Local Reactive Signals</strong>: Declare
+                  <code>&lt;h-var&gt;</code> inside a slide (or section) and
+                  bind to it in expressions:
+                  <div style="margin-top: 10px">
+                    <button
+                      style="
+                        padding: 8px 16px;
+                        font-size: 1.15rem;
+                        font-weight: 600;
+                        background: #2563eb;
+                        color: #fff;
+                        border: none;
+                        border-radius: 8px;
+                        cursor: pointer;
+                      "
+                      @click="{{ () => clicks = clicks + 1 }}"
+                    >
+                      Clicked {{ clicks }} {{ clicks == 1 ? 'time' : 'times' }}
+                    </button>
+                  </div>
+                </li>
+              </ul>
+            </div>
+          </template>
+          <template name="right">
+            <pre><code><span class="tag">&lt;h-slide</span> <span class="attr">layout</span>=<span class="str">"two-column"</span> <span class="attr">name</span>=<span class="str">"h-slide-expressions"</span><span class="tag">&gt;</span>
+  <span class="comment">&lt;!-- Slide-scoped reactive signal --&gt;</span>
+  <span class="tag">&lt;h-var</span> <span class="attr">name</span>=<span class="str">"clicks"</span> <span class="attr">type</span>=<span class="str">"number"</span> <span class="attr">value</span>=<span class="str">"0"</span><span class="tag">&gt;&lt;/h-var&gt;</span>
+
+  <span class="tag">&lt;template</span> <span class="attr">name</span>=<span class="str">"left"</span><span class="tag">&gt;</span>
+    <span class="comment">&lt;!-- Built-in slide context variables --&gt;</span>
+    <span class="tag">&lt;p&gt;</span>
+      Slide <span class="expr">\{{ slideNumber }}</span> of <span class="expr">\{{ totalSlides }}</span>
+      (#<span class="expr">\{{ slide.name }}</span>)
+    <span class="tag">&lt;/p&gt;</span>
+
+    <span class="comment">&lt;!-- Event binding &amp; reactive expression --&gt;</span>
+    <span class="tag">&lt;button</span> <span class="attr">@click</span>=<span class="str">"<span class="expr">\{{ () =&gt; clicks = clicks + 1 }}</span>"</span><span class="tag">&gt;</span>
+      Clicked <span class="expr">\{{ clicks }}</span>
+      <span class="expr">\{{ clicks == 1 ? 'time' : 'times' }}</span>
+    <span class="tag">&lt;/button&gt;</span>
+  <span class="tag">&lt;/template&gt;</span>
+<span class="tag">&lt;/h-slide&gt;</span></code></pre>
+          </template>
+          <h-slide-notes>
+            <p>
+              Expressions are evaluated inside a signal effect, so any change to
+              a signal—whether from a button click, input event, or deck
+              navigation—immediately updates only the affected DOM bindings.
+            </p>
+          </h-slide-notes>
+        </h-slide>
+
+        <!-- ================================================================
+             1d. <h-slide>: Multi-Step Builds
+             ================================================================ -->
+        <h-slide layout="two-column" name="h-slide-builds" steps="3">
+          <template name="header">
+            <h2>&lt;h-slide&gt;: Multi-Step Builds</h2>
+          </template>
+          <template name="left">
+            <style>
+              .build-item {
+                padding: 14px 20px;
+                border-radius: 10px;
+                background: #f8fafc;
+                border: 2px solid #e2e8f0;
+                font-size: 1.3rem;
+                margin-top: 10px;
+                transition:
+                  opacity 0.25s ease,
+                  transform 0.25s ease,
+                  border-color 0.25s ease;
+              }
+              .build-item.active {
+                border-color: #2563eb;
+                background: #eff6ff;
+              }
+              .build-item.hidden {
+                opacity: 0.2;
+                transform: translateX(-8px);
+              }
+            </style>
+            <p>
+              Builds are powered directly by expressions! Set
+              <code>steps="N"</code> on <code>&lt;h-slide&gt;</code> and bind to
+              the reactive <code>step</code> and
+              <code>stepCount</code> variables:
+            </p>
+            <div class="card">
+              <div style="font-size: 1.25rem; color: #475569">
+                Press <code>&rarr;</code> or <code>Space</code> to advance
+                builds (<strong>step {{ step }} of {{ stepCount }}</strong>):
+              </div>
+              <div
+                class="build-item {{ step < 1 ? 'hidden' : '' }} {{ step == 1 ? 'active' : '' }}"
+              >
+                <strong>Step 1 (<code>steps="3"</code>)</strong>: Tells the deck
+                this slide has 3 incremental steps before advancing.
+              </div>
+              <div
+                class="build-item {{ step < 2 ? 'hidden' : '' }} {{ step == 2 ? 'active' : '' }}"
+              >
+                <strong>Step 2 (<code>\{{ step }}</code>)</strong>: Use any CSS
+                class, style, or
+                <code>&lt;template type="if"&gt;</code> expression with
+                <code>step</code>.
+              </div>
+              <div
+                class="build-item {{ step < 3 ? 'hidden' : '' }} {{ step == 3 ? 'active' : '' }}"
+              >
+                <strong>Step 3 (Full Reactivity)</strong>: Stepping backward
+                with <code>&larr;</code> decrements <code>step</code> in
+                reverse!
+              </div>
+            </div>
+          </template>
+          <template name="right">
+            <pre><code><span class="tag">&lt;h-slide</span>
+  <span class="attr">name</span>=<span class="str">"h-slide-builds"</span>
+  <span class="attr">layout</span>=<span class="str">"two-column"</span>
+  <span class="attr">steps</span>=<span class="str">"3"</span>
+<span class="tag">&gt;</span>
+  <span class="tag">&lt;template</span> <span class="attr">name</span>=<span class="str">"left"</span><span class="tag">&gt;</span>
+    <span class="tag">&lt;p&gt;</span>Step <span class="expr">\{{ step }}</span> of <span class="expr">\{{ stepCount }}</span><span class="tag">&lt;/p&gt;</span>
+
+    <span class="tag">&lt;div</span> <span class="attr">class</span>=<span class="str">"<span class="expr">\{{ step &lt; 1 ? 'hidden' : '' }}</span>"</span><span class="tag">&gt;</span>
+      Step 1: Declare steps="3" on &lt;h-slide&gt;
+    <span class="tag">&lt;/div&gt;</span>
+
+    <span class="tag">&lt;div</span> <span class="attr">class</span>=<span class="str">"<span class="expr">\{{ step &lt; 2 ? 'hidden' : '' }}</span>"</span><span class="tag">&gt;</span>
+      Step 2: Bind classes or conditionals to \{{ step }}
+    <span class="tag">&lt;/div&gt;</span>
+
+    <span class="tag">&lt;div</span> <span class="attr">class</span>=<span class="str">"<span class="expr">\{{ step &lt; 3 ? 'hidden' : '' }}</span>"</span><span class="tag">&gt;</span>
+      Step 3: Next key advances deck once step == stepCount
+    <span class="tag">&lt;/div&gt;</span>
+  <span class="tag">&lt;/template&gt;</span>
+<span class="tag">&lt;/h-slide&gt;</span></code></pre>
+          </template>
+          <h-slide-notes>
+            <p>
+              Because builds just increment the signal-backed
+              <code>step</code> variable from <code>0</code> to
+              <code>stepCount</code>, you can drive any animation, class toggle,
+              or conditional template from <code>step</code>.
+            </p>
+          </h-slide-notes>
+        </h-slide>
+
+        <!-- ================================================================
+             2. <h-slide-deck>
+             ================================================================ -->
+        <h-slide layout="two-column" name="h-slide-deck">
+          <template name="header">
+            <h2>&lt;h-slide-deck&gt;: The Presentation Document</h2>
+          </template>
+          <template name="left">
+            <p>
+              <code>&lt;h-slide-deck&gt;</code> is the root document element
+              that holds an entire presentation—all of its slides, sections, and
+              themes:
+            </p>
+            <div class="card">
+              <ul>
+                <li>
+                  <strong>Fixed Coordinate Canvas</strong>: Renders at a fixed
+                  logical resolution (default <code>1920&times;1080</code> or
+                  <code>aspect-ratio="16 / 9"</code>) and scales smoothly via
+                  <code>ResizeObserver</code> and <code>--h-slide-scale</code>.
+                </li>
+                <li>
+                  <strong>Hash Routing &amp; Hotkeys</strong>: Syncs with
+                  <code>#slide-name</code> or <code>#1</code>, and handles
+                  <code>&larr;</code>/<code>&rarr;</code>/<code>Space</code>,
+                  <code>Home</code>/<code>End</code>,
+                  <code>F</code> (fullscreen), and <code>B</code> (blackout).
+                </li>
+                <li>
+                  <strong>Live Deck Readout</strong>: Canvas is
+                  <strong>{{ deck.width }}&times;{{ deck.height }}</strong>,
+                  showing slide <strong>{{ index + 1 }}</strong> of
+                  <strong>{{ totalSlides }}</strong>.
+                </li>
+              </ul>
+            </div>
+          </template>
+          <template name="right">
+            <pre><code><span class="tag">&lt;h-slide-deck</span>
+  <span class="attr">aspect-ratio</span>=<span class="str">"16 / 9"</span>
+  <span class="attr">width</span>=<span class="str">"1920"</span>
+  <span class="attr">height</span>=<span class="str">"1080"</span>
+<span class="tag">&gt;</span>
+  <span class="comment">&lt;!-- Holds themes, sections, and slides --&gt;</span>
+  <span class="tag">&lt;h-slide-theme&gt;</span>...<span class="tag">&lt;/h-slide-theme&gt;</span>
+
+  <span class="tag">&lt;h-slide</span> <span class="attr">name</span>=<span class="str">"cover"</span><span class="tag">&gt;</span>
+    <span class="tag">&lt;template&gt;</span>
+      <span class="tag">&lt;h1&gt;</span>Hello Slides<span class="tag">&lt;/h1&gt;</span>
+    <span class="tag">&lt;/template&gt;</span>
+  <span class="tag">&lt;/h-slide&gt;</span>
+
+  <span class="tag">&lt;h-slide</span> <span class="attr">name</span>=<span class="str">"summary"</span><span class="tag">&gt;</span>
+    <span class="tag">&lt;template&gt;</span>
+      <span class="tag">&lt;p&gt;</span>Slide <span class="expr">\{{ slideNumber }}</span> of <span class="expr">\{{ totalSlides }}</span><span class="tag">&lt;/p&gt;</span>
+      <span class="tag">&lt;button</span> <span class="attr">@click</span>=<span class="str">"<span class="expr">\{{ () =&gt; deck.gotoSlide('cover') }}</span>"</span><span class="tag">&gt;</span>
+        Restart Deck
+      <span class="tag">&lt;/button&gt;</span>
+    <span class="tag">&lt;/template&gt;</span>
+  <span class="tag">&lt;/h-slide&gt;</span>
+<span class="tag">&lt;/h-slide-deck&gt;</span></code></pre>
+          </template>
+          <h-slide-notes>
+            <p>
+              <code>&lt;h-slide-deck&gt;</code> is the presentation document
+              container. It can be used standalone or wrapped inside
+              <code>&lt;h-slide-viewer&gt;</code> or
+              <code>&lt;h-slide-presenter&gt;</code>.
+            </p>
+          </h-slide-notes>
+        </h-slide>
+
+        <!-- ================================================================
+             3. <h-slide-viewer>
+             ================================================================ -->
+        <h-slide layout="two-column" name="h-slide-viewer">
+          <template name="header">
+            <h2>
+              &lt;h-slide-viewer&gt;: Interactive Viewer &amp; Grid Overview
+            </h2>
+          </template>
+          <template name="left">
+            <p>
+              <code>&lt;h-slide-viewer&gt;</code> wraps an
+              <code>&lt;h-slide-deck&gt;</code> to provide presentation UI
+              controls without polluting the deck's own markup:
+            </p>
+            <div class="card">
+              <ul>
+                <li>
+                  <strong>Floating Hover Pill</strong>: Unobtrusive pill in the
+                  bottom-right corner that appears on hover with Previous/Next
+                  buttons, slide counter, and fullscreen toggle.
+                </li>
+                <li>
+                  <strong>Grid Overview Mode</strong>: Click
+                  <strong>Overview</strong> (or press <code>O</code>) to view
+                  thumbnails of all slides and jump to any slide.
+                </li>
+                <li>
+                  <strong>Presenter Launcher</strong>: Click
+                  <strong>Presenter</strong> in the floating pill to open a
+                  synchronized speaker window.
+                </li>
+              </ul>
+            </div>
+          </template>
+          <template name="right">
+            <pre><code><span class="comment">&lt;!-- Wrap any &lt;h-slide-deck&gt; in &lt;h-slide-viewer&gt; --&gt;</span>
+<span class="tag">&lt;h-slide-viewer&gt;</span>
+  <span class="tag">&lt;h-slide-deck</span> <span class="attr">aspect-ratio</span>=<span class="str">"16 / 9"</span><span class="tag">&gt;</span>
+    <span class="tag">&lt;h-slide</span> <span class="attr">name</span>=<span class="str">"cover"</span><span class="tag">&gt;</span>
+      <span class="tag">&lt;template&gt;</span>...<span class="tag">&lt;/template&gt;</span>
+    <span class="tag">&lt;/h-slide&gt;</span>
+    ...
+  <span class="tag">&lt;/h-slide-deck&gt;</span>
+<span class="tag">&lt;/h-slide-viewer&gt;</span>
+
+<span class="comment">&lt;!-- Programmatic API --&gt;</span>
+<span class="tag">&lt;script</span> <span class="attr">type</span>=<span class="str">"module"</span><span class="tag">&gt;</span>
+  const viewer = document.querySelector('h-slide-viewer');
+  viewer.toggleOverview();  <span class="comment">// Toggle thumbnail grid</span>
+  viewer.openPresenter();   <span class="comment">// Open synced presenter popup</span>
+<span class="tag">&lt;/script&gt;</span></code></pre>
+          </template>
+          <h-slide-notes>
+            <p>
+              Click the "Overview" button in the toolbar right now to show the
+              live thumbnail grid of all slides in the deck.
+            </p>
+          </h-slide-notes>
+        </h-slide>
+
+        <!-- ================================================================
+             4. <h-slide-theme>
+             ================================================================ -->
+        <h-slide layout="two-column" name="h-slide-theme">
+          <template name="header">
+            <h2>
+              &lt;h-slide-theme&gt;: Layout Slides &amp; Template Inheritance
+            </h2>
+          </template>
+          <template name="left">
+            <p>
+              <code>&lt;h-slide-theme&gt;</code> holds reusable layout slides
+              that content slides inherit from via <code>layout="..."</code>:
+            </p>
+            <div class="card">
+              <ul>
+                <li>
+                  <strong>Layout Registry</strong>: Any
+                  <code>&lt;h-slide name="..."&gt;</code> inside
+                  <code>&lt;h-slide-theme&gt;</code> is registered as a reusable
+                  layout slide and excluded from the deck count.
+                </li>
+                <li>
+                  <strong>Default &amp; Named Blocks</strong>: Layouts define
+                  slots with <code>&lt;template name="..."&gt;</code>. Top-level
+                  markup in a child template automatically fills the parent's
+                  default <code>content</code> block.
+                </li>
+                <li>
+                  <strong>Multi-Level Inheritance</strong>: A layout slide can
+                  itself set <code>layout="base"</code>, forming a chain (<code
+                    >base</code
+                  >
+                  &rarr; <code>two-column</code> &rarr; this slide).
+                </li>
+              </ul>
+            </div>
+          </template>
+          <template name="right">
+            <pre><code><span class="tag">&lt;h-slide-theme&gt;</span>
+  <span class="comment">&lt;!-- Root layout slide --&gt;</span>
+  <span class="tag">&lt;h-slide</span> <span class="attr">name</span>=<span class="str">"base"</span><span class="tag">&gt;</span>
+    <span class="tag">&lt;template&gt;</span>
+      <span class="tag">&lt;div</span> <span class="attr">class</span>=<span class="str">"body"</span><span class="tag">&gt;</span>
+        <span class="tag">&lt;template</span> <span class="attr">name</span>=<span class="str">"content"</span><span class="tag">&gt;&lt;/template&gt;</span>
+      <span class="tag">&lt;/div&gt;</span>
+      <span class="tag">&lt;footer&gt;</span>Slide <span class="expr">\{{ slideNumber }}</span><span class="tag">&lt;/footer&gt;</span>
+    <span class="tag">&lt;/template&gt;</span>
+  <span class="tag">&lt;/h-slide&gt;</span>
+
+  <span class="comment">&lt;!-- Fills base's "content" block and defines new slots --&gt;</span>
+  <span class="tag">&lt;h-slide</span> <span class="attr">name</span>=<span class="str">"two-column"</span> <span class="attr">layout</span>=<span class="str">"base"</span><span class="tag">&gt;</span>
+    <span class="tag">&lt;template&gt;</span>
+      <span class="tag">&lt;template</span> <span class="attr">name</span>=<span class="str">"header"</span><span class="tag">&gt;&lt;/template&gt;</span>
+      <span class="tag">&lt;div</span> <span class="attr">class</span>=<span class="str">"cols"</span><span class="tag">&gt;</span>
+        <span class="tag">&lt;template</span> <span class="attr">name</span>=<span class="str">"left"</span><span class="tag">&gt;&lt;/template&gt;</span>
+        <span class="tag">&lt;template</span> <span class="attr">name</span>=<span class="str">"right"</span><span class="tag">&gt;&lt;/template&gt;</span>
+      <span class="tag">&lt;/div&gt;</span>
+    <span class="tag">&lt;/template&gt;</span>
+  <span class="tag">&lt;/h-slide&gt;</span>
+<span class="tag">&lt;/h-slide-theme&gt;</span></code></pre>
+          </template>
+          <h-slide-notes>
+            <p>
+              Just like Jinja templates, if a sub-template doesn't include an
+              explicit <code>&lt;template name="super"&gt;</code> call, it
+              implicitly renders the super template with its overridden named
+              blocks.
+            </p>
+          </h-slide-notes>
+        </h-slide>
+
+        <!-- ================================================================
+             5. <h-slide-section> (with live shared <h-var> state)
+             ================================================================ -->
+        <h-slide-section title="Scoped Sections">
+          <h-var name="counter" type="number" value="0"></h-var>
+          <h-var name="topic" value="Signals in HTML"></h-var>
+
+          <h-slide layout="two-column" name="h-slide-section">
+            <template name="header">
+              <h2>
+                &lt;h-slide-section&gt;: Slide Trees &amp; Lexical Scoping
+              </h2>
+            </template>
+            <template name="left">
+              <style>
+                .controls-row {
+                  display: flex;
+                  gap: 10px;
+                  align-items: center;
+                  margin-top: 10px;
+                }
+                button.action-btn {
+                  padding: 10px 18px;
+                  font-size: 1.2rem;
+                  font-weight: 600;
+                  background: #2563eb;
+                  color: white;
+                  border: none;
+                  border-radius: 8px;
+                  cursor: pointer;
+                }
+                button.action-btn.secondary {
+                  background: #e2e8f0;
+                  color: #0f172a;
+                }
+                input.topic-input {
+                  width: 100%;
+                  padding: 10px 14px;
+                  font-size: 1.25rem;
+                  border: 2px solid #cbd5e1;
+                  border-radius: 8px;
+                  margin-top: 6px;
+                }
+              </style>
+              <p>
+                <code>&lt;h-slide-section&gt;</code> groups slides logically and
+                establishes a lexical scope so <code>&lt;h-var&gt;</code>
+                state is shared reactively across all slides in the section:
+              </p>
+              <div class="card">
+                <div style="font-size: 1.35rem">
+                  Section <code>counter</code> (<code>type="number"</code>):
+                  <strong style="font-size: 2rem; color: #2563eb"
+                    >{{ counter }}</strong
+                  >
+                  &middot; <code>counter &times; 10</code> =
+                  <strong>{{ counter * 10 }}</strong>
+                </div>
+                <div class="controls-row">
+                  <button
+                    class="action-btn"
+                    @click="{{ () => counter = counter + 1 }}"
+                  >
+                    Increment (+1)
+                  </button>
+                  <button
+                    class="action-btn secondary"
+                    @click="{{ () => counter = counter - 1 }}"
+                  >
+                    Decrement (-1)
+                  </button>
+                  <button
+                    class="action-btn secondary"
+                    @click="{{ () => counter = 0 }}"
+                  >
+                    Reset
+                  </button>
+                </div>
+                <div style="margin-top: 16px">
+                  <label style="font-size: 1.25rem; font-weight: 600">
+                    Shared <code>topic</code>:
+                    <input
+                      class="topic-input"
+                      .value="{{ topic }}"
+                      @input="{{ (e) => topic = e.target.value }}"
+                    />
+                  </label>
+                </div>
+              </div>
+            </template>
+            <template name="right">
+              <pre><code><span class="tag">&lt;h-slide-section</span> <span class="attr">title</span>=<span class="str">"Scoped Sections"</span><span class="tag">&gt;</span>
+  <span class="comment">&lt;!-- Shared across all slides in this section --&gt;</span>
+  <span class="tag">&lt;h-var</span> <span class="attr">name</span>=<span class="str">"counter"</span> <span class="attr">type</span>=<span class="str">"number"</span> <span class="attr">value</span>=<span class="str">"0"</span><span class="tag">&gt;&lt;/h-var&gt;</span>
+  <span class="tag">&lt;h-var</span> <span class="attr">name</span>=<span class="str">"topic"</span> <span class="attr">value</span>=<span class="str">"Signals in HTML"</span><span class="tag">&gt;&lt;/h-var&gt;</span>
+
+  <span class="tag">&lt;h-slide</span> <span class="attr">name</span>=<span class="str">"h-slide-section"</span><span class="tag">&gt;</span>
+    <span class="tag">&lt;template&gt;</span>
+      <span class="tag">&lt;p&gt;</span>Counter: <span class="expr">\{{ counter }}</span><span class="tag">&lt;/p&gt;</span>
+      <span class="tag">&lt;button</span> <span class="attr">@click</span>=<span class="str">"<span class="expr">\{{ () =&gt; counter = counter + 1 }}</span>"</span><span class="tag">&gt;</span>
+        Increment (+1)
+      <span class="tag">&lt;/button&gt;</span>
+      <span class="tag">&lt;input</span>
+        <span class="attr">.value</span>=<span class="str">"<span class="expr">\{{ topic }}</span>"</span>
+        <span class="attr">@input</span>=<span class="str">"<span class="expr">\{{ (e) =&gt; topic = e.target.value }}</span>"</span>
+      <span class="tag">/&gt;</span>
+    <span class="tag">&lt;/template&gt;</span>
+  <span class="tag">&lt;/h-slide&gt;</span>
+
+  <span class="tag">&lt;h-slide</span> <span class="attr">name</span>=<span class="str">"h-slide-section-2"</span><span class="tag">&gt;</span>
+    <span class="tag">&lt;template&gt;</span>
+      <span class="comment">&lt;!-- Reads &amp; updates the same counter &amp; topic! --&gt;</span>
+      <span class="tag">&lt;p&gt;</span><span class="expr">\{{ topic }}</span>: <span class="expr">\{{ counter }}</span><span class="tag">&lt;/p&gt;</span>
+    <span class="tag">&lt;/template&gt;</span>
+  <span class="tag">&lt;/h-slide&gt;</span>
+<span class="tag">&lt;/h-slide-section&gt;</span></code></pre>
+            </template>
+            <h-slide-notes>
+              <p>
+                Increment <code>counter</code> or edit <code>topic</code> here,
+                then advance to the next slide in this
+                <code>&lt;h-slide-section&gt;</code> to see the live state
+                shared across both slides!
+              </p>
+            </h-slide-notes>
+          </h-slide>
+
+          <!-- ==============================================================
+               Second <h-slide-section> slide showing shared state
+               ============================================================== -->
+          <h-slide layout="two-column" name="h-slide-section-2">
+            <template name="header">
+              <h2>&lt;h-slide-section&gt;: Shared State Across Slides</h2>
+            </template>
+            <template name="left">
+              <style>
+                .controls-row {
+                  display: flex;
+                  gap: 10px;
+                  align-items: center;
+                  margin-top: 12px;
+                }
+                button.action-btn {
+                  padding: 10px 18px;
+                  font-size: 1.2rem;
+                  font-weight: 600;
+                  background: #2563eb;
+                  color: white;
+                  border: none;
+                  border-radius: 8px;
+                  cursor: pointer;
+                }
+                button.action-btn.secondary {
+                  background: #e2e8f0;
+                  color: #0f172a;
+                }
+              </style>
+              <p>
+                This second slide is inside the same
+                <code>&lt;h-slide-section&gt;</code>, so it shares the exact
+                same <code>counter</code> and <code>topic</code> signals:
+              </p>
+              <div class="card">
+                <div style="font-size: 1.45rem; margin-bottom: 10px">
+                  Shared <code>topic</code>:
+                  <strong style="color: #1d4ed8">"{{ topic }}"</strong>
+                </div>
+                <div style="font-size: 1.45rem">
+                  Shared <code>counter</code>:
+                  <strong style="font-size: 2rem; color: #2563eb"
+                    >{{ counter }}</strong
+                  >
+                  &middot; <code>counter &times; 10</code> =
+                  <strong>{{ counter * 10 }}</strong>
+                </div>
+                <div class="controls-row">
+                  <button
+                    class="action-btn"
+                    @click="{{ () => counter = counter + 10 }}"
+                  >
+                    Add +10
+                  </button>
+                  <button
+                    class="action-btn secondary"
+                    @click="{{ () => topic = 'Shared Section Signals!' }}"
+                  >
+                    Update Topic
+                  </button>
+                  <a
+                    class="footer-link"
+                    href="#h-slide-section"
+                    style="padding: 10px 16px; font-size: 1.1rem"
+                  >
+                    &larr; Back to Slide 1 of Section
+                  </a>
+                </div>
+              </div>
+            </template>
+            <template name="right">
+              <pre><code><span class="tag">&lt;h-slide-section</span> <span class="attr">title</span>=<span class="str">"Scoped Sections"</span><span class="tag">&gt;</span>
+  <span class="tag">&lt;h-var</span> <span class="attr">name</span>=<span class="str">"counter"</span> <span class="attr">type</span>=<span class="str">"number"</span> <span class="attr">value</span>=<span class="str">"0"</span><span class="tag">&gt;&lt;/h-var&gt;</span>
+  <span class="tag">&lt;h-var</span> <span class="attr">name</span>=<span class="str">"topic"</span> <span class="attr">value</span>=<span class="str">"Signals in HTML"</span><span class="tag">&gt;&lt;/h-var&gt;</span>
+
+  <span class="comment">&lt;!-- First slide in section --&gt;</span>
+  <span class="tag">&lt;h-slide</span> <span class="attr">name</span>=<span class="str">"h-slide-section"</span><span class="tag">&gt;</span>...<span class="tag">&lt;/h-slide&gt;</span>
+
+  <span class="comment">&lt;!-- Second slide in section (this slide!) --&gt;</span>
+  <span class="tag">&lt;h-slide</span> <span class="attr">name</span>=<span class="str">"h-slide-section-2"</span><span class="tag">&gt;</span>
+    <span class="tag">&lt;template&gt;</span>
+      <span class="tag">&lt;p&gt;</span>Shared topic: "<span class="expr">\{{ topic }}</span>"<span class="tag">&lt;/p&gt;</span>
+      <span class="tag">&lt;p&gt;</span>Shared counter: <span class="expr">\{{ counter }}</span><span class="tag">&lt;/p&gt;</span>
+
+      <span class="tag">&lt;button</span> <span class="attr">@click</span>=<span class="str">"<span class="expr">\{{ () =&gt; counter = counter + 10 }}</span>"</span><span class="tag">&gt;</span>
+        Add +10
+      <span class="tag">&lt;/button&gt;</span>
+    <span class="tag">&lt;/template&gt;</span>
+  <span class="tag">&lt;/h-slide&gt;</span>
+<span class="tag">&lt;/h-slide-section&gt;</span></code></pre>
+            </template>
+            <h-slide-notes>
+              <p>
+                Mutating <code>counter</code> or <code>topic</code> on this
+                slide also updates the first slide in the section because both
+                slides resolve variables from the enclosing
+                <code>&lt;h-slide-section&gt;</code> scope.
+              </p>
+            </h-slide-notes>
+          </h-slide>
+        </h-slide-section>
+
+        <!-- ================================================================
+             6. <h-slide-presenter>
+             ================================================================ -->
+        <h-slide layout="two-column" name="h-slide-presenter">
+          <template name="header">
+            <h2>&lt;h-slide-presenter&gt;: Dual-Screen Speaker Console</h2>
+          </template>
+          <template name="left">
+            <p>
+              <code>&lt;h-slide-presenter&gt;</code> provides a synchronized
+              speaker console with slide previews, notes, navigation buttons,
+              and a global timer—embedded live on the right!
+            </p>
+            <div class="card">
+              <div
+                style="
+                  display: flex;
+                  align-items: center;
+                  justify-content: space-between;
+                  gap: 12px;
+                "
+              >
+                <span style="font-size: 1.25rem; font-weight: 600"
+                  >Deck Timer:</span
+                >
+                <div style="display: flex; align-items: center; gap: 10px">
+                  <strong
+                    style="
+                      font-size: 1.55rem;
+                      color: #2563eb;
+                      font-variant-numeric: tabular-nums;
+                      min-width: 68px;
+                    "
+                    >⏱ {{ timer.formatted }}</strong
+                  >
+                  <button
+                    style="
+                      padding: 6px 14px;
+                      font-size: 1.05rem;
+                      font-weight: 600;
+                      background: #2563eb;
+                      color: #fff;
+                      border: none;
+                      border-radius: 8px;
+                      cursor: pointer;
+                    "
+                    @click="{{ () => timer.toggle() }}"
+                  >
+                    {{ timer.running ? '⏸ Pause' : '▶ Start' }}
+                  </button>
+                  <button
+                    style="
+                      padding: 6px 14px;
+                      font-size: 1.05rem;
+                      font-weight: 600;
+                      background: #e2e8f0;
+                      color: #0f172a;
+                      border: none;
+                      border-radius: 8px;
+                      cursor: pointer;
+                    "
+                    @click="{{ () => timer.reset() }}"
+                  >
+                    ↺ Reset
+                  </button>
+                </div>
+              </div>
+            </div>
+            <pre><code><span class="comment">&lt;!-- Embed directly or open via ?presenter=true --&gt;</span>
+<span class="tag">&lt;h-slide-presenter&gt;&lt;/h-slide-presenter&gt;</span>
+
+<span class="comment">&lt;!-- Bind to the global timer in any slide --&gt;</span>
+<span class="tag">&lt;span&gt;</span>⏱ <span class="expr">\{{ timer.formatted }}</span><span class="tag">&lt;/span&gt;</span>
+<span class="tag">&lt;button</span> <span class="attr">@click</span>=<span class="str">"<span class="expr">\{{ () =&gt; timer.toggle() }}</span>"</span><span class="tag">&gt;</span>
+  <span class="expr">\{{ timer.running ? 'Pause' : 'Start' }}</span>
+<span class="tag">&lt;/button&gt;</span></code></pre>
+          </template>
+          <template name="right">
+            <div
+              style="
+                width: 100%;
+                height: 670px;
+                border-radius: 16px;
+                overflow: hidden;
+                border: 2px solid #334155;
+                box-shadow: 0 16px 36px rgba(15, 23, 42, 0.25);
+              "
+            >
+              <h-slide-presenter></h-slide-presenter>
+            </div>
+          </template>
+          <h-slide-notes>
+            <p>
+              You are looking at a live
+              <code>&lt;h-slide-presenter&gt;</code> embedded directly inside
+              the <code>#h-slide-presenter</code>
+              slide!
+            </p>
+            <p>
+              Try clicking <strong>▶ Start</strong> on the timer or
+              <strong>◀ Previous / Next ▶</strong>—everything stays in sync.
+            </p>
+          </h-slide-notes>
+        </h-slide>
+
+        <!-- ================================================================
+             7. <h-slide-notes>
+             ================================================================ -->
+        <h-slide layout="two-column" name="h-slide-notes">
+          <template name="header">
+            <h2>&lt;h-slide-notes&gt;: Speaker Notes &amp; Presenter Cues</h2>
+          </template>
+          <template name="left">
+            <p>
+              <code>&lt;h-slide-notes&gt;</code> attaches speaker notes to a
+              slide while staying hidden (<code>display: none</code>) in the
+              audience view:
+            </p>
+            <div class="card">
+              <ul>
+                <li>
+                  <strong>Rich HTML or Attribute</strong>: Use a child
+                  <code>&lt;h-slide-notes&gt;</code> element for formatted HTML
+                  notes, or the shorthand <code>notes="..."</code> attribute on
+                  <code>&lt;h-slide&gt;</code>.
+                </li>
+                <li>
+                  <strong>Extracted via <code>slide.notes</code></strong
+                  >: Displayed automatically in
+                  <code>&lt;h-slide-presenter&gt;</code>.
+                </li>
+                <li>
+                  <strong>Zero Stage Clutter</strong>: Notes remain in the DOM
+                  right alongside your slide template without affecting layout
+                  or audience rendering.
+                </li>
+              </ul>
+            </div>
+          </template>
+          <template name="right">
+            <pre><code><span class="comment">&lt;!-- Option 1: Rich HTML &lt;h-slide-notes&gt; child --&gt;</span>
+<span class="tag">&lt;h-slide</span> <span class="attr">name</span>=<span class="str">"h-slide-notes"</span><span class="tag">&gt;</span>
+  <span class="tag">&lt;template&gt;</span>
+    <span class="tag">&lt;h2&gt;</span>Speaker Notes<span class="tag">&lt;/h2&gt;</span>
+  <span class="tag">&lt;/template&gt;</span>
+
+  <span class="tag">&lt;h-slide-notes&gt;</span>
+    <span class="tag">&lt;p&gt;</span>Remind the audience to open Presenter View.<span class="tag">&lt;/p&gt;</span>
+    <span class="tag">&lt;ul&gt;</span>
+      <span class="tag">&lt;li&gt;</span>Notes are hidden on stage<span class="tag">&lt;/li&gt;</span>
+      <span class="tag">&lt;li&gt;</span>Synced to &lt;h-slide-presenter&gt;<span class="tag">&lt;/li&gt;</span>
+    <span class="tag">&lt;/ul&gt;</span>
+  <span class="tag">&lt;/h-slide-notes&gt;</span>
+<span class="tag">&lt;/h-slide&gt;</span>
+
+<span class="comment">&lt;!-- Option 2: Shorthand attribute --&gt;</span>
+<span class="tag">&lt;h-slide</span> <span class="attr">notes</span>=<span class="str">"Quick plain-text note"</span><span class="tag">&gt;</span>
+  <span class="tag">&lt;template&gt;</span>...<span class="tag">&lt;/template&gt;</span>
+<span class="tag">&lt;/h-slide&gt;</span></code></pre>
+          </template>
+          <h-slide-notes>
+            <p>
+              These exact speaker notes come from the
+              <code>&lt;h-slide-notes&gt;</code> element on the
+              <code>#h-slide-notes</code> slide!
+            </p>
+          </h-slide-notes>
+        </h-slide>
+
+        <!-- ================================================================
+             8. <h-slide-overview>
+             ================================================================ -->
+        <h-slide layout="two-column" name="h-slide-overview">
+          <template name="header">
+            <h2>&lt;h-slide-overview&gt;: Thumbnail Grid Overview</h2>
+          </template>
+          <template name="left">
+            <p>
+              <code>&lt;h-slide-overview&gt;</code> renders an interactive grid
+              of 16:9 slide thumbnails for jumping to any slide in the deck:
+            </p>
+            <div class="card">
+              <ul>
+                <li>
+                  <strong>Built into <code>&lt;h-slide-viewer&gt;</code></strong
+                  >: Toggle with the <code>o</code> key or the
+                  <strong>▦ Overview</strong> toolbar button.
+                </li>
+                <li>
+                  <strong>Standalone Component</strong>: Embed
+                  <code>&lt;h-slide-overview&gt;</code> anywhere and listen for
+                  <code>@slide-selected</code>—like the live grid on the right!
+                </li>
+              </ul>
+            </div>
+            <pre><code><span class="comment">&lt;!-- Embed a live overview grid anywhere --&gt;</span>
+<span class="tag">&lt;h-slide-overview&gt;&lt;/h-slide-overview&gt;</span></code></pre>
+          </template>
+          <template name="right">
+            <div
+              style="
+                width: 100%;
+                height: 670px;
+                border-radius: 16px;
+                overflow: hidden;
+                border: 2px solid #334155;
+                box-shadow: 0 16px 36px rgba(15, 23, 42, 0.25);
+              "
+            >
+              <h-slide-overview></h-slide-overview>
+            </div>
+          </template>
+          <h-slide-notes>
+            <p>
+              <code>&lt;h-slide-overview&gt;</code> renders live scaled
+              thumbnails of every slide in the deck. Click any thumbnail card on
+              the right to jump straight to that slide!
+            </p>
+          </h-slide-notes>
+        </h-slide>
+
+        <!-- ================================================================
+             9. <h-slide-filmstrip>
+             ================================================================ -->
+        <h-slide layout="two-column" name="h-slide-filmstrip">
+          <template name="header">
+            <h2>&lt;h-slide-filmstrip&gt;: Vertical Slide Filmstrip</h2>
+          </template>
+          <template name="left">
+            <p>
+              <code>&lt;h-slide-filmstrip&gt;</code> renders a vertical list of
+              numbered slide thumbnails paired with each slide's extracted
+              <code>slide.title</code>:
+            </p>
+            <div class="card">
+              <ul>
+                <li>
+                  <strong>Automatic Heading Extraction</strong>: Each slide
+                  extracts its <code>title</code> from the highest-ranked
+                  <code>&lt;h1&gt;</code>–<code>&lt;h6&gt;</code> in its
+                  template.
+                </li>
+                <li>
+                  <strong>Left Drawer Integration</strong>: Powers the slide-out
+                  filmstrip drawer in both
+                  <code>&lt;h-slide-viewer&gt;</code> and
+                  <code>&lt;h-slide-presenter&gt;</code>.
+                </li>
+              </ul>
+            </div>
+            <pre><code><span class="comment">&lt;!-- Vertical filmstrip with slide previews &amp; titles --&gt;</span>
+<span class="tag">&lt;h-slide-filmstrip&gt;&lt;/h-slide-filmstrip&gt;</span></code></pre>
+          </template>
+          <template name="right">
+            <div
+              style="
+                width: 360px;
+                height: 670px;
+                margin: 0 auto;
+                border-radius: 16px;
+                overflow: hidden;
+                border: 2px solid #334155;
+                box-shadow: 0 16px 36px rgba(15, 23, 42, 0.25);
+              "
+            >
+              <h-slide-filmstrip></h-slide-filmstrip>
+            </div>
+          </template>
+          <h-slide-notes>
+            <p>
+              <code>&lt;h-slide-filmstrip&gt;</code> pairs each slide's live
+              thumbnail with its automatically extracted heading title.
+            </p>
+          </h-slide-notes>
+        </h-slide>
+
+        <!-- ================================================================
+             10. <h-slide-preview>
+             ================================================================ -->
+        <h-slide layout="two-column" name="h-slide-preview">
+          <h-var name="previewIdx" type="number" value="0"></h-var>
+          <template name="header">
+            <h2>&lt;h-slide-preview&gt;: Live Scaled Slide Renderer</h2>
+          </template>
+          <template name="left">
+            <p>
+              <code>&lt;h-slide-preview&gt;</code> renders a live,
+              automatically-scaled preview of any
+              <code>&lt;h-slide&gt;</code> at a specific build
+              <code>step</code>:
+            </p>
+            <div class="card">
+              <p style="margin-top: 0; margin-bottom: 12px">
+                Previewing slide <strong>#{{ previewIdx + 1 }}</strong> (<code
+                  >{{ deck.slides[previewIdx].title }}</code
+                >):
+              </p>
+              <div style="display: flex; gap: 10px">
+                <button
+                  style="
+                    padding: 8px 16px;
+                    font-size: 1.1rem;
+                    font-weight: 600;
+                    background: #e2e8f0;
+                    color: #0f172a;
+                    border: none;
+                    border-radius: 8px;
+                    cursor: pointer;
+                  "
+                  @click="{{ () => previewIdx = previewIdx > 0 ? previewIdx - 1 : deck.length - 1 }}"
+                >
+                  ◀ Prev Preview
+                </button>
+                <button
+                  style="
+                    padding: 8px 16px;
+                    font-size: 1.1rem;
+                    font-weight: 600;
+                    background: #2563eb;
+                    color: #fff;
+                    border: none;
+                    border-radius: 8px;
+                    cursor: pointer;
+                  "
+                  @click="{{ () => previewIdx = (previewIdx + 1) % deck.length }}"
+                >
+                  Next Preview ▶
+                </button>
+              </div>
+            </div>
+            <pre><code><span class="comment">&lt;!-- Render a scaled preview of any slide &amp; build step --&gt;</span>
+<span class="tag">&lt;h-slide-preview</span>
+  <span class="attr">.slide</span>=<span class="str">"<span class="expr">\{{ deck.slides[previewIdx] }}</span>"</span>
+  <span class="attr">.step</span>=<span class="str">"<span class="expr">\{{ deck.slides[previewIdx].stepCount }}</span>"</span>
+<span class="tag">&gt;&lt;/h-slide-preview&gt;</span></code></pre>
+          </template>
+          <template name="right">
+            <div
+              style="
+                position: relative;
+                width: 100%;
+                aspect-ratio: 16 / 9;
+                background: #090d16;
+                border-radius: 16px;
+                overflow: hidden;
+                border: 2px solid #334155;
+                box-shadow: 0 16px 36px rgba(15, 23, 42, 0.25);
+              "
+            >
+              <h-slide-preview
+                .slide="{{ deck.slides[previewIdx] }}"
+                .step="{{ deck.slides[previewIdx].stepCount }}"
+              ></h-slide-preview>
+            </div>
+          </template>
+          <h-slide-notes>
+            <p>
+              <code>&lt;h-slide-preview&gt;</code> is the building block behind
+              <code>&lt;h-slide-presenter&gt;</code>,
+              <code>&lt;h-slide-overview&gt;</code>, and
+              <code>&lt;h-slide-filmstrip&gt;</code>. Use the buttons on the
+              slide to cycle through live previews of every slide in the deck!
+            </p>
+          </h-slide-notes>
+        </h-slide>
+
+        <!-- ================================================================
+             8. <h-slide-overview>
+             ================================================================ -->
+        <h-slide layout="two-column" name="h-slide-overview">
+          <template name="header">
+            <h2>&lt;h-slide-overview&gt;: Thumbnail Grid Overview</h2>
+          </template>
+          <template name="left">
+            <p>
+              <code>&lt;h-slide-overview&gt;</code> renders an interactive grid
+              of 16:9 slide thumbnails for jumping to any slide in the deck:
+            </p>
+            <div class="card">
+              <ul>
+                <li>
+                  <strong>Built into <code>&lt;h-slide-viewer&gt;</code></strong
+                  >: Toggle with the <code>o</code> key or the
+                  <strong>▦ Overview</strong> toolbar button.
+                </li>
+                <li>
+                  <strong>Standalone Component</strong>: Embed
+                  <code>&lt;h-slide-overview&gt;</code> anywhere and listen for
+                  <code>@slide-selected</code>—like the live grid on the right!
+                </li>
+              </ul>
+            </div>
+            <pre><code><span class="comment">&lt;!-- Embed a live overview grid anywhere --&gt;</span>
+<span class="tag">&lt;h-slide-overview&gt;&lt;/h-slide-overview&gt;</span></code></pre>
+          </template>
+          <template name="right">
+            <div
+              style="
+                width: 100%;
+                height: 670px;
+                border-radius: 16px;
+                overflow: hidden;
+                border: 2px solid #334155;
+                box-shadow: 0 16px 36px rgba(15, 23, 42, 0.25);
+              "
+            >
+              <h-slide-overview></h-slide-overview>
+            </div>
+          </template>
+          <h-slide-notes>
+            <p>
+              <code>&lt;h-slide-overview&gt;</code> renders live scaled
+              thumbnails of every slide in the deck. Click any thumbnail card on
+              the right to jump straight to that slide!
+            </p>
+          </h-slide-notes>
+        </h-slide>
+
+        <!-- ================================================================
+             9. <h-slide-filmstrip>
+             ================================================================ -->
+        <h-slide layout="two-column" name="h-slide-filmstrip">
+          <template name="header">
+            <h2>&lt;h-slide-filmstrip&gt;: Vertical Slide Filmstrip</h2>
+          </template>
+          <template name="left">
+            <p>
+              <code>&lt;h-slide-filmstrip&gt;</code> renders a vertical list of
+              numbered slide thumbnails paired with each slide's extracted
+              <code>slide.title</code>:
+            </p>
+            <div class="card">
+              <ul>
+                <li>
+                  <strong>Automatic Heading Extraction</strong>: Each slide
+                  extracts its <code>title</code> from the highest-ranked
+                  <code>&lt;h1&gt;</code>–<code>&lt;h6&gt;</code> in its
+                  template.
+                </li>
+                <li>
+                  <strong>Left Drawer Integration</strong>: Powers the slide-out
+                  filmstrip drawer in both
+                  <code>&lt;h-slide-viewer&gt;</code> and
+                  <code>&lt;h-slide-presenter&gt;</code>.
+                </li>
+              </ul>
+            </div>
+            <pre><code><span class="comment">&lt;!-- Vertical filmstrip with slide previews &amp; titles --&gt;</span>
+<span class="tag">&lt;h-slide-filmstrip&gt;&lt;/h-slide-filmstrip&gt;</span></code></pre>
+          </template>
+          <template name="right">
+            <div
+              style="
+                width: 360px;
+                height: 670px;
+                margin: 0 auto;
+                border-radius: 16px;
+                overflow: hidden;
+                border: 2px solid #334155;
+                box-shadow: 0 16px 36px rgba(15, 23, 42, 0.25);
+              "
+            >
+              <h-slide-filmstrip></h-slide-filmstrip>
+            </div>
+          </template>
+          <h-slide-notes>
+            <p>
+              <code>&lt;h-slide-filmstrip&gt;</code> pairs each slide's live
+              thumbnail with its automatically extracted heading title.
+            </p>
+          </h-slide-notes>
+        </h-slide>
+
+        <!-- ================================================================
+             10. <h-slide-preview>
+             ================================================================ -->
+        <h-slide layout="two-column" name="h-slide-preview">
+          <h-var name="previewIdx" type="number" value="0"></h-var>
+          <template name="header">
+            <h2>&lt;h-slide-preview&gt;: Live Scaled Slide Renderer</h2>
+          </template>
+          <template name="left">
+            <p>
+              <code>&lt;h-slide-preview&gt;</code> renders a live,
+              automatically-scaled preview of any
+              <code>&lt;h-slide&gt;</code> at a specific build
+              <code>step</code>:
+            </p>
+            <div class="card">
+              <p style="margin-top: 0; margin-bottom: 12px">
+                Previewing slide <strong>#{{ previewIdx + 1 }}</strong> (<code
+                  >{{ deck.slides[previewIdx].title }}</code
+                >):
+              </p>
+              <div style="display: flex; gap: 10px">
+                <button
+                  style="
+                    padding: 8px 16px;
+                    font-size: 1.1rem;
+                    font-weight: 600;
+                    background: #e2e8f0;
+                    color: #0f172a;
+                    border: none;
+                    border-radius: 8px;
+                    cursor: pointer;
+                  "
+                  @click="{{ () => previewIdx = previewIdx > 0 ? previewIdx - 1 : deck.length - 1 }}"
+                >
+                  ◀ Prev Preview
+                </button>
+                <button
+                  style="
+                    padding: 8px 16px;
+                    font-size: 1.1rem;
+                    font-weight: 600;
+                    background: #2563eb;
+                    color: #fff;
+                    border: none;
+                    border-radius: 8px;
+                    cursor: pointer;
+                  "
+                  @click="{{ () => previewIdx = (previewIdx + 1) % deck.length }}"
+                >
+                  Next Preview ▶
+                </button>
+              </div>
+            </div>
+            <pre><code><span class="comment">&lt;!-- Render a scaled preview of any slide &amp; build step --&gt;</span>
+<span class="tag">&lt;h-slide-preview</span>
+  <span class="attr">.slide</span>=<span class="str">"<span class="expr">\{{ deck.slides[previewIdx] }}</span>"</span>
+  <span class="attr">.step</span>=<span class="str">"<span class="expr">\{{ deck.slides[previewIdx].stepCount }}</span>"</span>
+<span class="tag">&gt;&lt;/h-slide-preview&gt;</span></code></pre>
+          </template>
+          <template name="right">
+            <div
+              style="
+                position: relative;
+                width: 100%;
+                aspect-ratio: 16 / 9;
+                background: #090d16;
+                border-radius: 16px;
+                overflow: hidden;
+                border: 2px solid #334155;
+                box-shadow: 0 16px 36px rgba(15, 23, 42, 0.25);
+              "
+            >
+              <h-slide-preview
+                .slide="{{ deck.slides[previewIdx] }}"
+                .step="{{ deck.slides[previewIdx].stepCount }}"
+              ></h-slide-preview>
+            </div>
+          </template>
+          <h-slide-notes>
+            <p>
+              <code>&lt;h-slide-preview&gt;</code> is the building block behind
+              <code>&lt;h-slide-presenter&gt;</code>,
+              <code>&lt;h-slide-overview&gt;</code>, and
+              <code>&lt;h-slide-filmstrip&gt;</code>. Use the buttons on the
+              slide to cycle through live previews of every slide in the deck!
+            </p>
+          </h-slide-notes>
+        </h-slide>
+      </h-slide-deck>
+    </h-slide-viewer>
+  </body>
+</html>

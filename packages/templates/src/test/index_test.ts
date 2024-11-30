@@ -399,6 +399,125 @@ suite('templates', () => {
     litRender(subTemplateFn({a: 'Z'}), container);
     assert.equal(stripExpressionMarkers(container.innerHTML), `Z`);
   });
+
+  test('implicit super call with TemplateFunction superTemplate', () => {
+    const baseTemplate = document.createElement('template');
+    baseTemplate.innerHTML = `<header><template name="header">Base Header</template></header><main><template name="content">Base Content</template></main>`;
+
+    const baseFn = prepareTemplate(baseTemplate);
+
+    const subTemplate = document.createElement('template');
+    subTemplate.innerHTML = `<template name="content">My Custom Content</template>`;
+
+    const subFn = prepareTemplate(subTemplate, undefined, undefined, baseFn);
+
+    litRender(subFn({}), container);
+    assert.equal(
+      stripExpressionMarkers(container.innerHTML),
+      `<header>Base Header</header><main>My Custom Content</main>`,
+    );
+  });
+
+  test('multi-level template inheritance (base -> layout -> slide)', () => {
+    // Level 1: Base
+    const baseTemplate = document.createElement('template');
+    baseTemplate.innerHTML = `<div class="base"><template name="header">Base Header</template><template name="body">Base Body</template><template name="footer">Base Footer</template></div>`;
+
+    const baseFn = prepareTemplate(baseTemplate);
+
+    // Level 2: Layout extends Base (overrides header and body to create title-and-content layout)
+    const layoutTemplate = document.createElement('template');
+    layoutTemplate.innerHTML = `
+      <template name="header"><h1><template name="title">Default Title</template></h1></template>
+      <template name="body"><div class="content"><template name="content">Default Content</template></div></template>
+    `;
+
+    const layoutFn = prepareTemplate(
+      layoutTemplate,
+      undefined,
+      undefined,
+      baseFn,
+    );
+
+    // Level 3: Slide extends Layout (overrides title and content)
+    const slideTemplate = document.createElement('template');
+    slideTemplate.innerHTML = `
+      <template name="title">Slide Title</template>
+      <template name="content"><p>Slide Body Paragraph</p></template>
+    `;
+
+    const slideFn = prepareTemplate(
+      slideTemplate,
+      undefined,
+      undefined,
+      layoutFn,
+    );
+
+    litRender(slideFn({}), container);
+    assert.equal(
+      stripExpressionMarkers(container.innerHTML).replace(/\s+/g, ' ').trim(),
+      `<div class="base"><h1>Slide Title</h1><div class="content"><p>Slide Body Paragraph</p></div>Base Footer</div>`,
+    );
+  });
+
+  test('default content block inheritance (base -> title -> slide)', () => {
+    const baseTemplate = document.createElement('template');
+    baseTemplate.innerHTML = `<div class="base"><template name="content">Base Content</template><footer>Footer</footer></div>`;
+    const baseFn = prepareTemplate(baseTemplate);
+
+    const titleLayout = document.createElement('template');
+    titleLayout.innerHTML = `<div class="title-wrap"><template name="content">Title Default</template></div>`;
+    const titleFn = prepareTemplate(titleLayout, undefined, undefined, baseFn);
+
+    const slideTemplate = document.createElement('template');
+    slideTemplate.innerHTML = `<h1>Hello World</h1><p>Subtitle</p>`;
+    const slideFn = prepareTemplate(
+      slideTemplate,
+      undefined,
+      undefined,
+      titleFn,
+    );
+
+    litRender(slideFn({}), container);
+    assert.equal(
+      stripExpressionMarkers(container.innerHTML).replace(/\s+/g, ' ').trim(),
+      `<div class="base"><div class="title-wrap"><h1>Hello World</h1><p>Subtitle</p></div><footer>Footer</footer></div>`,
+    );
+  });
+
+  test('default content block in intermediate layout with named blocks in leaf', () => {
+    const baseTemplate = document.createElement('template');
+    baseTemplate.innerHTML = `<div class="base"><template name="content"></template><footer>Footer</footer></div>`;
+    const baseFn = prepareTemplate(baseTemplate);
+
+    const twoColLayout = document.createElement('template');
+    twoColLayout.innerHTML = `<header><template name="header"></template></header><div class="cols"><div class="left"><template name="left"></template></div><div class="right"><template name="right"></template></div></div>`;
+    const twoColFn = prepareTemplate(
+      twoColLayout,
+      undefined,
+      undefined,
+      baseFn,
+    );
+
+    const slideTemplate = document.createElement('template');
+    slideTemplate.innerHTML = `
+      <template name="header"><h2>My Header</h2></template>
+      <template name="left"><p>Left Col</p></template>
+      <template name="right"><p>Right Col</p></template>
+    `;
+    const slideFn = prepareTemplate(
+      slideTemplate,
+      undefined,
+      undefined,
+      twoColFn,
+    );
+
+    litRender(slideFn({}), container);
+    assert.equal(
+      stripExpressionMarkers(container.innerHTML).replace(/\s+/g, ' ').trim(),
+      `<div class="base"><header><h2>My Header</h2></header><div class="cols"><div class="left"><p>Left Col</p></div><div class="right"><p>Right Col</p></div></div><footer>Footer</footer></div>`,
+    );
+  });
 });
 
 const stripExpressionMarkers = (html: string) =>

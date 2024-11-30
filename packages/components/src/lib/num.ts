@@ -141,11 +141,7 @@ export class HeximalNum extends HeximalElement {
 
   @property({reflect: true})
   accessor signDisplay:
-    | 'auto'
-    | 'always'
-    | 'exceptZero'
-    | 'negative'
-    | 'never' = 'auto';
+    'auto' | 'always' | 'exceptZero' | 'negative' | 'never' = 'auto';
 
   // End options
 

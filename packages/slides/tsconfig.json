@@ -1,0 +1,22 @@
+{
+  "extends": "../../tsconfig-base.json",
+  "compilerOptions": {
+    "tsBuildInfoFile": "./.tsbuildinfo",
+    "lib": ["esnext", "DOM", "DOM.Iterable"],
+    "outDir": "./",
+    "rootDir": "./src"
+  },
+  "include": ["src/**/*.ts"],
+  "exclude": [],
+  "references": [
+    {
+      "path": "../components"
+    },
+    {
+      "path": "../element"
+    },
+    {
+      "path": "../templates"
+    }
+  ]
+}

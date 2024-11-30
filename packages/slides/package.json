@@ -1,0 +1,92 @@
+{
+  "name": "@heximal/slides",
+  "version": "0.1.5",
+  "type": "module",
+  "main": "./index.js",
+  "exports": {
+    ".": {
+      "types": "./index.d.ts",
+      "default": "./index.js"
+    }
+  },
+  "files": [
+    "index.{d.ts,d.ts.map,js,js.map}",
+    "lib/*",
+    "src/*",
+    "!src/demo/*",
+    "!src/test/*"
+  ],
+  "dependencies": {
+    "@heximal/components": "^0.1.5",
+    "@heximal/element": "^0.1.5",
+    "@heximal/templates": "^0.1.5",
+    "@lit/task": "^1.0.3",
+    "lit": "^3.3.3",
+    "signal-polyfill": "^0.2.2",
+    "signal-utils": "^0.21.1"
+  },
+  "scripts": {
+    "build": "wireit",
+    "demo": "wireit",
+    "test": "wireit"
+  },
+  "devDependencies": {
+    "@esm-bundle/chai": "^4.3.4-fix.0",
+    "@types/mocha": "^10.0.10",
+    "@web/dev-server": "^1.0.0",
+    "@web/test-runner": "^1.0.0",
+    "@web/test-runner-mocha": "^1.0.0",
+    "@web/test-runner-playwright": "^1.0.0"
+  },
+  "author": "Elematic Software, Inc.",
+  "license": "MIT",
+  "repository": "elematic/heximal",
+  "bugs": {
+    "url": "https://github.com/elematic/heximal/issues"
+  },
+  "homepage": "https://github.com/elematic/heximal/tree/main/packages/slides",
+  "wireit": {
+    "build": {
+      "command": "tsc --pretty",
+      "dependencies": [
+        "../components:build",
+        "../element:build",
+        "../templates:build"
+      ],
+      "files": [
+        "src/**/*.ts",
+        "tsconfig.json"
+      ],
+      "output": [
+        "index.{d.ts,d.ts.map,js,js.map}",
+        "lib",
+        "test/**/*.{js,js.map,d.ts,d.ts.map}",
+        ".tsbuildinfo"
+      ],
+      "clean": "if-file-deleted"
+    },
+    "demo": {
+      "command": "wds",
+      "service": true,
+      "dependencies": [
+        {
+          "script": "build",
+          "cascade": false
+        }
+      ],
+      "files": [
+        "web-dev-server.config.js"
+      ]
+    },
+    "test": {
+      "command": "wtr test/**/*_test.js --node-resolve --playwright --browsers chromium",
+      "dependencies": [
+        "build"
+      ],
+      "files": [
+        "web-test-runner.config.js"
+      ],
+      "output": []
+    }
+  }
+}

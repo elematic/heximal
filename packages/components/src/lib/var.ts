@@ -21,10 +21,22 @@ export class HeximalVar extends LitElement {
   @property({type: String, reflect: true})
   accessor name = '';
 
+  #type = '';
+
+  get type() {
+    return this.#type;
+  }
+
   @property({type: String})
-  accessor type = '';
+  set type(type: string) {
+    this.#type = type;
+    if (this.#rawAttributeValue !== undefined) {
+      this.#value.set(this.#convertAttributeValue(this.#rawAttributeValue));
+    }
+  }
 
   #value = new Signal.State<unknown>(undefined);
+  #rawAttributeValue: string | null | undefined = undefined;
 
   get signal() {
     return this.#value;
@@ -34,11 +46,56 @@ export class HeximalVar extends LitElement {
     return this.#value.get();
   }
 
-  // TODO (justinfagnani): add a custom type converter and a `type` property
-  // that feeds the converter.
-  @property({type: String})
+  @property({converter: (v) => v})
   set value(value: unknown) {
+    this.#rawAttributeValue = undefined;
     this.#value.set(value);
+  }
+
+  override attributeChangedCallback(
+    name: string,
+    _old: string | null,
+    value: string | null,
+  ): void {
+    if (name === 'value') {
+      this.#rawAttributeValue = value;
+      this.#value.set(this.#convertAttributeValue(value));
+      return;
+    }
+    super.attributeChangedCallback(name, _old, value);
+  }
+
+  #convertAttributeValue(value: string | null): unknown {
+    if (value === null) {
+      const type = (
+        this.#type ||
+        this.getAttribute('type') ||
+        'string'
+      ).toLowerCase();
+      return type === 'boolean' ? false : null;
+    }
+    const type = (
+      this.#type ||
+      this.getAttribute('type') ||
+      'string'
+    ).toLowerCase();
+    switch (type) {
+      case 'number':
+        return Number(value);
+      case 'boolean':
+        return value !== 'false';
+      case 'object':
+      case 'array':
+      case 'json':
+        try {
+          return JSON.parse(value);
+        } catch {
+          return null;
+        }
+      case 'string':
+      default:
+        return value;
+    }
   }
 
   override connectedCallback(): void {
@@ -51,6 +108,8 @@ export class HeximalVar extends LitElement {
       console.warn(`Variable ${this.name} already exists in scope`);
     }
     Object.defineProperty(scope, this.name, {
+      configurable: true,
+      enumerable: true,
       get: () => this.value,
       set: (value: unknown) => {
         this.value = value;

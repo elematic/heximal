@@ -11,7 +11,6 @@ const astFactory = new EvalAstFactory();
 
 @customElement('h-out')
 export class HeximalOut extends HeximalElement {
-
   @property({type: String})
   accessor expr = '';
 

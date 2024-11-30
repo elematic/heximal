@@ -10,7 +10,17 @@ export class HeximalScope extends LitElement {
     }
   `;
 
-  scope?: Record<string, unknown>;
+  #scope?: Record<string, unknown>;
+
+  get scope(): Record<string, unknown> | undefined {
+    if (this.#scope === undefined && this.isConnected) {
+      const outerScope = this.parentNode
+        ? getScope(this.parentNode)
+        : undefined;
+      this.#scope = Object.create(outerScope ?? null);
+    }
+    return this.#scope;
+  }
 
   override render() {
     return html`<slot></slot>`;
@@ -18,16 +28,13 @@ export class HeximalScope extends LitElement {
 
   override connectedCallback(): void {
     super.connectedCallback();
-    const outerScope = getScope(this);
-    // TODO (justinfagnani): rather than create a fresh scope each time, should
-    // we just update the prototype chain of the existing scope?
-    // Is the difference in behavior observable?
-    this.scope = Object.create(outerScope ?? null);
+    // Ensure scope is initialized
+    void this.scope;
   }
 
   override disconnectedCallback(): void {
     super.disconnectedCallback();
-    this.scope = undefined;
+    this.#scope = undefined;
   }
 }
 
