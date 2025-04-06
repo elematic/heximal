@@ -167,7 +167,7 @@ The pipe syntax is used rather than a regular function call so that we can
 support two-way bindings through transformers. A transformer is a filter that
 has an inverse function. Two-way transformers are not supported yet.
 
-## Acknowedgements
+## Acknowledgements
 
 Heximal Expressions was moved and renamed from
 [Jexpr](https://github.com/justinfagnani/jexpr), which itself was forked from

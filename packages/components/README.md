@@ -24,8 +24,8 @@ Auto templates are immediately rendered in-place without being part of a
 component or called from another template. They are declared with the `h-auto`
 attribute.
 
-Auto templates are neccessary to be able to use bindings in the main document
-without rendering the text of the bidning expression. The expressions are
+Auto templates are necessary to be able to use bindings in the main document
+without rendering the text of the binding expression. The expressions are
 stripped before rendering, and replaced with their values.
 
 Auto-templates are also run as a signal effect, so that they update whenever any
