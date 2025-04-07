@@ -1,0 +1,39 @@
+{
+  "name": "@heximal/site-content",
+  "private": true,
+  "version": "0.0.0",
+  "description": "Heximal website content built with Eleventy",
+  "type": "module",
+  "scripts": {
+    "build": "wireit",
+    "start": "wireit"
+  },
+  "dependencies": {
+    "@11ty/eleventy": "^3.0.0",
+    "@11ty/eleventy-navigation": "^1.0.4"
+  },
+  "wireit": {
+    "build": {
+      "command": "eleventy",
+      "files": [
+        ".eleventy.js",
+        "site/**/*"
+      ],
+      "output": [
+        "out"
+      ]
+    },
+    "start": {
+      "command": "eleventy --serve",
+      "service": {
+        "readyWhen": {
+          "lineMatches": "[11ty] Server at"
+        }
+      },
+      "files": [],
+      "dependencies": [
+        "build"
+      ]
+    }
+  }
+}
