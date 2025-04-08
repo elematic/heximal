@@ -6,16 +6,38 @@
   "type": "module",
   "scripts": {
     "build": "wireit",
-    "start": "wireit"
+    "start": "wireit",
+    "start:dev": "wireit"
   },
   "dependencies": {
     "@11ty/eleventy": "^3.0.0",
     "@11ty/eleventy-navigation": "^1.0.4",
     "@11ty/eleventy-plugin-syntaxhighlight": "^5.0.0",
-    "open-props": "^1.7.14"
+    "open-props": "^1.7.14",
+    "zipadee": "^0.0.16"
   },
   "wireit": {
     "build": {
+      "dependencies": [
+        "build:eleventy",
+        "build:ts"
+      ]
+    },
+    "build:ts": {
+      "command": "tsc --pretty",
+      "files": [
+        "/src/**/*.ts",
+        "tsconfig.json"
+      ],
+      "output": [
+        "index.{js,js.map,d.ts,d.ts.map}",
+        "/lib/",
+        ".tsbuildinfo"
+      ],
+      "clean": "if-file-deleted",
+      "dependencies": []
+    },
+    "build:eleventy": {
       "command": "eleventy",
       "files": [
         ".eleventy.js",
@@ -26,6 +48,18 @@
       ]
     },
     "start": {
+      "command": "node ./index.js",
+      "service": {
+        "readyWhen": {
+          "lineMatches": "Listening"
+        }
+      },
+      "files": [],
+      "dependencies": [
+        "build"
+      ]
+    },
+    "start:dev": {
       "command": "eleventy --serve",
       "service": {
         "readyWhen": {
