@@ -20,7 +20,7 @@ const toCamelCase = (s: string) =>
   s.replace(/-(-|\w)/g, (_, p1: string) => p1.toUpperCase());
 
 /**
- * Gets the value from a string that contains a delimted expression: {{ ... }}
+ * Gets the value from a string that contains a delimited expression: {{ ... }}
  */
 const getSingleValue = (s: string, model: any) => {
   let ast = expressionCache.get(s);
@@ -159,7 +159,7 @@ export const prepareTemplate = (
 
       // render the sub template with:
       renderers = {
-        // sub template's own renderes
+        // sub template's own renderers
         ...templateRenderers,
         // passed-in renderers
         ...renderers,
