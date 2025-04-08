@@ -1,0 +1,63 @@
+/* Justin's styles */
+:root {
+  --size-content-1: 80ch;
+  --size-content-2: 80ch;
+  --size-content-3: 80ch;
+  --size-header-1: 80ch;
+  --size-header-2: 80ch;
+  --size-header-3: 80ch;
+
+  --brand: var(--teal-4);
+}
+
+body {
+  display: grid;
+  place-content: center;
+  padding: var(--size-7);
+  /* gap: var(--size-7); */
+  background-color: var(--surface-1);
+}
+
+header {
+  padding: var(--spacing);
+  border-bottom: 1px solid var(--gray-6);
+  
+  h1 {
+    margin: 0;
+    font-size: var(--font-size-4);
+  }
+}
+
+.banner {
+  text-align: center;
+  padding: var(--size-10) 0;
+
+  h1 {
+    margin: 0;
+    color: var(--brand);
+    font-size: calc(var(--font-size-7) * 2);
+    font-weight: var(--font-weight-7);
+  }
+  h2 {
+    margin: 0;
+    font-size: var(--font-size-5);
+    font-weight: var(--font-weight-3);
+  }
+}
+
+pre[class*="language-"] {
+  background-color: var(--surface-2);
+  margin: auto;
+  min-width: 60ch;
+  border-radius: var(--radius-3);
+}
+
+.link {
+  color: var(--link);
+  background-color: var(--link);
+}
+
+.link-visited {
+  color: var(--link-visited);
+  background-color: var(--link-visited);
+}

@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{{ title | default("Heximal") }}</title>
+    <link
+			href="https://unpkg.com/prismjs@1.20.0/themes/prism-tomorrow.css"
+			rel="stylesheet"
+		/>
+    <link rel="stylesheet" href="/open-props/open-props.min.css" />
+    <link rel="stylesheet" href="/normalize.css" />
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    {# <header>
+      <h1>{{ title | default("Heximal") }}</h1>
+    </header> #}
+    <main>
+      {{ content | safe }}
+    </main>
+    <footer>
+      <p>&copy; 2025 Elematic Software, Inc. All rights reserved.</p>
+    </footer>
+  </body>
+</html>

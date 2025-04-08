@@ -10,7 +10,9 @@
   },
   "dependencies": {
     "@11ty/eleventy": "^3.0.0",
-    "@11ty/eleventy-navigation": "^1.0.4"
+    "@11ty/eleventy-navigation": "^1.0.4",
+    "@11ty/eleventy-plugin-syntaxhighlight": "^5.0.0",
+    "open-props": "^1.7.14"
   },
   "wireit": {
     "build": {
