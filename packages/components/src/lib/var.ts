@@ -3,8 +3,11 @@ import {customElement, property} from 'lit/decorators.js';
 import {Signal} from 'signal-polyfill';
 import {getScope} from './document.js';
 
-// This import ensures the scope is created before any vars try to attach to it.
-// This isn't so rubust. We need a scheduler to ensure top-down initialization.
+// This import ensures that h-scope elements are upgraded before any vars try to
+// attach to it.
+//
+// TODO (justinfagnani): This isn't very robust. We need a scheduler to ensure
+// top-down initialization.
 import './scope.js';
 
 @customElement('h-var')

@@ -19,7 +19,7 @@ export class HeximalScope extends LitElement {
   override connectedCallback(): void {
     super.connectedCallback();
     const outerScope = getScope(this);
-    // TODO (justinfagnani): rather than ceate a fresh scope each time, should
+    // TODO (justinfagnani): rather than create a fresh scope each time, should
     // we just update the prototype chain of the existing scope?
     // Is the difference in behavior observable?
     this.scope = Object.create(outerScope ?? null);
