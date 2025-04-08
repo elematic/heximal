@@ -1,5 +1,5 @@
 {
-  "name": "@heximal/site-content",
+  "name": "@heximal/site",
   "private": true,
   "version": "0.0.0",
   "description": "Heximal website content built with Eleventy",

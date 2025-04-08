@@ -28,7 +28,7 @@
         "./packages/examples:build",
         "./packages/expressions:build",
         "./packages/heximal:build",
-        "./packages/site-content:build",
+        "./packages/site:build",
         "./packages/templates:build"
       ]
     },
