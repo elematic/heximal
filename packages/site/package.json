@@ -7,7 +7,8 @@
   "scripts": {
     "build": "wireit",
     "start": "wireit",
-    "start:dev": "wireit"
+    "start:dev": "wireit",
+    "deploy": "wireit"
   },
   "dependencies": {
     "@11ty/eleventy": "^3.0.0",
@@ -70,6 +71,15 @@
       "dependencies": [
         "build"
       ]
+    },
+    "deploy": {
+      "command": "gcloud beta run deploy site --platform managed --region us-central1 --source ../..",
+      "dependencies": [
+        "build"
+      ]
     }
+  },
+  "devDependencies": {
+    "@types/node": "^22.14.0"
   }
 }

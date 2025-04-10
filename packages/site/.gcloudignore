@@ -1,0 +1,8 @@
+.git
+.gcloudignore
+.DS_Store
+node_modules/
+.wireit/
+
+#tsconfig.json
+.tsbuildinfo
