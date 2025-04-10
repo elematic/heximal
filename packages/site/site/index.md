@@ -282,6 +282,7 @@ proposals, including:
 - [Declarative Custom Elements](https://github.com/WICG/webcomponents/blob/gh-pages/proposals/Declarative-Custom-Elements-Strawman.md)
 - [HTML includes](https://github.com/whatwg/html/issues/2791)
 - [HTMLScriptElement.exports](https://github.com/whatwg/html/issues/7367)
+- [Allow importing and exporting from inline module scripts](https://github.com/whatwg/html/issues/11202)
 - [Declarative CSS Module Scripts](https://github.com/WICG/webcomponents/issues/939)
 - [Enabling secure script-like custom elements](https://github.com/WICG/webcomponents/issues/979)
 
