@@ -12,6 +12,10 @@ eleventyNavigation:
 
 </div>
 
+<div class="links">
+  <a href="https://github.com/elematic/heximal/"><img src="/github-mark.svg"> View on GitHub</a>
+</div>
+
 ## What is Heximal?
 
 Heximal enhances HTML to be more dynamic, interactive, and composable. It's like

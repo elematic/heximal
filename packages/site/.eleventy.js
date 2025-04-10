@@ -9,6 +9,7 @@ export default function (eleventyConfig) {
   eleventyConfig.addPlugin(syntaxHighlight);
 
   eleventyConfig.addPassthroughCopy('site/*.css');
+  eleventyConfig.addPassthroughCopy('site/*.svg');
 
   const openPropsPath = fileURLToPath(import.meta.resolve('open-props/style'));
   symlinkForce(openPropsPath, 'out/open-props/open-props.min.css');

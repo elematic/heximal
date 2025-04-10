@@ -21,7 +21,7 @@ body {
 header {
   padding: var(--spacing);
   border-bottom: 1px solid var(--gray-6);
-  
+
   h1 {
     margin: 0;
     font-size: var(--font-size-4);
@@ -46,6 +46,27 @@ header {
   }
 }
 
+.links {
+  display: flex;
+  justify-content: center;
+  font-size: var(--font-size-3);
+  color: var(--gray-4);
+  
+  a {
+    display: flex;
+    align-items: center;
+    gap: var(--size-2);
+    color: inherit;
+    font-size: inherit;
+
+    img {
+      width: var(--font-size-4);
+      height: var(--font-size-4);
+      filter: invert(1);
+    }
+  }
+}
+
 h2 {
   color: var(--cyan-3);
 }
@@ -58,8 +79,7 @@ h4 {
   color: var(--gray-4);
 }
 
-
-pre[class*="language-"] {
+pre[class*='language-'] {
   background-color: var(--surface-2);
   margin: auto;
   min-width: 60ch;
