@@ -64,7 +64,11 @@
   margin: var(--size-6) 0 var(--size-2);
 }
 
-:where(h4) { font-size: var(--font-size-3) }
+:where(h4) {
+  font-size: var(--font-size-3);
+  margin: var(--size-5) 0 var(--size-1);
+}
+
 :where(h5) { font-size: var(--font-size-3) }
 
 :where(h3, h4, h5, h6, dt) {

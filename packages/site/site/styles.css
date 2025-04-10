@@ -7,7 +7,7 @@
   --size-header-2: 80ch;
   --size-header-3: 80ch;
 
-  --brand: var(--teal-4);
+  --brand: var(--teal-5);
 }
 
 body {
@@ -42,8 +42,22 @@ header {
     margin: 0;
     font-size: var(--font-size-5);
     font-weight: var(--font-weight-3);
+    color: inherit;
   }
 }
+
+h2 {
+  color: var(--cyan-3);
+}
+
+h3 {
+  color: var(--cyan-2);
+}
+
+h4 {
+  color: var(--gray-4);
+}
+
 
 pre[class*="language-"] {
   background-color: var(--surface-2);
@@ -60,4 +74,8 @@ pre[class*="language-"] {
 .link-visited {
   color: var(--link-visited);
   background-color: var(--link-visited);
+}
+
+footer {
+  text-align: center;
 }

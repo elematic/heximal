@@ -212,14 +212,32 @@ These elements can then be used anywhere in the HTML document.
 
 ## Project Status
 
-Heximal is not yet stable, and may have frequent breaking changes. Please use
-accordingly.
+Heximal is a work in progress. It is insecure, unstable, and will have frequent
+breaking changes. Please use accordingly.
+
+### 🤝 Seeking Collaborators!
 
 The best way to help Heximal reach a stable release is to get involved. If you
 like the Heximal vision, please drop by the [Heximal GitHub
 repo](https://github.com/elematic/heximal/) and file issues or submit PRs.
 
-### Roadmap
+### ⚠️ Security
+
+Because of Heximal expressions use a custom evaluator, they allow writing code
+in markup that is not controlled by Content Security Policy (CSP). This makes
+using Heximal in any context with user-generated or user-controlled content
+currently extremely unsafe. Sanitizers must be configured to only allow safe
+tags, not disallow tags, since Heximal introduces new  script-like tags like
+`<h-out>`, `h-define-element>`, `<template h-auto>`, etc.
+
+It is possible to make Heximal secure. Work is planned to address security
+issues, such as expression-aware HTML sanitizers, safer expression evaluation,
+disallowing "gadgets" by default, supporting nonces on script-like elements, and
+new standards proposals. Please follow the
+[Security](https://github.com/elematic/heximal/issues/1) issue for more
+information and updates.
+
+### 🗺️ Roadmap
 
 Some of the planned improvements and additions to Heximal include:
 
@@ -265,6 +283,7 @@ proposals, including:
 - [HTML includes](https://github.com/whatwg/html/issues/2791)
 - [HTMLScriptElement.exports](https://github.com/whatwg/html/issues/7367)
 - [Declarative CSS Module Scripts](https://github.com/WICG/webcomponents/issues/939)
+- [Enabling secure script-like custom elements](https://github.com/WICG/webcomponents/issues/979)
 
 ## Inspirations
 
