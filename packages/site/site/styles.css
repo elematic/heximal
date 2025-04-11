@@ -79,6 +79,16 @@ h4 {
   color: var(--gray-4);
 }
 
+:is(h1, h2, h3, h4, h5, h6) {
+  a {
+    color: inherit;
+    text-decoration: none;
+  }
+  a:hover {
+    text-decoration: underline;
+  }
+}
+
 pre[class*='language-'] {
   background-color: var(--surface-2);
   margin: auto;

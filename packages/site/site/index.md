@@ -6,10 +6,8 @@ eleventyNavigation:
 ---
 
 <div class="banner">
-
-# Heximal
-## HTML from the *<code>&lt;future&gt;</code>*
-
+  <h1>Heximal</h1>
+  <h2>HTML from the <em><code>&lt;future&gt;</code></em></h2>
 </div>
 
 <div class="links">
@@ -132,6 +130,7 @@ Heximal Templates enhance the HTML `<template>` element with bindings,
 expressions, and control flow like `if` and `repeat`.
 
 {% raw %}
+
 ```html
 <template id="my-template">
   <h2>Messages</h2>
@@ -145,6 +144,7 @@ expressions, and control flow like `if` and `repeat`.
   </template>
 </template>
 ```
+
 {% endraw %}
 
 Templates can be used as a part of custom elements, standalone, or as auto
@@ -159,6 +159,7 @@ without being part of a component or called from another template.
 Auto templates are declared with the `h-auto` attribute.
 
 {% raw %}
+
 ```html
 <body>
   <template h-auto>
@@ -166,6 +167,7 @@ Auto templates are declared with the `h-auto` attribute.
   </template>
 </body>
 ```
+
 {% endraw %}
 
 ### Components
@@ -174,9 +176,9 @@ Heximal allows you to define new reusable or web components declaratively in
 HTML with the `<h-define-element>` element.
 
 {% raw %}
+
 ```html
 <h-define-element name="simple-greeter">
-
   <h-prop name="name"></h-prop>
 
   <style type="adopted-css">
@@ -188,9 +190,9 @@ HTML with the `<h-define-element>` element.
   <template>
     <h1>Hello {{ name }}!</h1>
   </template>
-
 </h-define-element>
 ```
+
 {% endraw %}
 
 These elements can then be used anywhere in the HTML document.
@@ -205,13 +207,13 @@ These elements can then be used anywhere in the HTML document.
 
 - `<h-include>`: Include external HTML files.
 - `<h-fetch>`: Fetch and display data.
-- *[TODO]* `<h-import>`: Import HTML modules.
+- _[TODO]_ `<h-import>`: Import HTML modules.
 
 #### Display
 
 - `<h-num>`: Format numbers with `Intl.NumberFormat`.
-- *[TODO]* `<h-datetime>`: Format dates and times with `Intl.DateTimeFormat`
-- *[TODO]* `<h-relative-time>`: Format dates and times with `Intl.RelativeTimeFormat`
+- _[TODO]_ `<h-datetime>`: Format dates and times with `Intl.DateTimeFormat`
+- _[TODO]_ `<h-relative-time>`: Format dates and times with `Intl.RelativeTimeFormat`
 
 ## Project Status
 
@@ -230,7 +232,7 @@ Because of Heximal expressions use a custom evaluator, they allow writing code
 in markup that is not controlled by Content Security Policy (CSP). This makes
 using Heximal in any context with user-generated or user-controlled content
 currently extremely unsafe. Sanitizers must be configured to only allow safe
-tags, not disallow tags, since Heximal introduces new  script-like tags like
+tags, not disallow tags, since Heximal introduces new script-like tags like
 `<h-out>`, `h-define-element>`, `<template h-auto>`, etc.
 
 It is possible to make Heximal secure. Work is planned to address security

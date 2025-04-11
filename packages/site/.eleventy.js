@@ -1,10 +1,24 @@
+import eleventyNavigationPlugin from '@11ty/eleventy-navigation';
+import syntaxHighlight from '@11ty/eleventy-plugin-syntaxhighlight';
+import slugify from '@sindresorhus/slugify';
+import markdownIt from 'markdown-it';
+import markdownItAnchor from 'markdown-it-anchor';
+import markdownItAttrs from 'markdown-it-attrs';
 import * as fs from 'node:fs';
 import * as pathlib from 'node:path';
 import {fileURLToPath} from 'node:url';
-import eleventyNavigationPlugin from '@11ty/eleventy-navigation';
-import syntaxHighlight from '@11ty/eleventy-plugin-syntaxhighlight';
 
 export default function (eleventyConfig) {
+  eleventyConfig.setLibrary(
+    'md',
+    markdownIt({html: true, breaks: false, linkify: true})
+      .use(markdownItAnchor, {
+        permalink: markdownItAnchor.permalink.headerLink(),
+        slugify,
+      })
+      .use(markdownItAttrs),
+  );
+
   eleventyConfig.addPlugin(eleventyNavigationPlugin);
   eleventyConfig.addPlugin(syntaxHighlight);
 
