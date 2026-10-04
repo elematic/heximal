@@ -12,10 +12,15 @@
 
 body {
   display: grid;
-  place-content: center;
-  padding: var(--size-7);
-  /* gap: var(--size-7); */
+  --gutter: minmax(var(--size-7), 1fr);
+  grid-template-columns: var(--gutter) [content-start] min(100% - var(--size-7) * 2, var(--size-content-3)) [content-end] var(--gutter);
+  padding-block: var(--size-7);
+  margin: 0;
   background-color: var(--surface-1);
+}
+
+main, footer {
+  grid-column: content;
 }
 
 header {
@@ -92,7 +97,7 @@ h4 {
 pre[class*='language-'] {
   background-color: var(--surface-2);
   margin: auto;
-  min-width: 60ch;
+  min-inline-size: min(100%, 60ch);
   border-radius: var(--radius-3);
 }
 
