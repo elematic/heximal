@@ -7,6 +7,7 @@ import * as ast from './ast.js';
 
 export interface AstFactory<E extends ast.Expression> {
   empty(): E;
+  getValue(receiver: Record<string, any>, name: string): any;
   literal(value: ast.LiteralValue): E;
   id(name: string): E;
   unary(operator: string, expression: E): E;
@@ -28,6 +29,10 @@ export interface AstFactory<E extends ast.Expression> {
 export class DefaultAstFactory implements AstFactory<ast.Expression> {
   empty(): ast.Empty {
     return {type: 'Empty'};
+  }
+
+  getValue(receiver: Record<string, any>, name: string) {
+    return receiver?.[name];
   }
 
   // TODO(justinfagnani): just use a JS literal?
