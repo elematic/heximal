@@ -7,105 +7,109 @@ import {
 } from '@heximal/element';
 import {HeximalSlideDeck} from './slide-deck.js';
 import {getPreviewDepth} from './slide-preview.js';
+import {radicaStyles} from './styles.js';
 
 @customElement('h-slide-filmstrip')
 export class HeximalSlideFilmstrip extends HeximalElement {
-  static override styles = css`
-    :host {
-      display: block;
-      width: 100%;
-      height: 100%;
-      background: #0f172a;
-      color: #f1f5f9;
-      font-family:
-        system-ui,
-        -apple-system,
-        sans-serif;
-      box-sizing: border-box;
-      overflow-y: auto;
-    }
+  static override styles = [
+    ...radicaStyles,
+    css`
+      :host {
+        display: block;
+        width: 100%;
+        height: 100%;
+        background: var(--rad-color-slate-900);
+        color: var(--rad-color-slate-100);
+        font-family: var(--rad-font-sans);
+        box-sizing: border-box;
+        overflow-y: auto;
+      }
 
-    #hidden-slot {
-      display: none;
-    }
+      #hidden-slot {
+        display: none;
+      }
 
-    #filmstrip-list {
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-      padding: 14px;
-      box-sizing: border-box;
-    }
+      #filmstrip-list {
+        min-height: 100%;
+        display: flex;
+        flex-direction: column;
+        gap: var(--rad-spacing-small);
+        padding: var(--rad-spacing-small);
+        background: var(--rad-surface);
+        color: var(--rad-on-surface);
+        box-sizing: border-box;
+      }
 
-    .filmstrip-item {
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-      padding: 8px;
-      border-radius: 8px;
-      background: #1e293b;
-      border: 2px solid transparent;
-      cursor: pointer;
-      transition:
-        border-color 0.15s ease,
-        background 0.15s ease;
-    }
+      .filmstrip-item {
+        display: flex;
+        flex-direction: column;
+        gap: var(--rad-spacing-2x-small);
+        padding: var(--rad-spacing-x-small);
+        border-radius: var(--rad-border-radius-medium);
+        background: var(--rad-surface-raised);
+        border: var(--rad-border-size-2) solid transparent;
+        cursor: pointer;
+        transition:
+          border-color 0.15s ease,
+          background 0.15s ease;
+      }
 
-    .filmstrip-item:hover {
-      border-color: #475569;
-      background: #26354d;
-    }
+      .filmstrip-item:hover {
+        border-color: var(--rad-neutral-stroke-moderate);
+        background: var(--rad-neutral-fill-soft);
+      }
 
-    .filmstrip-item.selected {
-      border-color: #3b82f6;
-      background: #1e3a8a33;
-    }
+      .filmstrip-item.selected {
+        border-color: var(--rad-primary-stroke-strong);
+        background: var(--rad-primary-fill-subtle);
+      }
 
-    .filmstrip-thumb-row {
-      display: flex;
-      align-items: flex-start;
-      gap: 8px;
-    }
+      .filmstrip-thumb-row {
+        display: flex;
+        align-items: flex-start;
+        gap: var(--rad-spacing-x-small);
+      }
 
-    .filmstrip-number {
-      flex: 0 0 22px;
-      font-size: 12px;
-      font-weight: 700;
-      color: #94a3b8;
-      font-variant-numeric: tabular-nums;
-      padding-top: 2px;
-      text-align: right;
-    }
+      .filmstrip-number {
+        flex: 0 0 22px;
+        font-size: var(--rad-font-size-2x-small);
+        font-weight: var(--rad-font-weight-bold);
+        color: var(--rad-on-surface-muted);
+        font-variant-numeric: tabular-nums;
+        padding-top: var(--rad-spacing-3x-small);
+        text-align: right;
+      }
 
-    .filmstrip-item.selected .filmstrip-number {
-      color: #60a5fa;
-    }
+      .filmstrip-item.selected .filmstrip-number {
+        color: var(--rad-primary-text-normal);
+      }
 
-    .filmstrip-preview {
-      flex: 1;
-      position: relative;
-      aspect-ratio: 16 / 9;
-      background: #090d16;
-      border-radius: 5px;
-      overflow: hidden;
-      border: 1px solid #334155;
-    }
+      .filmstrip-preview {
+        flex: 1;
+        position: relative;
+        aspect-ratio: 16 / 9;
+        background: var(--rad-surface-sunken);
+        border-radius: var(--rad-border-radius-x-small);
+        overflow: hidden;
+        border: var(--rad-border-size-1) solid var(--rad-neutral-stroke-subtle);
+      }
 
-    .filmstrip-title {
-      padding-left: 30px;
-      font-size: 12px;
-      font-weight: 500;
-      color: #cbd5e1;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
+      .filmstrip-title {
+        padding-left: var(--rad-spacing-x-large);
+        font-size: var(--rad-font-size-2x-small);
+        font-weight: var(--rad-font-weight-medium);
+        color: var(--rad-on-surface);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
 
-    .filmstrip-item.selected .filmstrip-title {
-      color: #fff;
-      font-weight: 600;
-    }
-  `;
+      .filmstrip-item.selected .filmstrip-title {
+        color: var(--rad-on-surface-raised);
+        font-weight: var(--rad-font-weight-semibold);
+      }
+    `,
+  ];
 
   @property({attribute: false})
   accessor externalDeck: HeximalSlideDeck | null = null;
@@ -144,7 +148,7 @@ export class HeximalSlideFilmstrip extends HeximalElement {
       <div id="hidden-slot">
         <slot @slotchange=${() => this.requestUpdate()}></slot>
       </div>
-      <div id="filmstrip-list">
+      <div id="filmstrip-list" class="rad-theme-dark">
         ${slides.map((slide, idx) => {
           const isSelected = idx === currentIndex;
           const title = slide.title || `Slide ${idx + 1}`;

@@ -10,26 +10,30 @@ import {TemplateFunction, prepareTemplate} from '@heximal/templates';
 import {getScope} from '@heximal/components';
 import {HeximalSlideDeck} from './slide-deck.js';
 import {HeximalSlideTheme} from './slide-theme.js';
+import {radicaStyles} from './styles.js';
 import {presentationTimer} from './timer.js';
 
 @customElement('h-slide')
 export class HeximalSlide extends HeximalElement {
-  static override styles = css`
-    :where(:host) {
-      display: block;
-      box-sizing: border-box;
-      width: 100%;
-      height: 100%;
-      margin: 0;
-      position: absolute;
-      top: 0;
-      left: 0;
-      overflow: hidden;
-    }
-    :host(:not([visible])) {
-      display: none;
-    }
-  `;
+  static override styles = [
+    ...radicaStyles,
+    css`
+      :where(:host) {
+        display: block;
+        box-sizing: border-box;
+        width: 100%;
+        height: 100%;
+        margin: 0;
+        position: absolute;
+        top: 0;
+        left: 0;
+        overflow: hidden;
+      }
+      :host(:not([visible])) {
+        display: none;
+      }
+    `,
+  ];
 
   @property({attribute: 'name', reflect: true})
   accessor name: string | undefined;

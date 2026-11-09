@@ -8,6 +8,7 @@ import {
 import {getScope} from '@heximal/components';
 import {HeximalSlide} from './slide.js';
 import {HeximalSlideTheme} from './slide-theme.js';
+import {radicaStyles} from './styles.js';
 import {PresentationTimer, presentationTimer} from './timer.js';
 
 export interface SlideChangeEventDetail {
@@ -18,43 +19,46 @@ export interface SlideChangeEventDetail {
 
 @customElement('h-slide-deck')
 export class HeximalSlideDeck extends HeximalElement {
-  static override styles = css`
-    :host {
-      display: flex;
-      position: relative;
-      width: 100%;
-      height: 100%;
-      min-height: 400px;
-      background-color: var(--h-slide-deck-bg, #111);
-      color: var(--h-slide-deck-color, #fff);
-      outline: none;
-      overflow: hidden;
-      align-items: center;
-      justify-content: center;
-      box-sizing: border-box;
-    }
+  static override styles = [
+    ...radicaStyles,
+    css`
+      :host {
+        display: flex;
+        position: relative;
+        width: 100%;
+        height: 100%;
+        min-height: 400px;
+        background-color: var(--h-slide-deck-bg, var(--rad-color-neutral-950));
+        color: var(--h-slide-deck-color, var(--rad-color-neutral-0));
+        outline: none;
+        overflow: hidden;
+        align-items: center;
+        justify-content: center;
+        box-sizing: border-box;
+      }
 
-    #stage {
-      position: relative;
-      width: calc(var(--h-slide-width, 1920) * 1px);
-      height: calc(var(--h-slide-height, 1080) * 1px);
-      transform: scale(var(--h-slide-scale, 1));
-      transform-origin: center center;
-      flex: 0 0 auto;
-      box-shadow: 0 0 24px rgba(0, 0, 0, 0.6);
-      background: #000;
-    }
+      #stage {
+        position: relative;
+        width: calc(var(--h-slide-width, 1920) * 1px);
+        height: calc(var(--h-slide-height, 1080) * 1px);
+        transform: scale(var(--h-slide-scale, 1));
+        transform-origin: center center;
+        flex: 0 0 auto;
+        box-shadow: var(--rad-shadow-6);
+        background: var(--rad-color-neutral-1000);
+      }
 
-    #progress {
-      position: absolute;
-      bottom: 0;
-      left: 0;
-      height: 3px;
-      background: var(--h-slide-accent, #3b82f6);
-      transition: width 0.2s ease;
-      z-index: 101;
-    }
-  `;
+      #progress {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        height: var(--rad-border-size-3);
+        background: var(--h-slide-accent, var(--rad-color-blue-500));
+        transition: width 0.2s ease;
+        z-index: 101;
+      }
+    `,
+  ];
 
   @property({attribute: 'aspect-ratio', reflect: true})
   accessor aspectRatio: string | undefined;

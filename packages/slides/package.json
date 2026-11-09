@@ -21,6 +21,9 @@
     "@heximal/element": "^0.1.5",
     "@heximal/templates": "^0.1.5",
     "@lit/task": "^1.0.3",
+    "@radica/base": "^0.0.4",
+    "@radica/bootstrap-icons": "^0.0.4",
+    "@radica/ui": "^0.0.4",
     "lit": "^3.3.3",
     "signal-polyfill": "^0.2.2",
     "signal-utils": "^0.21.1"

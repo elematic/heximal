@@ -6,7 +6,6 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <script type="module" src="../index.js"></script>
-    <script type="module" src="../../components/index.js"></script>
     <style>
       html,
       body {
@@ -26,74 +25,64 @@
              Theme & Layout Slides
              ================================================================ -->
         <h-slide-theme>
-          <!-- Base Layout: shared typography, code block styles, and footer -->
+          <!-- Base Layout: shared typography, code block styles, and footer layered on Radica -->
           <h-slide name="base">
             <template>
               <style>
                 :host {
-                  font-family:
-                    system-ui,
-                    -apple-system,
-                    BlinkMacSystemFont,
-                    'Segoe UI',
-                    Roboto,
-                    sans-serif;
-                  padding: 52px 72px 64px;
-                  color: #0f172a;
-                  background: #f8fafc;
+                  padding: var(--rad-spacing-3x-large)
+                    var(--rad-spacing-4x-large) var(--rad-size-10);
+                  color: var(--rad-on-surface);
+                  background: var(--rad-surface-sunken);
                   display: flex;
                   flex-direction: column;
                   justify-content: space-between;
-                }
-                * {
-                  box-sizing: border-box;
                 }
                 h1,
                 h2,
                 h3 {
                   margin: 0;
-                  letter-spacing: -0.02em;
+                  letter-spacing: var(--rad-letter-spacing-tight);
                 }
                 h2 {
-                  font-size: 2.65rem;
-                  font-weight: 800;
-                  color: #0f172a;
-                  margin-top: 6px;
+                  font-size: var(--rad-font-size-3x-large);
+                  font-weight: var(--rad-font-weight-8);
+                  color: var(--rad-text-heading);
+                  margin-top: var(--rad-spacing-2x-small);
                 }
                 p,
                 li {
-                  font-size: 1.4rem;
-                  line-height: 1.58;
-                  color: #334155;
+                  font-size: var(--rad-font-size-x-large);
+                  line-height: var(--rad-line-height-normal);
+                  color: var(--rad-text-body);
                 }
                 ul {
                   margin: 0;
-                  padding-left: 1.4rem;
+                  padding-left: var(--rad-spacing-large);
                 }
                 li + li {
-                  margin-top: 8px;
+                  margin-top: var(--rad-spacing-x-small);
                 }
                 code {
-                  font-family:
-                    ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
-                    monospace;
                   font-size: 0.9em;
-                  background: #e2e8f0;
-                  color: #0f172a;
-                  padding: 0.15em 0.4em;
-                  border-radius: 6px;
+                  background: var(--rad-neutral-fill-soft);
+                  color: var(--rad-neutral-text-emphasis);
+                  padding: var(--rad-spacing-3x-small)
+                    var(--rad-spacing-x-small);
+                  border-radius: var(--rad-border-radius-small);
                 }
                 pre {
                   margin: 0;
-                  padding: 26px 30px;
-                  background: #0f172a;
-                  color: #e2e8f0;
-                  border-radius: 16px;
-                  font-size: 1.18rem;
-                  line-height: 1.55;
+                  padding: var(--rad-spacing-x-large);
+                  background: var(--rad-color-slate-900);
+                  color: var(--rad-color-slate-200);
+                  border-radius: var(--rad-border-radius-x-large);
+                  font-size: var(--rad-font-size-large);
+                  line-height: var(--rad-line-height-normal);
                   overflow: auto;
-                  box-shadow: 0 10px 25px rgba(15, 23, 42, 0.15);
-                  border: 1px solid #1e293b;
+                  box-shadow: var(--rad-shadow-4);
+                  border: var(--rad-border-size-1) solid
+                    var(--rad-color-slate-800);
                 }
                 pre code {
                   background: transparent;
@@ -102,39 +91,29 @@
                   font-size: inherit;
                 }
                 .tag {
-                  color: #7dd3fc;
+                  color: var(--rad-color-sky-300);
                 }
                 .attr {
-                  color: #c4b5fd;
+                  color: var(--rad-color-violet-300);
                 }
                 .str {
-                  color: #86efac;
+                  color: var(--rad-color-green-300);
                 }
                 .expr {
-                  color: #fde047;
+                  color: var(--rad-color-yellow-300);
                 }
                 .comment {
-                  color: #64748b;
+                  color: var(--rad-color-slate-500);
                   font-style: italic;
                 }
-                .card {
-                  background: #ffffff;
-                  border: 1px solid #e2e8f0;
-                  border-radius: 16px;
-                  padding: 24px 28px;
-                  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.04);
-                }
-                .badge {
-                  display: inline-block;
-                  padding: 5px 14px;
-                  border-radius: 999px;
-                  font-size: 1.05rem;
-                  font-weight: 700;
-                  background: #dbeafe;
-                  color: #1d4ed8;
-                  font-family:
-                    ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
-                    monospace;
+                rad-card {
+                  --rad-card-padding: var(--rad-size-6)
+                    var(--rad-spacing-x-large);
+                  --rad-card-border-radius: var(--rad-border-radius-x-large);
+                  --rad-card-gap: var(--rad-spacing-small);
+                  --rad-card-background: var(--rad-surface-raised);
+                  --rad-card-border-color: var(--rad-neutral-stroke-subtle);
+                  --rad-card-shadow: var(--rad-shadow-2);
                 }
                 .slide-body {
                   flex: 1;
@@ -146,30 +125,29 @@
                   display: flex;
                   justify-content: space-between;
                   align-items: center;
-                  padding-top: 18px;
-                  border-top: 1px solid #e2e8f0;
-                  font-size: 1.05rem;
-                  color: #64748b;
+                  padding-top: var(--rad-spacing-medium);
+                  border-top: var(--rad-border-size-1) solid
+                    var(--rad-neutral-stroke-subtle);
+                  font-size: var(--rad-font-size-medium);
+                  color: var(--rad-on-surface-muted);
                 }
                 .footer-nav {
                   display: flex;
                   align-items: center;
-                  gap: 10px;
+                  gap: var(--rad-spacing-small);
                 }
                 .footer-link {
-                  color: #2563eb;
+                  color: var(--rad-primary-text-normal);
                   text-decoration: none;
-                  font-weight: 600;
-                  padding: 4px 10px;
-                  border-radius: 6px;
-                  background: #eff6ff;
-                  font-family:
-                    ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
-                    monospace;
-                  font-size: 0.95rem;
+                  font-weight: var(--rad-font-weight-semibold);
+                  padding: var(--rad-spacing-2x-small) var(--rad-spacing-small);
+                  border-radius: var(--rad-border-radius-small);
+                  background: var(--rad-primary-fill-subtle);
+                  font-family: var(--rad-font-mono);
+                  font-size: var(--rad-font-size-small);
                 }
                 .footer-link:hover {
-                  background: #dbeafe;
+                  background: var(--rad-primary-fill-soft);
                 }
               </style>
               <div class="slide-body">
@@ -195,11 +173,11 @@
                 :host {
                   background: linear-gradient(
                     135deg,
-                    #0f172a 0%,
-                    #1e3a8a 55%,
-                    #2563eb 100%
+                    var(--rad-color-slate-900) 0%,
+                    var(--rad-color-blue-900) 55%,
+                    var(--rad-color-blue-600) 100%
                   );
-                  color: #ffffff;
+                  color: var(--rad-color-neutral-0);
                 }
                 .title-wrap {
                   flex: 1;
@@ -208,15 +186,15 @@
                   justify-content: center;
                   align-items: center;
                   text-align: center;
-                  gap: 24px;
+                  gap: var(--rad-size-6);
                 }
                 .slide-footer {
                   border-top-color: rgba(255, 255, 255, 0.15);
-                  color: rgba(255, 255, 255, 0.7);
+                  color: var(--rad-color-blue-100);
                 }
                 .footer-link {
                   background: rgba(255, 255, 255, 0.12);
-                  color: #e0f2fe;
+                  color: var(--rad-color-sky-100);
                 }
                 .footer-link:hover {
                   background: rgba(255, 255, 255, 0.22);
@@ -233,20 +211,20 @@
             <template>
               <style>
                 .header {
-                  margin-bottom: 24px;
+                  margin-bottom: var(--rad-size-6);
                 }
                 .columns {
                   flex: 1;
                   display: grid;
                   grid-template-columns: 1fr 1.15fr;
-                  gap: 40px;
+                  gap: var(--rad-spacing-2x-large);
                   align-items: start;
                   min-height: 0;
                 }
                 .col {
                   display: flex;
                   flex-direction: column;
-                  gap: 18px;
+                  gap: var(--rad-spacing-medium);
                 }
               </style>
               <div class="header">
@@ -271,14 +249,14 @@
           <template>
             <style>
               h1 {
-                font-size: 6rem;
-                font-weight: 800;
-                letter-spacing: -0.03em;
-                color: #fff;
+                font-size: var(--rad-font-size-8);
+                font-weight: var(--rad-font-weight-8);
+                letter-spacing: var(--rad-letter-spacing-tighter);
+                color: var(--rad-color-neutral-0);
               }
               .subtitle {
-                font-size: 2.2rem;
-                color: #bfdbfe;
+                font-size: var(--rad-font-size-2x-large);
+                color: var(--rad-color-blue-200);
                 max-width: 1000px;
                 margin: 0;
               }
@@ -313,51 +291,51 @@
                 display: flex;
                 flex-direction: column;
                 align-items: center;
-                gap: 32px;
+                gap: var(--rad-spacing-x-large);
               }
               .intro-header {
                 display: flex;
                 flex-direction: column;
                 align-items: center;
-                gap: 14px;
+                gap: var(--rad-spacing-small);
                 max-width: 1280px;
               }
               h2 {
-                font-size: 3.4rem;
-                font-weight: 800;
-                letter-spacing: -0.02em;
-                color: #ffffff;
+                font-size: var(--rad-font-size-4x-large);
+                font-weight: var(--rad-font-weight-8);
+                letter-spacing: var(--rad-letter-spacing-tight);
+                color: var(--rad-color-neutral-0);
                 margin: 0;
               }
               .lead {
-                font-size: 1.6rem;
-                line-height: 1.5;
-                color: #dbeafe;
+                font-size: var(--rad-font-size-4);
+                line-height: var(--rad-line-height-normal);
+                color: var(--rad-color-blue-100);
                 margin: 0;
               }
               .lead code {
                 background: rgba(255, 255, 255, 0.14);
-                color: #ffffff;
-                padding: 3px 10px;
-                border-radius: 6px;
+                color: var(--rad-color-neutral-0);
+                padding: var(--rad-spacing-3x-small) var(--rad-spacing-x-small);
+                border-radius: var(--rad-border-radius-small);
               }
               .element-buttons {
                 width: 100%;
                 display: grid;
                 grid-template-columns: repeat(5, 1fr);
-                gap: 18px;
+                gap: var(--rad-spacing-medium);
               }
               a.el-btn {
                 display: flex;
                 flex-direction: column;
                 align-items: flex-start;
                 text-align: left;
-                gap: 10px;
-                padding: 24px 22px;
-                border-radius: 18px;
+                gap: var(--rad-spacing-x-small);
+                padding: var(--rad-size-6) var(--rad-spacing-large);
+                border-radius: var(--rad-border-radius-x-large);
                 background: rgba(255, 255, 255, 0.1);
-                border: 1px solid rgba(255, 255, 255, 0.24);
-                color: #ffffff;
+                border: var(--rad-border-size-1) solid rgba(255, 255, 255, 0.24);
+                color: var(--rad-color-neutral-0);
                 text-decoration: none;
                 backdrop-filter: blur(8px);
                 transition:
@@ -368,37 +346,35 @@
               }
               a.el-btn:hover {
                 background: rgba(255, 255, 255, 0.2);
-                border-color: #93c5fd;
+                border-color: var(--rad-color-blue-300);
                 transform: translateY(-4px);
-                box-shadow: 0 14px 28px rgba(0, 0, 0, 0.25);
+                box-shadow: var(--rad-shadow-5);
               }
               a.el-btn .el-tag {
-                font-family:
-                  ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
-                  monospace;
-                font-size: 1.38rem;
-                font-weight: 700;
-                color: #93c5fd;
+                font-family: var(--rad-font-mono);
+                font-size: var(--rad-font-size-x-large);
+                font-weight: var(--rad-font-weight-bold);
+                color: var(--rad-color-blue-300);
                 white-space: nowrap;
               }
               a.el-btn:hover .el-tag {
-                color: #ffffff;
+                color: var(--rad-color-neutral-0);
               }
               a.el-btn .el-desc {
-                font-size: 1.15rem;
-                line-height: 1.42;
-                color: #e0f2fe;
+                font-size: var(--rad-font-size-large);
+                line-height: var(--rad-line-height-snug);
+                color: var(--rad-color-sky-100);
               }
             </style>
             <div class="intro-wrap">
               <div class="intro-header">
                 <h2>What is Heximal Slides?</h2>
                 <p class="lead">
-                  Built on <code>@heximal/templates</code> and
-                  <code>@heximal/components</code>, Heximal Slides is a suite of
-                  declarative custom elements for authoring reactive
-                  presentations, reusable slide templates, and scoped signal
-                  state directly in HTML.
+                  Built on <code>@heximal/templates</code>,
+                  <code>@heximal/components</code>, and <code>@radica/ui</code>,
+                  Heximal Slides is a suite of declarative custom elements for
+                  authoring reactive presentations, reusable slide templates,
+                  and scoped signal state directly in HTML.
                 </p>
               </div>
 
@@ -480,9 +456,10 @@
           </template>
           <h-slide-notes>
             <p>
-              Heximal Slides is built on <code>@heximal/templates</code> and
-              <code>@heximal/components</code>. Click any of the 10 element
-              buttons to jump directly to its deep-dive slide.
+              Heximal Slides is built on <code>@heximal/templates</code>,
+              <code>@heximal/components</code>, and <code>@radica/ui</code>.
+              Click any of the 10 element buttons to jump directly to its
+              deep-dive slide.
             </p>
           </h-slide-notes>
         </h-slide>
@@ -500,7 +477,7 @@
               presentation. At its simplest, it wraps a standard HTML
               <code>&lt;template&gt;</code> with static markup and styles:
             </p>
-            <div class="card">
+            <rad-card>
               <ul>
                 <li>
                   <strong>Authored in a <code>&lt;template&gt;</code></strong
@@ -520,7 +497,7 @@
                   addressable via URL hash (<code>#welcome</code>).
                 </li>
               </ul>
-            </div>
+            </rad-card>
           </template>
           <template name="right">
             <pre><code><span class="comment">&lt;!-- A basic slide with static HTML &amp; scoped CSS --&gt;</span>
@@ -565,7 +542,7 @@
               slide, set <code>layout="..."</code> on
               <code>&lt;h-slide&gt;</code> to inherit from a layout slide:
             </p>
-            <div class="card">
+            <rad-card>
               <ul>
                 <li>
                   <strong>Default Content Block</strong>: Top-level markup in
@@ -587,7 +564,7 @@
                   automatically.
                 </li>
               </ul>
-            </div>
+            </rad-card>
           </template>
           <template name="right">
             <pre><code><span class="comment">&lt;!-- 1. Using a layout's default "content" block --&gt;</span>
@@ -636,7 +613,7 @@
               properties (<code>.prop</code>), boolean attributes
               (<code>?attr</code>), and events (<code>@event</code>):
             </p>
-            <div class="card">
+            <rad-card>
               <ul>
                 <li>
                   <strong>Built-In Deck &amp; Slide State</strong>: Every slide
@@ -652,26 +629,18 @@
                   <strong>Local Reactive Signals</strong>: Declare
                   <code>&lt;h-var&gt;</code> inside a slide (or section) and
                   bind to it in expressions:
-                  <div style="margin-top: 10px">
-                    <button
-                      style="
-                        padding: 8px 16px;
-                        font-size: 1.15rem;
-                        font-weight: 600;
-                        background: #2563eb;
-                        color: #fff;
-                        border: none;
-                        border-radius: 8px;
-                        cursor: pointer;
-                      "
+                  <div style="margin-top: var(--rad-spacing-x-small)">
+                    <rad-button
+                      variant="primary"
+                      size="large"
                       @click="{{ () => clicks = clicks + 1 }}"
                     >
                       Clicked {{ clicks }} {{ clicks == 1 ? 'time' : 'times' }}
-                    </button>
+                    </rad-button>
                   </div>
                 </li>
               </ul>
-            </div>
+            </rad-card>
           </template>
           <template name="right">
             <pre><code><span class="tag">&lt;h-slide</span> <span class="attr">layout</span>=<span class="str">"two-column"</span> <span class="attr">name</span>=<span class="str">"h-slide-expressions"</span><span class="tag">&gt;</span>
@@ -685,11 +654,14 @@
       (#<span class="expr">\{{ slide.name }}</span>)
     <span class="tag">&lt;/p&gt;</span>
 
-    <span class="comment">&lt;!-- Event binding &amp; reactive expression --&gt;</span>
-    <span class="tag">&lt;button</span> <span class="attr">@click</span>=<span class="str">"<span class="expr">\{{ () =&gt; clicks = clicks + 1 }}</span>"</span><span class="tag">&gt;</span>
+    <span class="comment">&lt;!-- Event binding &amp; reactive expression on &lt;rad-button&gt; --&gt;</span>
+    <span class="tag">&lt;rad-button</span>
+      <span class="attr">variant</span>=<span class="str">"primary"</span>
+      <span class="attr">@click</span>=<span class="str">"<span class="expr">\{{ () =&gt; clicks = clicks + 1 }}</span>"</span>
+    <span class="tag">&gt;</span>
       Clicked <span class="expr">\{{ clicks }}</span>
       <span class="expr">\{{ clicks == 1 ? 'time' : 'times' }}</span>
-    <span class="tag">&lt;/button&gt;</span>
+    <span class="tag">&lt;/rad-button&gt;</span>
   <span class="tag">&lt;/template&gt;</span>
 <span class="tag">&lt;/h-slide&gt;</span></code></pre>
           </template>
@@ -712,20 +684,20 @@
           <template name="left">
             <style>
               .build-item {
-                padding: 14px 20px;
-                border-radius: 10px;
-                background: #f8fafc;
-                border: 2px solid #e2e8f0;
-                font-size: 1.3rem;
-                margin-top: 10px;
+                padding: var(--rad-spacing-small) var(--rad-spacing-large);
+                border-radius: var(--rad-border-radius-medium);
+                background: var(--rad-surface-sunken);
+                border: var(--rad-border-size-2) solid
+                  var(--rad-neutral-stroke-subtle);
+                font-size: var(--rad-font-size-x-large);
                 transition:
                   opacity 0.25s ease,
                   transform 0.25s ease,
                   border-color 0.25s ease;
               }
               .build-item.active {
-                border-color: #2563eb;
-                background: #eff6ff;
+                border-color: var(--rad-primary-stroke-strong);
+                background: var(--rad-primary-fill-subtle);
               }
               .build-item.hidden {
                 opacity: 0.2;
@@ -738,8 +710,13 @@
               the reactive <code>step</code> and
               <code>stepCount</code> variables:
             </p>
-            <div class="card">
-              <div style="font-size: 1.25rem; color: #475569">
+            <rad-card>
+              <div
+                style="
+                  font-size: var(--rad-font-size-large);
+                  color: var(--rad-on-surface-muted);
+                "
+              >
                 Press <code>&rarr;</code> or <code>Space</code> to advance
                 builds (<strong>step {{ step }} of {{ stepCount }}</strong>):
               </div>
@@ -764,7 +741,7 @@
                 with <code>&larr;</code> decrements <code>step</code> in
                 reverse!
               </div>
-            </div>
+            </rad-card>
           </template>
           <template name="right">
             <pre><code><span class="tag">&lt;h-slide</span>
@@ -812,7 +789,7 @@
               that holds an entire presentation—all of its slides, sections, and
               themes:
             </p>
-            <div class="card">
+            <rad-card>
               <ul>
                 <li>
                   <strong>Fixed Coordinate Canvas</strong>: Renders at a fixed
@@ -834,7 +811,7 @@
                   <strong>{{ totalSlides }}</strong>.
                 </li>
               </ul>
-            </div>
+            </rad-card>
           </template>
           <template name="right">
             <pre><code><span class="tag">&lt;h-slide-deck</span>
@@ -854,9 +831,9 @@
   <span class="tag">&lt;h-slide</span> <span class="attr">name</span>=<span class="str">"summary"</span><span class="tag">&gt;</span>
     <span class="tag">&lt;template&gt;</span>
       <span class="tag">&lt;p&gt;</span>Slide <span class="expr">\{{ slideNumber }}</span> of <span class="expr">\{{ totalSlides }}</span><span class="tag">&lt;/p&gt;</span>
-      <span class="tag">&lt;button</span> <span class="attr">@click</span>=<span class="str">"<span class="expr">\{{ () =&gt; deck.gotoSlide('cover') }}</span>"</span><span class="tag">&gt;</span>
+      <span class="tag">&lt;rad-button</span> <span class="attr">@click</span>=<span class="str">"<span class="expr">\{{ () =&gt; deck.gotoSlide('cover') }}</span>"</span><span class="tag">&gt;</span>
         Restart Deck
-      <span class="tag">&lt;/button&gt;</span>
+      <span class="tag">&lt;/rad-button&gt;</span>
     <span class="tag">&lt;/template&gt;</span>
   <span class="tag">&lt;/h-slide&gt;</span>
 <span class="tag">&lt;/h-slide-deck&gt;</span></code></pre>
@@ -883,20 +860,22 @@
           <template name="left">
             <p>
               <code>&lt;h-slide-viewer&gt;</code> wraps an
-              <code>&lt;h-slide-deck&gt;</code> to provide presentation UI
-              controls without polluting the deck's own markup:
+              <code>&lt;h-slide-deck&gt;</code> to provide Radica-powered
+              presentation UI controls without polluting the deck's own markup:
             </p>
-            <div class="card">
+            <rad-card>
               <ul>
                 <li>
                   <strong>Floating Hover Pill</strong>: Unobtrusive pill in the
-                  bottom-right corner that appears on hover with Previous/Next
-                  buttons, slide counter, and fullscreen toggle.
+                  bottom-right corner using
+                  <code>&lt;rad-icon-button&gt;</code>,
+                  <code>&lt;rad-pill-button&gt;</code>, and
+                  <code>&lt;rad-divider&gt;</code>.
                 </li>
                 <li>
-                  <strong>Grid Overview Mode</strong>: Click
-                  <strong>Overview</strong> (or press <code>O</code>) to view
-                  thumbnails of all slides and jump to any slide.
+                  <strong>Grid Overview &amp; Filmstrip Drawer</strong>: Click
+                  <strong>Overview</strong> (or press <code>O</code>) or
+                  <strong>Filmstrip</strong> to browse and jump to any slide.
                 </li>
                 <li>
                   <strong>Presenter Launcher</strong>: Click
@@ -904,7 +883,7 @@
                   synchronized speaker window.
                 </li>
               </ul>
-            </div>
+            </rad-card>
           </template>
           <template name="right">
             <pre><code><span class="comment">&lt;!-- Wrap any &lt;h-slide-deck&gt; in &lt;h-slide-viewer&gt; --&gt;</span>
@@ -946,7 +925,7 @@
               <code>&lt;h-slide-theme&gt;</code> holds reusable layout slides
               that content slides inherit from via <code>layout="..."</code>:
             </p>
-            <div class="card">
+            <rad-card>
               <ul>
                 <li>
                   <strong>Layout Registry</strong>: Any
@@ -968,7 +947,7 @@
                   &rarr; <code>two-column</code> &rarr; this slide).
                 </li>
               </ul>
-            </div>
+            </rad-card>
           </template>
           <template name="right">
             <pre><code><span class="tag">&lt;h-slide-theme&gt;</span>
@@ -1021,31 +1000,19 @@
               <style>
                 .controls-row {
                   display: flex;
-                  gap: 10px;
+                  gap: var(--rad-spacing-small);
                   align-items: center;
-                  margin-top: 10px;
-                }
-                button.action-btn {
-                  padding: 10px 18px;
-                  font-size: 1.2rem;
-                  font-weight: 600;
-                  background: #2563eb;
-                  color: white;
-                  border: none;
-                  border-radius: 8px;
-                  cursor: pointer;
-                }
-                button.action-btn.secondary {
-                  background: #e2e8f0;
-                  color: #0f172a;
+                  margin-top: var(--rad-spacing-2x-small);
                 }
                 input.topic-input {
                   width: 100%;
-                  padding: 10px 14px;
-                  font-size: 1.25rem;
-                  border: 2px solid #cbd5e1;
-                  border-radius: 8px;
-                  margin-top: 6px;
+                  padding: var(--rad-spacing-small) var(--rad-spacing-medium);
+                  font-size: var(--rad-font-size-large);
+                  border: var(--rad-border-size-2) solid
+                    var(--rad-neutral-stroke-moderate);
+                  border-radius: var(--rad-border-radius-medium);
+                  background: var(--rad-surface);
+                  margin-top: var(--rad-spacing-2x-small);
                 }
               </style>
               <p>
@@ -1053,37 +1020,49 @@
                 establishes a lexical scope so <code>&lt;h-var&gt;</code>
                 state is shared reactively across all slides in the section:
               </p>
-              <div class="card">
-                <div style="font-size: 1.35rem">
+              <rad-card>
+                <div style="font-size: var(--rad-font-size-x-large)">
                   Section <code>counter</code> (<code>type="number"</code>):
-                  <strong style="font-size: 2rem; color: #2563eb"
+                  <strong
+                    style="
+                      font-size: var(--rad-font-size-2x-large);
+                      color: var(--rad-primary-text-normal);
+                    "
                     >{{ counter }}</strong
                   >
                   &middot; <code>counter &times; 10</code> =
                   <strong>{{ counter * 10 }}</strong>
                 </div>
                 <div class="controls-row">
-                  <button
-                    class="action-btn"
+                  <rad-button
+                    variant="primary"
+                    size="large"
                     @click="{{ () => counter = counter + 1 }}"
                   >
                     Increment (+1)
-                  </button>
-                  <button
-                    class="action-btn secondary"
+                  </rad-button>
+                  <rad-button
+                    variant="default"
+                    size="large"
                     @click="{{ () => counter = counter - 1 }}"
                   >
                     Decrement (-1)
-                  </button>
-                  <button
-                    class="action-btn secondary"
+                  </rad-button>
+                  <rad-button
+                    variant="default"
+                    size="large"
                     @click="{{ () => counter = 0 }}"
                   >
                     Reset
-                  </button>
+                  </rad-button>
                 </div>
-                <div style="margin-top: 16px">
-                  <label style="font-size: 1.25rem; font-weight: 600">
+                <div style="margin-top: var(--rad-spacing-x-small)">
+                  <label
+                    style="
+                      font-size: var(--rad-font-size-large);
+                      font-weight: var(--rad-font-weight-semibold);
+                    "
+                  >
                     Shared <code>topic</code>:
                     <input
                       class="topic-input"
@@ -1092,7 +1071,7 @@
                     />
                   </label>
                 </div>
-              </div>
+              </rad-card>
             </template>
             <template name="right">
               <pre><code><span class="tag">&lt;h-slide-section</span> <span class="attr">title</span>=<span class="str">"Scoped Sections"</span><span class="tag">&gt;</span>
@@ -1103,9 +1082,9 @@
   <span class="tag">&lt;h-slide</span> <span class="attr">name</span>=<span class="str">"h-slide-section"</span><span class="tag">&gt;</span>
     <span class="tag">&lt;template&gt;</span>
       <span class="tag">&lt;p&gt;</span>Counter: <span class="expr">\{{ counter }}</span><span class="tag">&lt;/p&gt;</span>
-      <span class="tag">&lt;button</span> <span class="attr">@click</span>=<span class="str">"<span class="expr">\{{ () =&gt; counter = counter + 1 }}</span>"</span><span class="tag">&gt;</span>
+      <span class="tag">&lt;rad-button</span> <span class="attr">@click</span>=<span class="str">"<span class="expr">\{{ () =&gt; counter = counter + 1 }}</span>"</span><span class="tag">&gt;</span>
         Increment (+1)
-      <span class="tag">&lt;/button&gt;</span>
+      <span class="tag">&lt;/rad-button&gt;</span>
       <span class="tag">&lt;input</span>
         <span class="attr">.value</span>=<span class="str">"<span class="expr">\{{ topic }}</span>"</span>
         <span class="attr">@input</span>=<span class="str">"<span class="expr">\{{ (e) =&gt; topic = e.target.value }}</span>"</span>
@@ -1142,23 +1121,9 @@
               <style>
                 .controls-row {
                   display: flex;
-                  gap: 10px;
+                  gap: var(--rad-spacing-small);
                   align-items: center;
-                  margin-top: 12px;
-                }
-                button.action-btn {
-                  padding: 10px 18px;
-                  font-size: 1.2rem;
-                  font-weight: 600;
-                  background: #2563eb;
-                  color: white;
-                  border: none;
-                  border-radius: 8px;
-                  cursor: pointer;
-                }
-                button.action-btn.secondary {
-                  background: #e2e8f0;
-                  color: #0f172a;
+                  margin-top: var(--rad-spacing-2x-small);
                 }
               </style>
               <p>
@@ -1166,41 +1131,53 @@
                 <code>&lt;h-slide-section&gt;</code>, so it shares the exact
                 same <code>counter</code> and <code>topic</code> signals:
               </p>
-              <div class="card">
-                <div style="font-size: 1.45rem; margin-bottom: 10px">
+              <rad-card>
+                <div style="font-size: var(--rad-font-size-x-large)">
                   Shared <code>topic</code>:
-                  <strong style="color: #1d4ed8">"{{ topic }}"</strong>
+                  <strong style="color: var(--rad-primary-text-emphasis)"
+                    >"{{ topic }}"</strong
+                  >
                 </div>
-                <div style="font-size: 1.45rem">
+                <div style="font-size: var(--rad-font-size-x-large)">
                   Shared <code>counter</code>:
-                  <strong style="font-size: 2rem; color: #2563eb"
+                  <strong
+                    style="
+                      font-size: var(--rad-font-size-2x-large);
+                      color: var(--rad-primary-text-normal);
+                    "
                     >{{ counter }}</strong
                   >
                   &middot; <code>counter &times; 10</code> =
                   <strong>{{ counter * 10 }}</strong>
                 </div>
                 <div class="controls-row">
-                  <button
-                    class="action-btn"
+                  <rad-button
+                    variant="primary"
+                    size="large"
                     @click="{{ () => counter = counter + 10 }}"
                   >
                     Add +10
-                  </button>
-                  <button
-                    class="action-btn secondary"
+                  </rad-button>
+                  <rad-button
+                    variant="default"
+                    size="large"
                     @click="{{ () => topic = 'Shared Section Signals!' }}"
                   >
                     Update Topic
-                  </button>
+                  </rad-button>
                   <a
                     class="footer-link"
                     href="#h-slide-section"
-                    style="padding: 10px 16px; font-size: 1.1rem"
+                    style="
+                      padding: var(--rad-spacing-x-small)
+                        var(--rad-spacing-medium);
+                      font-size: var(--rad-font-size-medium);
+                    "
                   >
                     &larr; Back to Slide 1 of Section
                   </a>
                 </div>
-              </div>
+              </rad-card>
             </template>
             <template name="right">
               <pre><code><span class="tag">&lt;h-slide-section</span> <span class="attr">title</span>=<span class="str">"Scoped Sections"</span><span class="tag">&gt;</span>
@@ -1216,9 +1193,9 @@
       <span class="tag">&lt;p&gt;</span>Shared topic: "<span class="expr">\{{ topic }}</span>"<span class="tag">&lt;/p&gt;</span>
       <span class="tag">&lt;p&gt;</span>Shared counter: <span class="expr">\{{ counter }}</span><span class="tag">&lt;/p&gt;</span>
 
-      <span class="tag">&lt;button</span> <span class="attr">@click</span>=<span class="str">"<span class="expr">\{{ () =&gt; counter = counter + 10 }}</span>"</span><span class="tag">&gt;</span>
+      <span class="tag">&lt;rad-button</span> <span class="attr">@click</span>=<span class="str">"<span class="expr">\{{ () =&gt; counter = counter + 10 }}</span>"</span><span class="tag">&gt;</span>
         Add +10
-      <span class="tag">&lt;/button&gt;</span>
+      <span class="tag">&lt;/rad-button&gt;</span>
     <span class="tag">&lt;/template&gt;</span>
   <span class="tag">&lt;/h-slide&gt;</span>
 <span class="tag">&lt;/h-slide-section&gt;</span></code></pre>
@@ -1247,79 +1224,74 @@
               speaker console with slide previews, notes, navigation buttons,
               and a global timer—embedded live on the right!
             </p>
-            <div class="card">
+            <rad-card>
               <div
                 style="
                   display: flex;
                   align-items: center;
                   justify-content: space-between;
-                  gap: 12px;
+                  gap: var(--rad-spacing-small);
                 "
               >
-                <span style="font-size: 1.25rem; font-weight: 600"
+                <span
+                  style="
+                    font-size: var(--rad-font-size-large);
+                    font-weight: var(--rad-font-weight-semibold);
+                  "
                   >Deck Timer:</span
                 >
-                <div style="display: flex; align-items: center; gap: 10px">
+                <div
+                  style="
+                    display: flex;
+                    align-items: center;
+                    gap: var(--rad-spacing-small);
+                  "
+                >
                   <strong
                     style="
-                      font-size: 1.55rem;
-                      color: #2563eb;
+                      font-size: var(--rad-font-size-x-large);
+                      color: var(--rad-primary-text-normal);
                       font-variant-numeric: tabular-nums;
                       min-width: 68px;
                     "
                     >⏱ {{ timer.formatted }}</strong
                   >
-                  <button
-                    style="
-                      padding: 6px 14px;
-                      font-size: 1.05rem;
-                      font-weight: 600;
-                      background: #2563eb;
-                      color: #fff;
-                      border: none;
-                      border-radius: 8px;
-                      cursor: pointer;
-                    "
+                  <rad-pill-button
+                    variant="{{ timer.running ? 'primary' : 'default' }}"
+                    size="medium"
                     @click="{{ () => timer.toggle() }}"
                   >
                     {{ timer.running ? '⏸ Pause' : '▶ Start' }}
-                  </button>
-                  <button
-                    style="
-                      padding: 6px 14px;
-                      font-size: 1.05rem;
-                      font-weight: 600;
-                      background: #e2e8f0;
-                      color: #0f172a;
-                      border: none;
-                      border-radius: 8px;
-                      cursor: pointer;
-                    "
+                  </rad-pill-button>
+                  <rad-pill-button
+                    variant="default"
+                    size="medium"
                     @click="{{ () => timer.reset() }}"
                   >
                     ↺ Reset
-                  </button>
+                  </rad-pill-button>
                 </div>
               </div>
-            </div>
+            </rad-card>
             <pre><code><span class="comment">&lt;!-- Embed directly or open via ?presenter=true --&gt;</span>
 <span class="tag">&lt;h-slide-presenter&gt;&lt;/h-slide-presenter&gt;</span>
 
 <span class="comment">&lt;!-- Bind to the global timer in any slide --&gt;</span>
 <span class="tag">&lt;span&gt;</span>⏱ <span class="expr">\{{ timer.formatted }}</span><span class="tag">&lt;/span&gt;</span>
-<span class="tag">&lt;button</span> <span class="attr">@click</span>=<span class="str">"<span class="expr">\{{ () =&gt; timer.toggle() }}</span>"</span><span class="tag">&gt;</span>
+<span class="tag">&lt;rad-pill-button</span> <span class="attr">@click</span>=<span class="str">"<span class="expr">\{{ () =&gt; timer.toggle() }}</span>"</span><span class="tag">&gt;</span>
   <span class="expr">\{{ timer.running ? 'Pause' : 'Start' }}</span>
-<span class="tag">&lt;/button&gt;</span></code></pre>
+<span class="tag">&lt;/rad-pill-button&gt;</span></code></pre>
           </template>
           <template name="right">
             <div
               style="
                 width: 100%;
                 height: 670px;
-                border-radius: 16px;
+                border-radius: var(--rad-border-radius-x-large);
                 overflow: hidden;
-                border: 2px solid #334155;
-                box-shadow: 0 16px 36px rgba(15, 23, 42, 0.25);
+                border: var(--rad-border-size-2) solid
+                  var(--rad-color-slate-700);
+                box-shadow: var(--rad-shadow-5);
               "
             >
               <h-slide-presenter></h-slide-presenter>
@@ -1352,7 +1324,7 @@
               slide while staying hidden (<code>display: none</code>) in the
               audience view:
             </p>
-            <div class="card">
+            <rad-card>
               <ul>
                 <li>
                   <strong>Rich HTML or Attribute</strong>: Use a child
@@ -1371,7 +1343,7 @@
                   or audience rendering.
                 </li>
               </ul>
-            </div>
+            </rad-card>
           </template>
           <template name="right">
             <pre><code><span class="comment">&lt;!-- Option 1: Rich HTML &lt;h-slide-notes&gt; child --&gt;</span>
@@ -1415,12 +1387,12 @@
               <code>&lt;h-slide-overview&gt;</code> renders an interactive grid
               of 16:9 slide thumbnails for jumping to any slide in the deck:
             </p>
-            <div class="card">
+            <rad-card>
               <ul>
                 <li>
                   <strong>Built into <code>&lt;h-slide-viewer&gt;</code></strong
                   >: Toggle with the <code>o</code> key or the
-                  <strong>▦ Overview</strong> toolbar button.
+                  <strong>Overview</strong> toolbar button.
                 </li>
                 <li>
                   <strong>Standalone Component</strong>: Embed
@@ -1428,7 +1400,7 @@
                   <code>@slide-selected</code>—like the live grid on the right!
                 </li>
               </ul>
-            </div>
+            </rad-card>
             <pre><code><span class="comment">&lt;!-- Embed a live overview grid anywhere --&gt;</span>
 <span class="tag">&lt;h-slide-overview&gt;&lt;/h-slide-overview&gt;</span></code></pre>
           </template>
@@ -1437,10 +1409,11 @@
               style="
                 width: 100%;
                 height: 670px;
-                border-radius: 16px;
+                border-radius: var(--rad-border-radius-x-large);
                 overflow: hidden;
-                border: 2px solid #334155;
-                box-shadow: 0 16px 36px rgba(15, 23, 42, 0.25);
+                border: var(--rad-border-size-2) solid
+                  var(--rad-color-slate-700);
+                box-shadow: var(--rad-shadow-5);
               "
             >
               <h-slide-overview></h-slide-overview>
@@ -1468,7 +1441,7 @@
               numbered slide thumbnails paired with each slide's extracted
               <code>slide.title</code>:
             </p>
-            <div class="card">
+            <rad-card>
               <ul>
                 <li>
                   <strong>Automatic Heading Extraction</strong>: Each slide
@@ -1483,7 +1456,7 @@
                   <code>&lt;h-slide-presenter&gt;</code>.
                 </li>
               </ul>
-            </div>
+            </rad-card>
             <pre><code><span class="comment">&lt;!-- Vertical filmstrip with slide previews &amp; titles --&gt;</span>
 <span class="tag">&lt;h-slide-filmstrip&gt;&lt;/h-slide-filmstrip&gt;</span></code></pre>
           </template>
@@ -1493,10 +1466,11 @@
                 width: 360px;
                 height: 670px;
                 margin: 0 auto;
-                border-radius: 16px;
+                border-radius: var(--rad-border-radius-x-large);
                 overflow: hidden;
-                border: 2px solid #334155;
-                box-shadow: 0 16px 36px rgba(15, 23, 42, 0.25);
+                border: var(--rad-border-size-2) solid
+                  var(--rad-color-slate-700);
+                box-shadow: var(--rad-shadow-5);
               "
             >
               <h-slide-filmstrip></h-slide-filmstrip>
@@ -1525,45 +1499,39 @@
               <code>&lt;h-slide&gt;</code> at a specific build
               <code>step</code>:
             </p>
-            <div class="card">
-              <p style="margin-top: 0; margin-bottom: 12px">
+            <rad-card>
+              <p style="margin: 0">
                 Previewing slide <strong>#{{ previewIdx + 1 }}</strong> (<code
                   >{{ deck.slides[previewIdx].title }}</code
                 >):
               </p>
-              <div style="display: flex; gap: 10px">
-                <button
-                  style="
-                    padding: 8px 16px;
-                    font-size: 1.1rem;
-                    font-weight: 600;
-                    background: #e2e8f0;
-                    color: #0f172a;
-                    border: none;
-                    border-radius: 8px;
-                    cursor: pointer;
-                  "
+              <div style="display: flex; gap: var(--rad-spacing-small)">
+                <rad-button
+                  variant="default"
+                  size="large"
                   @click="{{ () => previewIdx = previewIdx > 0 ? previewIdx - 1 : deck.length - 1 }}"
                 >
-                  ◀ Prev Preview
-                </button>
-                <button
-                  style="
-                    padding: 8px 16px;
-                    font-size: 1.1rem;
-                    font-weight: 600;
-                    background: #2563eb;
-                    color: #fff;
-                    border: none;
-                    border-radius: 8px;
-                    cursor: pointer;
-                  "
+                  <rad-icon
+                    slot="prefix"
+                    name="chevron-left"
+                    size="small"
+                  ></rad-icon>
+                  Prev Preview
+                </rad-button>
+                <rad-button
+                  variant="primary"
+                  size="large"
                   @click="{{ () => previewIdx = (previewIdx + 1) % deck.length }}"
                 >
-                  Next Preview ▶
-                </button>
+                  Next Preview
+                  <rad-icon
+                    slot="suffix"
+                    name="chevron-right"
+                    size="small"
+                  ></rad-icon>
+                </rad-button>
               </div>
-            </div>
+            </rad-card>
             <pre><code><span class="comment">&lt;!-- Render a scaled preview of any slide &amp; build step --&gt;</span>
 <span class="tag">&lt;h-slide-preview</span>
   <span class="attr">.slide</span>=<span class="str">"<span class="expr">\{{ deck.slides[previewIdx] }}</span>"</span>
@@ -1576,208 +1544,12 @@
                 position: relative;
                 width: 100%;
                 aspect-ratio: 16 / 9;
-                background: #090d16;
-                border-radius: 16px;
+                background: var(--rad-color-slate-950);
+                border-radius: var(--rad-border-radius-x-large);
                 overflow: hidden;
-                border: 2px solid #334155;
-                box-shadow: 0 16px 36px rgba(15, 23, 42, 0.25);
-              "
-            >
-              <h-slide-preview
-                .slide="{{ deck.slides[previewIdx] }}"
-                .step="{{ deck.slides[previewIdx].stepCount }}"
-              ></h-slide-preview>
-            </div>
-          </template>
-          <h-slide-notes>
-            <p>
-              <code>&lt;h-slide-preview&gt;</code> is the building block behind
-              <code>&lt;h-slide-presenter&gt;</code>,
-              <code>&lt;h-slide-overview&gt;</code>, and
-              <code>&lt;h-slide-filmstrip&gt;</code>. Use the buttons on the
-              slide to cycle through live previews of every slide in the deck!
-            </p>
-          </h-slide-notes>
-        </h-slide>
-
-        <!-- ================================================================
-             8. <h-slide-overview>
-             ================================================================ -->
-        <h-slide layout="two-column" name="h-slide-overview">
-          <template name="header">
-            <h2>&lt;h-slide-overview&gt;: Thumbnail Grid Overview</h2>
-          </template>
-          <template name="left">
-            <p>
-              <code>&lt;h-slide-overview&gt;</code> renders an interactive grid
-              of 16:9 slide thumbnails for jumping to any slide in the deck:
-            </p>
-            <div class="card">
-              <ul>
-                <li>
-                  <strong>Built into <code>&lt;h-slide-viewer&gt;</code></strong
-                  >: Toggle with the <code>o</code> key or the
-                  <strong>▦ Overview</strong> toolbar button.
-                </li>
-                <li>
-                  <strong>Standalone Component</strong>: Embed
-                  <code>&lt;h-slide-overview&gt;</code> anywhere and listen for
-                  <code>@slide-selected</code>—like the live grid on the right!
-                </li>
-              </ul>
-            </div>
-            <pre><code><span class="comment">&lt;!-- Embed a live overview grid anywhere --&gt;</span>
-<span class="tag">&lt;h-slide-overview&gt;&lt;/h-slide-overview&gt;</span></code></pre>
-          </template>
-          <template name="right">
-            <div
-              style="
-                width: 100%;
-                height: 670px;
-                border-radius: 16px;
-                overflow: hidden;
-                border: 2px solid #334155;
-                box-shadow: 0 16px 36px rgba(15, 23, 42, 0.25);
-              "
-            >
-              <h-slide-overview></h-slide-overview>
-            </div>
-          </template>
-          <h-slide-notes>
-            <p>
-              <code>&lt;h-slide-overview&gt;</code> renders live scaled
-              thumbnails of every slide in the deck. Click any thumbnail card on
-              the right to jump straight to that slide!
-            </p>
-          </h-slide-notes>
-        </h-slide>
-
-        <!-- ================================================================
-             9. <h-slide-filmstrip>
-             ================================================================ -->
-        <h-slide layout="two-column" name="h-slide-filmstrip">
-          <template name="header">
-            <h2>&lt;h-slide-filmstrip&gt;: Vertical Slide Filmstrip</h2>
-          </template>
-          <template name="left">
-            <p>
-              <code>&lt;h-slide-filmstrip&gt;</code> renders a vertical list of
-              numbered slide thumbnails paired with each slide's extracted
-              <code>slide.title</code>:
-            </p>
-            <div class="card">
-              <ul>
-                <li>
-                  <strong>Automatic Heading Extraction</strong>: Each slide
-                  extracts its <code>title</code> from the highest-ranked
-                  <code>&lt;h1&gt;</code>–<code>&lt;h6&gt;</code> in its
-                  template.
-                </li>
-                <li>
-                  <strong>Left Drawer Integration</strong>: Powers the slide-out
-                  filmstrip drawer in both
-                  <code>&lt;h-slide-viewer&gt;</code> and
-                  <code>&lt;h-slide-presenter&gt;</code>.
-                </li>
-              </ul>
-            </div>
-            <pre><code><span class="comment">&lt;!-- Vertical filmstrip with slide previews &amp; titles --&gt;</span>
-<span class="tag">&lt;h-slide-filmstrip&gt;&lt;/h-slide-filmstrip&gt;</span></code></pre>
-          </template>
-          <template name="right">
-            <div
-              style="
-                width: 360px;
-                height: 670px;
-                margin: 0 auto;
-                border-radius: 16px;
-                overflow: hidden;
-                border: 2px solid #334155;
-                box-shadow: 0 16px 36px rgba(15, 23, 42, 0.25);
-              "
-            >
-              <h-slide-filmstrip></h-slide-filmstrip>
-            </div>
-          </template>
-          <h-slide-notes>
-            <p>
-              <code>&lt;h-slide-filmstrip&gt;</code> pairs each slide's live
-              thumbnail with its automatically extracted heading title.
-            </p>
-          </h-slide-notes>
-        </h-slide>
-
-        <!-- ================================================================
-             10. <h-slide-preview>
-             ================================================================ -->
-        <h-slide layout="two-column" name="h-slide-preview">
-          <h-var name="previewIdx" type="number" value="0"></h-var>
-          <template name="header">
-            <h2>&lt;h-slide-preview&gt;: Live Scaled Slide Renderer</h2>
-          </template>
-          <template name="left">
-            <p>
-              <code>&lt;h-slide-preview&gt;</code> renders a live,
-              automatically-scaled preview of any
-              <code>&lt;h-slide&gt;</code> at a specific build
-              <code>step</code>:
-            </p>
-            <div class="card">
-              <p style="margin-top: 0; margin-bottom: 12px">
-                Previewing slide <strong>#{{ previewIdx + 1 }}</strong> (<code
-                  >{{ deck.slides[previewIdx].title }}</code
-                >):
-              </p>
-              <div style="display: flex; gap: 10px">
-                <button
-                  style="
-                    padding: 8px 16px;
-                    font-size: 1.1rem;
-                    font-weight: 600;
-                    background: #e2e8f0;
-                    color: #0f172a;
-                    border: none;
-                    border-radius: 8px;
-                    cursor: pointer;
-                  "
-                  @click="{{ () => previewIdx = previewIdx > 0 ? previewIdx - 1 : deck.length - 1 }}"
-                >
-                  ◀ Prev Preview
-                </button>
-                <button
-                  style="
-                    padding: 8px 16px;
-                    font-size: 1.1rem;
-                    font-weight: 600;
-                    background: #2563eb;
-                    color: #fff;
-                    border: none;
-                    border-radius: 8px;
-                    cursor: pointer;
-                  "
-                  @click="{{ () => previewIdx = (previewIdx + 1) % deck.length }}"
-                >
-                  Next Preview ▶
-                </button>
-              </div>
-            </div>
-            <pre><code><span class="comment">&lt;!-- Render a scaled preview of any slide &amp; build step --&gt;</span>
-<span class="tag">&lt;h-slide-preview</span>
-  <span class="attr">.slide</span>=<span class="str">"<span class="expr">\{{ deck.slides[previewIdx] }}</span>"</span>
-  <span class="attr">.step</span>=<span class="str">"<span class="expr">\{{ deck.slides[previewIdx].stepCount }}</span>"</span>
-<span class="tag">&gt;&lt;/h-slide-preview&gt;</span></code></pre>
-          </template>
-          <template name="right">
-            <div
-              style="
-                position: relative;
-                width: 100%;
-                aspect-ratio: 16 / 9;
-                background: #090d16;
-                border-radius: 16px;
-                overflow: hidden;
-                border: 2px solid #334155;
-                box-shadow: 0 16px 36px rgba(15, 23, 42, 0.25);
+                border: var(--rad-border-size-2) solid
+                  var(--rad-color-slate-700);
+                box-shadow: var(--rad-shadow-5);
               "
             >
               <h-slide-preview
