@@ -130,6 +130,10 @@ export class EvalAstFactory implements AstFactory<Expression> {
     };
   }
 
+  getValue(receiver: Record<string, any>, name: string) {
+    return receiver?.[name];
+  }
+
   // TODO(justinfagnani): just use a JS literal?
   literal(v: string): Literal {
     return {
@@ -145,13 +149,14 @@ export class EvalAstFactory implements AstFactory<Expression> {
   }
 
   id(v: string): ID {
+    const astFactoryInstance = this;
     return {
       type: 'ID',
       value: v,
       evaluate(scope) {
         // TODO(justinfagnani): this prevents access to properties named 'this'
         if (this.value === 'this') return scope;
-        return scope?.[this.value];
+        return astFactoryInstance.getValue(scope, this.value);
       },
       getIds(idents) {
         idents.push(this.value);
@@ -220,12 +225,14 @@ export class EvalAstFactory implements AstFactory<Expression> {
   }
 
   getter(g: Expression, n: string): Getter {
+    const astFactoryInstance = this;
+
     return {
       type: 'Getter',
       receiver: g,
       name: n,
       evaluate(scope) {
-        return this.receiver.evaluate(scope)?.[this.name];
+        return astFactoryInstance.getValue(this.receiver.evaluate(scope), this.name);
       },
       getIds(idents) {
         this.receiver.getIds(idents);
@@ -267,12 +274,14 @@ export class EvalAstFactory implements AstFactory<Expression> {
   }
 
   index(e: Expression, a: Expression): Index {
+    const astFactoryInstance = this;
+
     return {
       type: 'Index',
       receiver: e,
       argument: a,
       evaluate(scope) {
-        return this.receiver.evaluate(scope)?.[this.argument.evaluate(scope)];
+        return astFactoryInstance.getValue(this.receiver.evaluate(scope), this.argument.evaluate(scope));
       },
       getIds(idents) {
         this.receiver.getIds(idents);
