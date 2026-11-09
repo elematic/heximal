@@ -6,6 +6,7 @@ import {
   property,
 } from '@heximal/element';
 import {HeximalSlide} from './slide.js';
+import {radicaStyles} from './styles.js';
 
 export function getPreviewDepth(el: Element): number {
   let depth = 0;
@@ -31,24 +32,28 @@ export function getPreviewDepth(el: Element): number {
 
 @customElement('h-slide-preview')
 export class HeximalSlidePreview extends HeximalElement {
-  static override styles = css`
-    :where(:host) {
-      display: block;
-      box-sizing: border-box;
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      width: calc(var(--h-slide-width, 1920) * 1px);
-      height: calc(var(--h-slide-height, 1080) * 1px);
-      transform: translate(-50%, -50%) scale(var(--h-slide-preview-scale, 0.25));
-      transform-origin: center center;
-      overflow: hidden;
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.45);
-      background: #fff;
-      pointer-events: none;
-      user-select: none;
-    }
-  `;
+  static override styles = [
+    ...radicaStyles,
+    css`
+      :where(:host) {
+        display: block;
+        box-sizing: border-box;
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: calc(var(--h-slide-width, 1920) * 1px);
+        height: calc(var(--h-slide-height, 1080) * 1px);
+        transform: translate(-50%, -50%)
+          scale(var(--h-slide-preview-scale, 0.25));
+        transform-origin: center center;
+        overflow: hidden;
+        box-shadow: var(--rad-shadow-5);
+        background: var(--rad-surface);
+        pointer-events: none;
+        user-select: none;
+      }
+    `,
+  ];
 
   @property({attribute: false})
   accessor slide: HeximalSlide | null = null;

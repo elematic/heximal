@@ -6,187 +6,161 @@ import {
   nothing,
   property,
 } from '@heximal/element';
+import '@radica/bootstrap-icons/icons/arrows-fullscreen.svg.js';
+import '@radica/bootstrap-icons/icons/chevron-left.svg.js';
+import '@radica/bootstrap-icons/icons/chevron-right.svg.js';
+import '@radica/bootstrap-icons/icons/easel2.svg.js';
+import '@radica/bootstrap-icons/icons/grid-3x3-gap-fill.svg.js';
+import '@radica/bootstrap-icons/icons/layout-sidebar.svg.js';
+import '@radica/bootstrap-icons/icons/x-lg.svg.js';
+import '@radica/ui/components/divider/divider.js';
+import '@radica/ui/components/icon-button/icon-button.js';
+import '@radica/ui/components/icon/icon.js';
+import '@radica/ui/components/pill-button/pill-button.js';
 import {HeximalSlideDeck} from './slide-deck.js';
 import './slide-filmstrip.js';
 import './slide-overview.js';
 import './slide-presenter.js';
+import {radicaStyles} from './styles.js';
 
 @customElement('h-slide-viewer')
 export class HeximalSlideViewer extends HeximalElement {
-  static override styles = css`
-    :host {
-      display: flex;
-      flex-direction: column;
-      position: relative;
-      width: 100%;
-      height: 100%;
-      background: #0a0a0a;
-      color: #fff;
-      font-family:
-        system-ui,
-        -apple-system,
-        sans-serif;
-      overflow: hidden;
-      box-sizing: border-box;
-    }
+  static override styles = [
+    ...radicaStyles,
+    css`
+      :host {
+        display: flex;
+        flex-direction: column;
+        position: relative;
+        width: 100%;
+        height: 100%;
+        background: var(--rad-color-neutral-950);
+        color: var(--rad-color-neutral-0);
+        font-family: var(--rad-font-sans);
+        overflow: hidden;
+        box-sizing: border-box;
+      }
 
-    #deck-container {
-      flex: 1 1 auto;
-      display: flex;
-      position: relative;
-      overflow: hidden;
-      align-items: center;
-      justify-content: center;
-    }
+      #deck-container {
+        flex: 1 1 auto;
+        display: flex;
+        position: relative;
+        overflow: hidden;
+        align-items: center;
+        justify-content: center;
+      }
 
-    /* Left Filmstrip Drawer */
-    #drawer-backdrop {
-      position: absolute;
-      inset: 0;
-      background: rgba(2, 6, 23, 0.5);
-      backdrop-filter: blur(2px);
-      z-index: 160;
-    }
+      /* Left Filmstrip Drawer */
+      #drawer-backdrop {
+        position: absolute;
+        inset: 0;
+        background: var(--rad-overlay-background-color);
+        backdrop-filter: blur(2px);
+        z-index: 160;
+      }
 
-    #filmstrip-drawer {
-      position: absolute;
-      top: 0;
-      left: 0;
-      bottom: 0;
-      width: 280px;
-      max-width: 80%;
-      background: #0f172a;
-      border-right: 1px solid #334155;
-      box-shadow: 8px 0 28px rgba(0, 0, 0, 0.5);
-      display: flex;
-      flex-direction: column;
-      z-index: 170;
-      transform: translateX(-100%);
-      transition: transform 0.22s ease;
-    }
+      #filmstrip-drawer {
+        position: absolute;
+        top: 0;
+        left: 0;
+        bottom: 0;
+        width: 280px;
+        max-width: 80%;
+        background: var(--rad-surface);
+        color: var(--rad-on-surface);
+        border-right: var(--rad-border-size-1) solid
+          var(--rad-neutral-stroke-subtle);
+        box-shadow: var(--rad-shadow-5);
+        display: flex;
+        flex-direction: column;
+        z-index: 170;
+        transform: translateX(-100%);
+        transition: transform 0.22s ease;
+      }
 
-    #filmstrip-drawer.open {
-      transform: translateX(0);
-    }
+      #filmstrip-drawer.open {
+        transform: translateX(0);
+      }
 
-    .drawer-header {
-      flex: 0 0 42px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 0 14px;
-      background: #1e293b;
-      border-bottom: 1px solid #334155;
-      font-size: 13px;
-      font-weight: 700;
-      color: #e2e8f0;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-    }
+      .drawer-header {
+        flex: 0 0 42px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0 var(--rad-spacing-x-small) 0 var(--rad-spacing-small);
+        background: var(--rad-surface-raised);
+        border-bottom: var(--rad-border-size-1) solid
+          var(--rad-neutral-stroke-subtle);
+        font-size: var(--rad-font-size-x-small);
+        font-weight: var(--rad-font-weight-bold);
+        color: var(--rad-on-surface-raised);
+        text-transform: uppercase;
+        letter-spacing: var(--rad-letter-spacing-wider);
+      }
 
-    .drawer-close {
-      background: transparent;
-      border: none;
-      color: #94a3b8;
-      font-size: 15px;
-      cursor: pointer;
-      padding: 4px 8px;
-      border-radius: 6px;
-    }
+      #filmstrip-drawer h-slide-filmstrip {
+        flex: 1 1 auto;
+        min-height: 0;
+      }
 
-    .drawer-close:hover {
-      background: #334155;
-      color: #fff;
-    }
+      #toolbar-zone {
+        position: absolute;
+        bottom: 0;
+        right: 0;
+        padding: var(--rad-spacing-x-large) var(--rad-spacing-large)
+          var(--rad-spacing-medium) var(--rad-spacing-2x-large);
+        z-index: 200;
+      }
 
-    #filmstrip-drawer h-slide-filmstrip {
-      flex: 1 1 auto;
-      min-height: 0;
-    }
+      #toolbar {
+        display: flex;
+        align-items: center;
+        gap: var(--rad-spacing-2x-small);
+        padding: var(--rad-spacing-2x-small) var(--rad-spacing-small);
+        background: var(--rad-surface-overlay);
+        backdrop-filter: blur(12px);
+        border: var(--rad-border-size-1) solid var(--rad-neutral-stroke-subtle);
+        border-radius: var(--rad-border-radius-pill);
+        box-shadow: var(--rad-shadow-4);
+        opacity: 0;
+        transform: translateY(var(--rad-spacing-2x-small));
+        transition:
+          opacity 0.2s ease,
+          transform 0.2s ease;
+      }
 
-    #toolbar-zone {
-      position: absolute;
-      bottom: 0;
-      right: 0;
-      padding: 28px 20px 16px 32px;
-      z-index: 200;
-    }
+      #toolbar-zone:hover #toolbar,
+      #toolbar:focus-within,
+      #toolbar.visible {
+        opacity: 1;
+        transform: translateY(0);
+      }
 
-    #toolbar {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      padding: 6px 12px;
-      background: rgba(15, 23, 42, 0.82);
-      backdrop-filter: blur(12px);
-      border: 1px solid rgba(255, 255, 255, 0.16);
-      border-radius: 999px;
-      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
-      opacity: 0;
-      transform: translateY(4px);
-      transition:
-        opacity 0.2s ease,
-        transform 0.2s ease;
-    }
+      #toolbar rad-divider {
+        height: var(--rad-size-medium);
+        --spacing: var(--rad-spacing-2x-small);
+      }
 
-    #toolbar-zone:hover #toolbar,
-    #toolbar:focus-within,
-    #toolbar.visible {
-      opacity: 1;
-      transform: translateY(0);
-    }
+      #counter {
+        font-size: var(--rad-font-size-x-small);
+        font-variant-numeric: tabular-nums;
+        color: var(--rad-on-surface-overlay);
+        min-width: var(--rad-size-9);
+        text-align: center;
+        user-select: none;
+      }
 
-    .divider {
-      width: 1px;
-      height: 18px;
-      background: rgba(255, 255, 255, 0.18);
-      margin: 0 4px;
-    }
-
-    .btn {
-      background: transparent;
-      border: 1px solid transparent;
-      color: rgba(255, 255, 255, 0.92);
-      cursor: pointer;
-      padding: 5px 10px;
-      font-size: 13px;
-      font-weight: 500;
-      border-radius: 999px;
-      display: inline-flex;
-      align-items: center;
-      gap: 5px;
-      transition: all 0.15s ease;
-    }
-
-    .btn:hover {
-      background: rgba(255, 255, 255, 0.15);
-      color: #fff;
-    }
-
-    .btn.active {
-      background: #2563eb;
-      color: #fff;
-    }
-
-    #counter {
-      font-size: 13px;
-      font-variant-numeric: tabular-nums;
-      color: rgba(255, 255, 255, 0.85);
-      min-width: 48px;
-      text-align: center;
-      user-select: none;
-    }
-
-    /* Grid Overview Overlay */
-    h-slide-overview {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      z-index: 150;
-    }
-  `;
+      /* Grid Overview Overlay */
+      h-slide-overview {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: 150;
+      }
+    `,
+  ];
 
   @property({type: Boolean})
   accessor overview = false;
@@ -295,76 +269,93 @@ export class HeximalSlideViewer extends HeximalElement {
               ></div>`
             : nothing
         }
-        <aside id="filmstrip-drawer" class="${this.filmstrip ? 'open' : ''}">
+        <aside
+          id="filmstrip-drawer"
+          class="rad-theme-dark ${this.filmstrip ? 'open' : ''}"
+        >
           <div class="drawer-header">
             <span>Slides (${totalCount})</span>
-            <button
-              class="drawer-close"
+            <rad-icon-button
+              icon-name="x-lg"
+              size="small"
+              variant="text"
               @click=${() => this.toggleFilmstrip()}
               title="Close Filmstrip"
-            >
-              ✕
-            </button>
+            ></rad-icon-button>
           </div>
           <h-slide-filmstrip .externalDeck=${deck}></h-slide-filmstrip>
         </aside>
       </div>
 
-      <div id="toolbar-zone">
+      <div id="toolbar-zone" class="rad-theme-dark">
         <div
           id="toolbar"
           class="${this.overview || this.filmstrip ? 'visible' : ''}"
         >
-          <button
-            class="btn"
+          <rad-icon-button
+            icon-name="chevron-left"
+            size="small"
+            variant="text"
             @click=${() => deck?.previous()}
             title="Previous (Left Arrow)"
-          >
-            ◀
-          </button>
+          ></rad-icon-button>
           <span id="counter"
             >${
               totalCount > 0 ? `${currentIndex + 1} / ${totalCount}` : '0 / 0'
             }</span
           >
-          <button
-            class="btn"
+          <rad-icon-button
+            icon-name="chevron-right"
+            size="small"
+            variant="text"
             @click=${() => deck?.next()}
             title="Next (Right Arrow)"
-          >
-            ▶
-          </button>
+          ></rad-icon-button>
 
-          <span class="divider"></span>
+          <rad-divider vertical></rad-divider>
 
-          <button
-            class="btn ${this.filmstrip ? 'active' : ''}"
+          <rad-pill-button
+            size="small"
+            variant=${this.filmstrip ? 'primary' : 'text'}
             @click=${() => this.toggleFilmstrip()}
             title="Filmstrip Drawer"
           >
-            ▤ Filmstrip
-          </button>
-          <button
-            class="btn ${this.overview ? 'active' : ''}"
+            <rad-icon
+              slot="prefix"
+              name="layout-sidebar"
+              size="small"
+            ></rad-icon>
+            Filmstrip
+          </rad-pill-button>
+          <rad-pill-button
+            size="small"
+            variant=${this.overview ? 'primary' : 'text'}
             @click=${() => this.toggleOverview()}
             title="Grid Overview (o)"
           >
-            ▦ Overview
-          </button>
-          <button
-            class="btn"
+            <rad-icon
+              slot="prefix"
+              name="grid-3x3-gap-fill"
+              size="small"
+            ></rad-icon>
+            Overview
+          </rad-pill-button>
+          <rad-pill-button
+            size="small"
+            variant="text"
             @click=${() => this.openPresenter()}
             title="Presenter View"
           >
-            🖥 Presenter
-          </button>
-          <button
-            class="btn"
+            <rad-icon slot="prefix" name="easel2" size="small"></rad-icon>
+            Presenter
+          </rad-pill-button>
+          <rad-icon-button
+            icon-name="arrows-fullscreen"
+            size="small"
+            variant="text"
             @click=${() => this.toggleFullscreen()}
             title="Fullscreen (f)"
-          >
-            ⛶
-          </button>
+          ></rad-icon-button>
         </div>
       </div>
     `;

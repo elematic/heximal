@@ -1,9 +1,9 @@
-// import { fromRollup } from '@web/dev-server-rollup';
-// import {htmlModules} from 'rollup-plugin-html-modules';
-
 export default {
   open: true,
-  nodeResolve: true,
+  preserveSymlinks: true,
+  nodeResolve: {
+    preserveSymlinks: true,
+    exportConditions: ['development', 'browser'],
+  },
   appIndex: 'demo/index.html',
-  // plugins: [fromRollup(htmlModules)]
 };

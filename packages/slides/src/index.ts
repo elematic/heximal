@@ -1,3 +1,14 @@
+import '@heximal/components';
+import '@radica/ui/components/button/button.js';
+import '@radica/ui/components/callout/callout.js';
+import '@radica/ui/components/card/card.js';
+import '@radica/ui/components/chip/chip.js';
+import '@radica/ui/components/divider/divider.js';
+import '@radica/ui/components/icon-button/icon-button.js';
+import '@radica/ui/components/icon/icon.js';
+import '@radica/ui/components/pill-button/pill-button.js';
+
+export * from './lib/styles.js';
 export * from './lib/slide.js';
 export * from './lib/slide-deck.js';
 export * from './lib/slide-theme.js';
